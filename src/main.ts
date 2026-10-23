@@ -3,6 +3,7 @@ import { BootScene } from './scenes/boot';
 import { TitleScene } from './scenes/title';
 import { SubjectScene } from './scenes/subject';
 import { GameScene } from './scenes/game';
+import { ResultsScene } from './scenes/results';
 import { getMateria } from './scenes/shared';
 
 const game = new Phaser.Game({
@@ -15,7 +16,7 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BootScene, TitleScene, SubjectScene, GameScene]
+  scene: [BootScene, TitleScene, SubjectScene, GameScene, ResultsScene]
 });
 
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────

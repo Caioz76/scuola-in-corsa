@@ -40,17 +40,7 @@ export class GameScene extends Phaser.Scene {
         current = null;
       }
       if (index >= level.rounds.length) {
-        const banner = showBanner(
-          this,
-          cfg,
-          `Tappa completata: ${correct} su ${level.rounds.length}`,
-          null,
-          'ok'
-        );
-        this.time.delayedCall(2500, () => {
-          banner.dispose();
-          this.scene.start('Title');
-        });
+        this.scene.start('Results', { packId: pack.packId, levelId: level.id, correct, total: level.rounds.length });
         return;
       }
       const round: Round = level.rounds[index];
@@ -73,6 +63,11 @@ export class GameScene extends Phaser.Scene {
             'bad'
           );
           this.time.delayedCall(900, () => no.dispose());
+          // 3 errori: la prova rivela la risposta, poi si prosegue (mai bloccarsi)
+          if (attempts >= 3) {
+            index += 1;
+            this.time.delayedCall(2600, () => next());
+          }
         }
       });
     };
