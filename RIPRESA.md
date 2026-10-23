@@ -1,4 +1,4 @@
-# RIPRESA — stato al 23/10/2026, 23:10
+# RIPRESA — stato al 23/10/2026, 23:25
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -8,14 +8,14 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **31/31** |
-| `npx playwright test` | **8/8** |
-| Flusso in browser | `Boot → Title → Subject → Game → Results` |
+| `npm test` (vitest) | **32/32** |
+| `npx playwright test` | **9/9** |
+| Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`) |
 | Una tappa intera | giocata dal test e2e in **13,5 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva }` |
 
-Ultimo commit: **`aa0c2b3`** — “ordine: tocco distinto dal trascinamento”.
+Ultimo commit: **`1d4c4f5`** — “ui: il testo scala col bottone”.
 
 ## Com'è fatto il codice oggi
 
@@ -27,6 +27,9 @@ src/scenes/title.ts     titolo, "Gioca" → Subject
 src/scenes/subject.ts   4 materie → Game
 src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
 src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
+src/scenes/settings.ts  9 profili BES, salvataggio immediato
+src/core/settings.ts    loadSettings/saveSettings su localStorage
+src/challenges/hit.ts   geometria pura delle aree cliccabili
 ```
 
 ## I due difetti di input trovati stanotte (importante, non rifarli)
@@ -83,16 +86,16 @@ Misure: C7 **91 s** · pilota contenuti **113 s** · hook **77 s** · hit-area
 
 ## Prossimi passi, in ordine di valore
 
-1. **Stelle nella schermata materia** (in corso): mostrare `★ n / 3` sotto ogni
-   materia, lette da `starsFor`.
-2. **Pannello BES**: profili e interruttori; `src/bes/resolver.ts` è pronto,
-   manca la UI e il salvataggio delle impostazioni.
-3. **Audio**: `src/audio/synth.ts` esiste e viene già chiamato dalle prove
-   (`synth.play('correct')`); manca la verifica che l'`AudioContext` parta al
-   primo gesto e un interruttore per l'insegnante.
-4. **Contenuti**: pilota validato in `content/drafts/mat-7-9-l2.json`. Generare
-   gli altri pacchetti con le corsie, poi **revisione umana obbligatoria**.
-5. Integrare in `src/content/packs.ts` solo i pacchetti approvati.
+1. **Revisione umana dei due piloti** (`mat-7-9-l2`, `ita-8-10-l2`): è il
+   cancello. Senza approvazione i contenuti non entrano in `src/content/`.
+2. **Audio**: `src/audio/synth.ts` è già chiamato dalle prove; manca la prova
+   che l'`AudioContext` parta al primo gesto e un interruttore.
+3. **Scelta del livello**: `GameScene` usa `levels[0]`; con più tappe serve una
+   schermata di scelta.
+4. **Interruttori BES individuali**: oggi si scelgono i 9 profili; gli override
+   per singola regola sono previsti dal resolver ma non hanno UI.
+5. **Contenuti**: dopo l'approvazione, generare i pacchetti mancanti (2 minuti
+   l'uno con le corsie) e integrarli in `src/content/packs.ts`.
 
 ## Problemi noti (veri, non ipotetici)
 

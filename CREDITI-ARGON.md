@@ -15,3 +15,5 @@
 | 23/10 23:05 | **tap-drag**: tocco distinto dal trascinamento | `gemini-4-argon-high` | 26388 | 24825 | 1563 | 49387 | 66,1s | ok |
 | 23/10 23:13 | **BES store**: impostazioni persistenti, scene che le leggono | `gemini-4-argon-high` | 27097 | 24568 | 2529 | 62895 | 112,9s | ok |
 | 23/10 23:16 | **BES scena**: pannello con 9 profili | `gemini-4-argon-high` | 23083 | 21030 | 2053 | 41963 | 83,3s | ok |
+| 23/10 23:21 | **btn-scale**: il testo scala col bottone | `gemini-4-argon-high` | 25152 | 24325 | 827 | 47896 | 63,4s | ok |
+| 23/10 23:22 | **pilota italiano** 8-10 tappa 2 (6 round, validata) | `gemini-4-argon-high` | 30236 | 26474 | 3762 | 63684 | 110,9s | ok |
