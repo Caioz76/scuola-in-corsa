@@ -9,3 +9,5 @@ playwright-report/
 test-results/
 tmp-*.mjs
 *.log
+tools/.lanes/
+tools/.patches/
