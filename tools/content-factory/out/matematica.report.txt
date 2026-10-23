@@ -1,0 +1,12 @@
+# Report generazione — Matematica (mat-7-9)
+Generato: 2026-10-22T21:43:12.764Z
+Livelli: 0/1
+Round totali: 0
+
+Errori di validazione: 1
+  ❌ levels: nessun livello
+
+Avvisi: 0
+
+⚠️  REVISIONE MANUALE OBBLIGATORIA: verifica ogni prompt, distrattore
+    e correttezza didattica prima di embeddare in src/content/packs.ts.

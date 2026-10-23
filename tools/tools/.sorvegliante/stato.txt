@@ -1,0 +1,3 @@
+compito1=concluso
+compito2=inviato
+quando=23/10 01:03:55

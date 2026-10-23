@@ -1,0 +1,83 @@
+  ✅ dashboard scritta: /Users/caioz/scuola-in-corsa/dashboard.html
+  ┌──────────────────────────────────────────────────────┐
+  │  MODALITÀ WATCH — la dashboard si aggiorna da sola    │
+  │  Rigenero ogni 300 s. Apri dashboard.html nel browser.│
+  │  La pagina si ricarica ogni 30s e mostra i dati nuovi.│
+  │  Ctrl+C per uscire.                                   │
+  └──────────────────────────────────────────────────────┘
+  (intervallo lungo di proposito: ogni giro esegue i test e
+   occuperebbe la CPU del modello locale di B)
+
+  ✅ 01:12:22 — dashboard aggiornata
+  ✅ 01:17:37 — dashboard aggiornata
+  ✅ 01:22:52 — dashboard aggiornata
+  ✅ 01:28:06 — dashboard aggiornata
+  ✅ 01:33:21 — dashboard aggiornata
+  ✅ 01:38:36 — dashboard aggiornata
+  ✅ 01:43:50 — dashboard aggiornata
+  ✅ 01:49:05 — dashboard aggiornata
+  ✅ 01:54:20 — dashboard aggiornata
+  ✅ 01:59:34 — dashboard aggiornata
+  ✅ 02:04:49 — dashboard aggiornata
+  ✅ 02:10:02 — dashboard aggiornata
+  ✅ 02:15:16 — dashboard aggiornata
+  ✅ 02:20:30 — dashboard aggiornata
+  ✅ 02:25:44 — dashboard aggiornata
+  ✅ 02:30:58 — dashboard aggiornata
+  ✅ 02:36:12 — dashboard aggiornata
+  ✅ 02:41:25 — dashboard aggiornata
+  ✅ 02:46:39 — dashboard aggiornata
+  ✅ 02:51:53 — dashboard aggiornata
+  ✅ 02:57:07 — dashboard aggiornata
+  ✅ 03:02:20 — dashboard aggiornata
+  ✅ 03:07:34 — dashboard aggiornata
+  ✅ 03:12:48 — dashboard aggiornata
+  ✅ 03:18:02 — dashboard aggiornata
+  ✅ 03:23:16 — dashboard aggiornata
+  ✅ 03:28:30 — dashboard aggiornata
+  ✅ 03:33:44 — dashboard aggiornata
+  ✅ 03:38:58 — dashboard aggiornata
+  ✅ 03:44:12 — dashboard aggiornata
+  ✅ 03:49:26 — dashboard aggiornata
+  ✅ 03:54:40 — dashboard aggiornata
+  ✅ 03:59:54 — dashboard aggiornata
+  ✅ 04:05:08 — dashboard aggiornata
+  ✅ 04:10:23 — dashboard aggiornata
+  ✅ 04:15:36 — dashboard aggiornata
+  ✅ 04:20:50 — dashboard aggiornata
+  ✅ 04:26:04 — dashboard aggiornata
+  ✅ 04:31:18 — dashboard aggiornata
+  ✅ 04:36:31 — dashboard aggiornata
+  ✅ 04:41:45 — dashboard aggiornata
+  ✅ 04:46:59 — dashboard aggiornata
+  ✅ 04:52:12 — dashboard aggiornata
+  ✅ 04:57:27 — dashboard aggiornata
+  ✅ 05:02:41 — dashboard aggiornata
+  ✅ 05:07:54 — dashboard aggiornata
+  ✅ 05:13:08 — dashboard aggiornata
+  ✅ 05:18:21 — dashboard aggiornata
+  ✅ 05:23:36 — dashboard aggiornata
+  ✅ 05:28:50 — dashboard aggiornata
+  ✅ 05:34:03 — dashboard aggiornata
+  ✅ 05:39:17 — dashboard aggiornata
+  ✅ 05:44:32 — dashboard aggiornata
+  ✅ 05:49:46 — dashboard aggiornata
+  ✅ 05:55:00 — dashboard aggiornata
+  ✅ 06:00:15 — dashboard aggiornata
+  ✅ 06:05:29 — dashboard aggiornata
+  ✅ 06:10:43 — dashboard aggiornata
+  ✅ 06:15:57 — dashboard aggiornata
+  ✅ 06:21:11 — dashboard aggiornata
+  ✅ 06:26:24 — dashboard aggiornata
+  ✅ 06:31:39 — dashboard aggiornata
+  ✅ 06:36:53 — dashboard aggiornata
+  ✅ 06:42:07 — dashboard aggiornata
+  ✅ 06:47:20 — dashboard aggiornata
+  ✅ 06:52:34 — dashboard aggiornata
+  ✅ 06:57:48 — dashboard aggiornata
+  ✅ 07:03:02 — dashboard aggiornata
+  ✅ 07:08:16 — dashboard aggiornata
+  ✅ 07:13:30 — dashboard aggiornata
+  ✅ 07:18:44 — dashboard aggiornata
+  ✅ 07:23:57 — dashboard aggiornata
+  ✅ 07:29:11 — dashboard aggiornata

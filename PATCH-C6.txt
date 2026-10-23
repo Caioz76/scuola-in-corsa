@@ -1,0 +1,110 @@
+PATCH-C6 — scelta della materia: Title → Subject (4 sostituzioni esatte).
+
+CONTESTO: ora il bottone `Gioca` mostra solo un banner "In arrivo!". Questo
+compito crea `SubjectScene` dentro `src/main.ts` (niente file nuovi) con 4
+bottoni: Matematica, Italiano, Scienze, Storia. Al tocco la materia viene
+registrata nel gancio `window.__GIOCO__.materia`, che oggi è fisso a `null`.
+
+REGOLE:
+- Applica SOLO le 4 sostituzioni elencate, con lo strumento `edit`.
+- NON leggere file interi. NON toccare `tests/`. NON creare file nuovi.
+- L'indentazione e i caratteri (—, →, apostrofi, backtick) fanno parte della
+  stringa: copiali identici.
+- Se una sostituzione non viene trovata, fermati e scrivi quale: non improvvisare.
+
+════════════════════════════════════════════════════════════════
+FILE UNICO: src/main.ts
+════════════════════════════════════════════════════════════════
+
+1) il bottone Gioca porta alla scelta materia
+oldString:
+    const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', { depth: 10 });
+    gioca.onTap(() => {
+      const banner = showBanner(this, cfg, 'In arrivo!', 'La scelta della materia è il prossimo passo.', 'ok');
+      this.time.delayedCall(1800, () => banner.dispose());
+    });
+newString:
+    const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', { depth: 10 });
+    gioca.onTap(() => this.scene.start('Subject'));
+
+2) aggiungi SubjectScene prima della creazione del gioco
+oldString:
+const game = new Phaser.Game({
+newString:
+type Materia = 'matematica' | 'italiano' | 'scienze' | 'storia';
+
+class SubjectScene extends Phaser.Scene {
+  constructor() {
+    super('Subject');
+  }
+
+  create(): void {
+    const cfg = resolveConfig(DEFAULT_SETTINGS);
+    const w = this.scale.gameSize.width;
+    const h = this.scale.gameSize.height;
+
+    makeText(this, w / 2, 90, 'Scegli la materia', cfg, {
+      size: 38,
+      bold: true,
+      color: '#ffd93d',
+      outline: true
+    });
+
+    const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
+      { id: 'matematica', label: 'Matematica', x: w / 2 - 190, y: h / 2 - 40 },
+      { id: 'italiano', label: 'Italiano', x: w / 2 + 190, y: h / 2 - 40 },
+      { id: 'scienze', label: 'Scienze', x: w / 2 - 190, y: h / 2 + 80 },
+      { id: 'storia', label: 'Storia', x: w / 2 + 190, y: h / 2 + 80 }
+    ];
+
+    for (const v of voci) {
+      const b = makeButton(this, cfg, v.x, v.y, v.label, { depth: 10 });
+      b.onTap(() => {
+        setMateria(v.id);
+        const banner = showBanner(this, cfg, `${v.label} scelta!`, 'La partita arriva nel prossimo passo.', 'ok');
+        this.time.delayedCall(1500, () => banner.dispose());
+      });
+    }
+  }
+}
+
+const game = new Phaser.Game({
+
+3) registra la scena nel gioco
+oldString:
+  scene: [BootScene, TitleScene]
+});
+newString:
+  scene: [BootScene, TitleScene, SubjectScene]
+});
+
+4) rendi `materia` una proprietà viva (oggi è fissa a null)
+oldString:
+g.__GIOCO__ = {
+  get scena(): string {
+    return game.scene.getScenes(true)[0]?.scene.key ?? 'Boot';
+  },
+  materia: null
+};
+newString:
+let materiaAttiva: Materia | null = null;
+
+g.__GIOCO__ = {
+  get scena(): string {
+    return game.scene.getScenes(true)[0]?.scene.key ?? 'Boot';
+  },
+  get materia(): string | null {
+    return materiaAttiva;
+  }
+};
+
+/** Chiamata dalla scena di scelta materia: aggiorna subito ciò che leggono i test. */
+export function setMateria(m: Materia): void {
+  materiaAttiva = m;
+}
+
+════════════════════════════════════════════════════════════════
+FINE. Verifica:
+  npx tsc --noEmit 2>&1 | grep -c "error TS"     → deve dire 0
+  npm test 2>&1 | grep -E "Tests"                → deve dire 26 passed
+Riporta solo: numero errori tsc, esito test. Non eseguire i test e2e.

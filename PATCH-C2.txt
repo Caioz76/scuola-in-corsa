@@ -1,0 +1,128 @@
+PATCH-C2 — ultimi 3 errori tsc (tutti in ui.ts), 13 sostituzioni esatte.
+
+PREREQUISITO: PATCH-C1 deve essere già applicata (ui.ts deve iniziare con
+`import Phaser from 'phaser';`). Se non lo è, FERMATI e segnalalo.
+
+REGOLE (importanti):
+- Applica SOLO le sostituzioni elencate, con lo strumento `edit`.
+- NON leggere file interi. Se una sostituzione non viene trovata, fermati e scrivi quale: non improvvisare.
+- L'indentazione e la punteggiatura fanno parte della stringa: vanno copiate identiche.
+- Due sostituzioni valgono per PIÙ occorrenze: usa `replaceAll` (indicato).
+- Non toccare `tools/`. Non modificare altri file. Non eseguire npm install.
+
+Alla fine esegui:  npx tsc --noEmit 2>&1 | grep -c "error TS"
+Atteso: 0. Se è diverso, riporta il numero e gli errori.
+
+════════════════════════════════════════════════════════════════
+FILE UNICO: src/challenges/ui.ts
+════════════════════════════════════════════════════════════════
+
+1) interfaccia Btn — root diventa Container
+oldString:
+export interface Btn {
+  root: Phaser.GameObjects.Sprite;
+newString:
+export interface Btn {
+  root: Phaser.GameObjects.Container;
+
+2) makeButton — lo sprite figlio va a (0,0)
+oldString:
+  const sprite = scene.add.sprite(x, y, 'btn-blue').setScale(s);
+newString:
+  const sprite = scene.add.sprite(0, 0, 'btn-blue').setScale(s);
+
+3) makeButton — il root diventa il Container
+oldString:
+  sprite.add(text);
+  sprite.setDepth(o.depth ?? 10);
+newString:
+  const root = scene.add.container(x, y, [sprite, text]);
+  root.setDepth(o.depth ?? 10);
+
+4) interfaccia Chip — root diventa Container
+oldString:
+export interface Chip {
+  root: Phaser.GameObjects.Sprite;
+newString:
+export interface Chip {
+  root: Phaser.GameObjects.Container;
+
+5) makeChip — lo sprite figlio va a (0,0)
+oldString:
+  const sprite = scene.add.sprite(x, y, 'card').setScale(s);
+newString:
+  const sprite = scene.add.sprite(0, 0, 'card').setScale(s);
+
+6) makeChip — il root diventa il Container
+oldString:
+  sprite.add(text);
+  sprite.setDepth(o.depth ?? 20);
+newString:
+  const root = scene.add.container(x, y, [sprite, text]);
+  root.setDepth(o.depth ?? 20);
+
+7) makeSlot — lo sprite figlio va a (0,0)
+oldString:
+  const sprite = scene.add.sprite(x, y, 'slot').setScale(s);
+newString:
+  const sprite = scene.add.sprite(0, 0, 'slot').setScale(s);
+
+8) makeSlot — il root diventa il Container
+oldString:
+  sprite.add(num);
+  sprite.setDepth(5);
+newString:
+  const root = scene.add.container(x, y, [sprite, num]);
+  root.setDepth(5);
+
+9) makeSlot — tipo di ritorno
+oldString:
+): { root: Phaser.GameObjects.Sprite; dispose(): void } {
+newString:
+): { root: Phaser.GameObjects.Container; dispose(): void } {
+
+10) ritorno dei tre factory — 3 occorrenze (usa replaceAll)
+oldString:
+    root: sprite,
+newString:
+    root,
+
+11) dispose di makeButton E makeChip — 2 occorrenze identiche (usa replaceAll)
+oldString (9 righe... in realtà 5):
+    dispose(): void {
+      sprite.removeAllListeners();
+      text.destroy();
+      sprite.destroy();
+    }
+newString:
+    dispose(): void {
+      sprite.removeAllListeners();
+      root.destroy();
+    }
+
+12) dispose di makeSlot
+oldString:
+    dispose(): void {
+      num.destroy();
+      sprite.destroy();
+    }
+newString:
+    dispose(): void {
+      root.destroy();
+    }
+
+════════════════════════════════════════════════════════════════
+FILE: src/challenges/order.ts  (1 sostituzione)
+════════════════════════════════════════════════════════════════
+
+13) il tipo di slotRoots segue makeSlot
+oldString:
+  private slotRoots: { root: Phaser.GameObjects.Sprite; dispose(): void }[] = [];
+newString:
+  private slotRoots: { root: Phaser.GameObjects.Container; dispose(): void }[] = [];
+
+════════════════════════════════════════════════════════════════
+FINE. Verifica:
+  npx tsc --noEmit 2>&1 | grep -c "error TS"     → deve dire 0
+  npm test 2>&1 | grep -E "Tests"                → deve dire 26 passed
+Riporta solo: numero errori tsc, esito test.

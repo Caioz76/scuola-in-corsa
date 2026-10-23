@@ -1,0 +1,61 @@
+PATCH-C7 — leggibilità: la domanda è quasi invisibile (3 sostituzioni esatte).
+
+CONTESTO: collaudo in browser reale. La domanda delle prove viene disegnata con
+il colore di default `#20222f` (grigio scuro) sopra lo sfondo scuro `#1a1c2c`:
+si legge a fatica. Le tre prove (scelta, ordine, abbinamento) hanno lo stesso
+difetto. Il fix è una riga per file: colore bianco (l'outline chiaro resta).
+
+REGOLE:
+- Applica SOLO le 3 sostituzioni elencate, con lo strumento `edit`.
+- NON leggere file interi. NON toccare `tests/`. NON toccare altri file.
+- L'indentazione fa parte della stringa: copiala identica.
+- Se una sostituzione non viene trovata, fermati e scrivi quale: non improvvisare.
+
+════════════════════════════════════════════════════════════════
+3 FILE — stessa sostituzione in ognuno
+════════════════════════════════════════════════════════════════
+
+1) src/challenges/choice.ts
+oldString:
+      size: 26,
+      bold: true,
+      wrap: 800,
+      outline: true
+newString:
+      size: 26,
+      bold: true,
+      color: '#ffffff',
+      wrap: 800,
+      outline: true
+
+2) src/challenges/order.ts
+oldString:
+      size: 26,
+      bold: true,
+      wrap: 800,
+      outline: true
+newString:
+      size: 26,
+      bold: true,
+      color: '#ffffff',
+      wrap: 800,
+      outline: true
+
+3) src/challenges/match.ts
+oldString:
+      size: 26,
+      bold: true,
+      wrap: 800,
+      outline: true
+newString:
+      size: 26,
+      bold: true,
+      color: '#ffffff',
+      wrap: 800,
+      outline: true
+
+════════════════════════════════════════════════════════════════
+FINE. Verifica:
+  npx tsc --noEmit 2>&1 | grep -c "error TS"     → deve dire 0
+  npm test 2>&1 | grep -E "Tests"                → deve dire 26 passed
+Riporta solo: numero errori tsc, esito test. Non eseguire i test e2e.

@@ -1,0 +1,215 @@
+/**
+ * Texture procedurali stile Flash 8/AS3: pulsanti glossy, pannello,
+ * terra, bandiera checkpoint, stella, cuore. Tutto Canvas 2D, zero asset.
+ */
+import type Phaser from 'phaser';
+import { C } from './palette';
+import { ICON_IDS, ICON_PAINTERS } from './icons';
+
+type Ctx = CanvasRenderingContext2D;
+
+function lgrad(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, stops: [number, string][]): CanvasGradient {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  for (const [o, c] of stops) g.addColorStop(o, c);
+  return g;
+}
+
+/** Bottone glossy: bordo scuro, corpo in gradiente, riflesso in alto. */
+function button(ctx: Ctx, w: number, h: number, base: string, dark: string, light: string): void {
+  ctx.fillStyle = dark;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 4, h / 2.1); ctx.fill();
+  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 4, [[0, light], [0.55, base], [1, base]]);
+  ctx.beginPath(); ctx.roundRect(6, 6, w - 12, h - 12, h / 2.5); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.34)';
+  ctx.beginPath(); ctx.roundRect(12, 10, w - 24, h * 0.32, h / 3); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,0.14)';
+  ctx.beginPath(); ctx.roundRect(12, h - 15, w - 24, 7, 3.5); ctx.fill();
+}
+
+/** Pannello scuro con bordo, header e fondo in gradiente. */
+function panel(ctx: Ctx, w: number, h: number): void {
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.roundRect(3, 3, w - 6, h - 6, 20); ctx.fill();
+  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h, [[0, '#3a4170'], [1, C.panel]]);
+  ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 15); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(16, 14, w - 32, 36, 11); ctx.fill();
+}
+
+function star(ctx: Ctx, s: number): void {
+  const u = s / 48;
+  ctx.fillStyle = '#e8b71e';
+  const pts: [number, number][] = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? 21 : 9;
+    const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+    pts.push([24 + Math.cos(a) * r, 24 + Math.sin(a) * r]);
+  }
+  ctx.beginPath(); ctx.moveTo(pts[0][0] * u, pts[0][1] * u);
+  for (let i = 1; i < 10; i++) ctx.lineTo(pts[i][0] * u, pts[i][1] * u);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffd93d';
+  const pts2: [number, number][] = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? 16 : 7;
+    const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+    pts2.push([23 + Math.cos(a) * r, 23 + Math.sin(a) * r]);
+  }
+  ctx.beginPath(); ctx.moveTo(pts2[0][0] * u, pts2[0][1] * u);
+  for (let i = 1; i < 10; i++) ctx.lineTo(pts2[i][0] * u, pts2[i][1] * u);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath(); ctx.arc(19 * u, 18 * u, 3 * u, 0, 7); ctx.fill();
+}
+
+function heart(ctx: Ctx, s: number): void {
+  const u = s / 48;
+  ctx.fillStyle = '#d64242';
+  ctx.beginPath();
+  ctx.moveTo(24*u, 42*u);
+  ctx.bezierCurveTo(6*u, 30*u, 7*u, 10*u, 20*u, 11*u);
+  ctx.quadraticCurveTo(24*u, 12*u, 24*u, 17*u);
+  ctx.quadraticCurveTo(24*u, 12*u, 28*u, 11*u);
+  ctx.bezierCurveTo(41*u, 10*u, 42*u, 30*u, 24*u, 42*u);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ff5d5d';
+  ctx.beginPath();
+  ctx.moveTo(24*u, 38*u);
+  ctx.bezierCurveTo(9*u, 27*u, 10*u, 11*u, 20*u, 12*u);
+  ctx.quadraticCurveTo(24*u, 13*u, 24*u, 17*u);
+  ctx.quadraticCurveTo(24*u, 13*u, 28*u, 12*u);
+  ctx.bezierCurveTo(38*u, 11*u, 39*u, 27*u, 24*u, 38*u);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath(); ctx.ellipse(17*u, 19*u, 3.4*u, 2.2*u, -0.6, 0, 7); ctx.fill();
+}
+
+function flag(ctx: Ctx, w: number, h: number): void {
+  // base
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.roundRect(26, h - 14, 20, 12, 4); ctx.fill();
+  ctx.fillStyle = C.grayDeep;
+  ctx.beginPath(); ctx.roundRect(30, h - 18, 12, 10, 3); ctx.fill();
+  // asta
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.roundRect(33, 6, 6, h - 22, 3); ctx.fill();
+  ctx.fillStyle = C.gray;
+  ctx.beginPath(); ctx.arc(36, 6, 5, 0, 7); ctx.fill();
+  // bandiera
+  ctx.fillStyle = C.redDeep;
+  ctx.beginPath();
+  ctx.moveTo(39, 10); ctx.lineTo(68, 18); ctx.lineTo(39, 28); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = C.red;
+  ctx.beginPath();
+  ctx.moveTo(39, 12); ctx.lineTo(64, 18); ctx.lineTo(39, 25); ctx.closePath(); ctx.fill();
+}
+
+/** Tile di terra tileabile (bordi piatto = si ripete senza cuciture). */
+function ground(ctx: Ctx, w: number, h: number): void {
+  // terra
+  ctx.fillStyle = lgrad(ctx, 0, 24, 0, h, [[0, '#a9743f'], [1, '#7c5128']]);
+  ctx.fillRect(0, 24, w, h - 24);
+  // chiazze terra
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  for (const [x, y, r] of [[18, 52, 5], [46, 70, 6], [80, 48, 4], [104, 76, 5], [64, 88, 4]] as const) {
+    ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.7, 0, 0, 7); ctx.fill();
+  }
+  // erba
+  ctx.fillStyle = C.grassDeep;
+  ctx.fillRect(0, 16, w, 12);
+  ctx.fillStyle = C.grass;
+  ctx.fillRect(0, 12, w, 8);
+  // bordino scuro in alto
+  ctx.fillStyle = C.ink;
+  ctx.fillRect(0, 10, w, 3);
+  // ciuffi (posizioni interne, tileabili)
+  ctx.fillStyle = C.grass;
+  for (const x of [12, 34, 58, 82, 108]) {
+    ctx.beginPath(); ctx.moveTo(x - 5, 12); ctx.lineTo(x, 4); ctx.lineTo(x + 5, 12); ctx.closePath(); ctx.fill();
+  }
+}
+
+/** Chip bianco (base per opzioni trascinabili, riordino, abbinamenti). */
+function card(ctx: Ctx, w: number, h: number): void {
+  ctx.fillStyle = 'rgba(32,34,47,0.30)';
+  ctx.beginPath(); ctx.roundRect(4, 5, w - 8, h - 10, 18); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 17); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.roundRect(10, 6, w - 20, h * 0.28, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(32,34,47,0.35)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 17); ctx.stroke();
+}
+
+/** Slot vuoto (bordo tratteggiato) per le prove di riordino. */
+function slot(ctx: Ctx, w: number, h: number): void {
+  ctx.fillStyle = 'rgba(255,255,255,0.38)';
+  ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 8, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(32,34,47,0.55)';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 8]);
+  ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 8, 16); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+/** Bottone tondo piccolo (HUD: pausa, audio). */
+function roundbtn(ctx: Ctx, s: number): void {
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 2, 0, 7); ctx.fill();
+  ctx.fillStyle = lgrad(ctx, 0, 2, 0, s - 2, [[0, C.gray], [1, C.grayDeep]]);
+  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 6, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath(); ctx.ellipse(s / 2, s * 0.30, s * 0.30, s * 0.15, 0, 0, 7); ctx.fill();
+}
+
+/** Crea tutte le texture UI. Da chiamare una volta sola (Boot). */
+export function ensureUI(scene: Phaser.Scene): void {
+  const make = (key: string, w: number, h: number, draw: (ctx: Ctx) => void): void => {
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const cv = scene.textures.createCanvas(key, w, h);
+    if (!cv) return;
+    draw(cv.getContext());
+    cv.refresh();
+  };
+  make('btn-green', 320, 84, (ctx) => button(ctx, 320, 84, C.green, C.greenDeep, '#b5f2cf'));
+  make('btn-blue', 320, 84, (ctx) => button(ctx, 320, 84, C.blue, C.blueDeep, '#a8d8ff'));
+  make('btn-orange', 320, 84, (ctx) => button(ctx, 320, 84, C.orange, C.orangeDeep, '#ffd9a8'));
+  make('btn-red', 320, 84, (ctx) => button(ctx, 320, 84, C.red, C.redDeep, '#ffb3b3'));
+  make('btn-yellow', 320, 84, (ctx) => button(ctx, 320, 84, C.pico, C.picoDark, '#fff3b0'));
+  make('btn-gray', 320, 84, (ctx) => button(ctx, 320, 84, C.gray, C.grayDeep, '#eef2fa'));
+  make('panel', 700, 480, (ctx) => panel(ctx, 700, 480));
+  make('star', 48, 48, (ctx) => star(ctx, 48));
+  make('heart', 48, 48, (ctx) => heart(ctx, 48));
+  make('flag', 72, 108, (ctx) => flag(ctx, 72, 108));
+  make('ground', 128, 96, (ctx) => ground(ctx, 128, 96));
+  make('card', 256, 96, (ctx) => card(ctx, 256, 96));
+  make('slot', 256, 96, (ctx) => slot(ctx, 256, 96));
+  make('roundbtn', 48, 48, (ctx) => roundbtn(ctx, 48));
+  // groundRow: 9 tile ripetuti → larghezza 1152, sposta seamlessly con mod 128
+  make('groundRow', 1152, 96, (ctx) => {
+    for (let i = 0; i < 9; i++) {
+      ctx.save();
+      ctx.translate(i * 128, 0);
+      ground(ctx, 128, 96);
+      ctx.restore();
+    }
+  });
+}
+
+/** Crea le texture delle icone (id → texture `icon-{id}`) per le prove di riconoscimento. */
+export function ensureIcons(scene: Phaser.Scene): void {
+  for (const id of ICON_IDS) {
+    const key = `icon-${id}`;
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const cv = scene.textures.createCanvas(key, 96, 96);
+    if (!cv) continue;
+    const ctx = cv.getContext();
+    // fondo carta morbido
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.beginPath(); ctx.roundRect(2, 2, 92, 92, 14); ctx.fill();
+    ctx.strokeStyle = 'rgba(32,34,47,0.25)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(3, 3, 90, 90, 13); ctx.stroke();
+    ICON_PAINTERS[id](ctx, 96);
+    cv.refresh();
+  }
+}

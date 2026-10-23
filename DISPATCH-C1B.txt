@@ -1,0 +1,42 @@
+Restano 20 errori tsc. Sono 6 cause, non 20 problemi. Applica queste, in ordine.
+NON leggere file interi: usa grep per trovare la riga, poi modifica solo quella.
+
+1) choice.ts — 7 errori TS2345 (righe 124,130,135,138,147,155,165)
+   Causa: C.ink (e simili) in src/art/palette.ts è una STRINGA esadecimale
+   ('#20222f'), ma Graphics.fillStyle/lineStyle vogliono un NUMERO.
+   Fix: converti nel punto d'uso, es.  g.lineStyle(2, 0x20222f, 0.4)
+   oppure aggiungi in palette.ts una variante numerica.
+   ⚠️ NON cambiare i valori di palette.ts in numeri: sono usati anche come
+   stringhe CSS altrove.
+
+2) order.ts — 6 errori TS2339 (righe 204,205,206,218,219,220)
+   Causa: p è un Phaser.Input.Pointer, che NON è un EventEmitter.
+   p.off/p.on/p.once non esistono.
+   Fix: usa l'emettitore vero:
+     this.scene.input.on('pointermove', onMove)
+     this.scene.input.off('pointermove', onMove)
+     this.scene.input.once('pointerup', onUp)
+   (e 'pointerupoutside' al posto di 'upoutside')
+
+3) order.ts — 1 errore TS2722 (riga 188)
+   Causa: chip.onDragStart è dichiarato opzionale.
+   Fix: chip.onDragStart?.(...)  oppure un controllo if.
+
+4) ui.ts — 4 errori (righe 129,214,284 TS2339; riga 298 TS1361)
+   Causa A: `sprite` è tipato Sprite ma è un Container (.add(text) non esiste
+   su Sprite). Fix: tipalo Phaser.GameObjects.Container.
+   Causa B: riga 9 `import type Phaser from 'phaser'` — Phaser è usato come
+   VALORE. Fix: `import Phaser from 'phaser'` (togli `type`).
+
+5) match.ts — 1 errore TS2554 (riga 238)
+   "Expected 2-3 arguments, but got 1" → passa gli argomenti mancanti.
+
+6) validate.ts — 1 errore TS2339 (riga 139)
+   "Property 'mode' does not exist on type 'never'" → il tipo è ristretto a
+   never: aggiungi un controllo o un cast al tipo corretto.
+
+Verifica finale (deve dare 0 e 26):
+  npx tsc --noEmit 2>&1 | grep -c "error TS"
+  npm test 2>&1 | grep -E "^ *Tests "
+
+Non toccare tools/. src/ è tuo.
