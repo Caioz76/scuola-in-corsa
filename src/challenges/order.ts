@@ -195,7 +195,16 @@ export class OrderChallenge implements Challenge {
       const wasInSlot = this.slotIndex(chip) >= 0;
       root.setDepth(500);
 
+      // Un TOCCO non è un trascinamento: sotto questa soglia lascia fare a
+      // onChipTap, altrimenti il rilascio rimanderebbe la tessera nella pozza.
+      const SOGLIA = 10;
+      const startX = p.x;
+      const startY = p.y;
+      let trascinato = false;
+
       const onMove = (pe: Phaser.Input.Pointer) => {
+        if (!trascinato && Math.hypot(pe.x - startX, pe.y - startY) < SOGLIA) return;
+        trascinato = true;
         root.setPosition(pe.x, pe.y);
       };
       let done = false;
@@ -205,6 +214,11 @@ export class OrderChallenge implements Challenge {
         this.scene.input.off('pointermove', onMove);
         this.scene.input.off('pointerup', onUp);
         this.scene.input.off('pointerupoutside', onUp);
+        if (!trascinato) {
+          // era un tocco: onChipTap ha già spostato la tessera
+          root.setDepth(wasInSlot ? 21 : 20);
+          return;
+        }
         const s = this.slotAt(pe.x, pe.y);
         if (s !== -1) {
           synth.play('drop');
