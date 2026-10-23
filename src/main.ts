@@ -24,7 +24,7 @@ const game = new Phaser.Game({
 // per frame): un getter che legge la scena al momento della richiesta, quindi
 // non può mai essere "vecchio". Vedi COORDINAMENTO.md §3.5.
 const g = window as unknown as {
-  __GIOCO__?: { scena: string; materia: string | null };
+  __GIOCO__?: { scena: string; materia: string | null; scenaAttiva: Phaser.Scene | null };
 };
 
 g.__GIOCO__ = {
@@ -33,5 +33,10 @@ g.__GIOCO__ = {
   },
   get materia(): string | null {
     return getMateria();
+  },
+  // I test leggono i testi dei GameObject per giocare come un bambino (il contenuto è già
+  // nel bundle, quindi non rivela nulla di segreto), e il getter non spinge stato.
+  get scenaAttiva(): Phaser.Scene | null {
+    return game.scene.getScenes(true)[0] ?? null;
   }
 };
