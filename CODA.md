@@ -13,12 +13,17 @@
 > **NON** aumentare il contesto: la KV cache a 65536 costa **+4,3 GB** che non ci
 > sono, e il traffico finirebbe nello swap → B a **~1-2 tok/s** invece di 12.
 
-**Ultimo aggiornamento:** 23 ottobre 2026, ore 01:05
-**Stato di B al momento della scrittura:** 🟢 **al lavoro sul Compito 1** (ricevuto 00:53:37)
+**Ultimo aggiornamento:** 23 ottobre 2026, ore 23:10
+**Stato di B al momento della scrittura:** 🟢 **idle** (ultimo compito chiuso 22:38, C8)
 
 ---
 
 ## 🌙 AUTOMAZIONE NOTTURNA (attiva dalle 01:04)
+
+> **Stato al 23/10 23:10: FERMA.** Da stanotte il lavoro passa da B **solo per
+> patch chirurgiche**; il lavoro meccanico va sulle corsie Argon
+> (`tools/lane.sh`) e il dispatcher è A, a mano, perché la sorveglianza costa
+> CPU a B. Lo script resta disponibile, non è in esecuzione.
 
 L'utente non è presente per ore. Poiché B **non ha iniziativa** (finisce un compito
 e si ferma), il tempo dopo il Compito 1 andrebbe perso. Quindi è attivo
@@ -132,7 +137,11 @@ Finché non ci sono, **nessuna idea di C è implementabile**.
 |---|---|---|---|---|
 | 1 | Sbloccare il compilatore (36 errori tsc) | 23/10 00:45 | 17:05 | ✅ 19:48 (C1+C2: 0 errori) |
 | 2 | Gancio `window.__GIOCO__` | 23/10 00:45 | 21:15 | ✅ 21:24 (C3) |
-| 3 | Prima scena di gioco | 23/10 00:45 | 21:24 | 🔄 C4 `Title` ✅ · C6 `Subject` ✅ · C8 `Game` ✅ · **manca `Results`** |
+| 3 | Prima scena di gioco | 23/10 00:45 | 21:24 | ✅ C4 `Title` · C6 `Subject` · C8 `Game` · C9 `Results` (22:47) |
 | — | Fix input bottoni (`hitAreaCallback`) | 23/10 21:40 | 21:40 | ✅ 21:53 (C5) |
 | — | Leggibilità domanda (testo bianco) | 23/10 21:55 | corsia Argon | ✅ 21:57 (C7, 91 s) |
 | — | Pilota contenuti (6 round matematica) | 23/10 22:09 | corsia Argon | ✅ 22:11 (validato, in `content/drafts/`) |
+| — | `ResultsScene` + fix blocco dopo 3 errori | 23/10 22:45 | corsia Argon | ✅ 22:47 (173 s) |
+| — | Aree cliccabili in coordinate di texture | 23/10 23:04 | corsia Argon | ✅ 23:06 (110 s) · regressione in `tests/hit.test.ts` |
+| — | Tocco distinto dal trascinamento | 23/10 23:05 | corsia Argon | ✅ 23:07 (66 s) |
+| — | E2E che gioca una tappa intera | 23/10 23:08 | A | ✅ 23:08 (**8/8**, 13,5 s) |

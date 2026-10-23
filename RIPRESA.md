@@ -1,4 +1,4 @@
-# RIPRESA — stato al 23/10/2026, 22:40
+# RIPRESA — stato al 23/10/2026, 23:10
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -8,35 +8,55 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **27/27** |
-| `npx playwright test` | **7/7** |
-| Flusso in browser | `Boot → Title → Subject → Game` |
-| Risposta corretta | avanza al round successivo |
-| Fine tappa | riepilogo, ritorno al `Title` |
-| `window.__GIOCO__` | `{ scena, materia }`, entrambi vivi |
+| `npm test` (vitest) | **31/31** |
+| `npx playwright test` | **8/8** |
+| Flusso in browser | `Boot → Title → Subject → Game → Results` |
+| Una tappa intera | giocata dal test e2e in **13,5 s**, 6/6 |
+| Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
+| `window.__GIOCO__` | `{ scena, materia, scenaAttiva }` |
 
-Ultimo commit: **`316eb46`** — “C6+C8: scelta materia e prima scena giocabile”.
+Ultimo commit: **`aa0c2b3`** — “ordine: tocco distinto dal trascinamento”.
 
 ## Com'è fatto il codice oggi
 
-`src/main.ts` (198 righe) contiene **tutte** le scene:
+```
+src/main.ts             36 righe: creazione gioco + gancio di test
+src/scenes/shared.ts    tipo Materia + get/set (nessun import circolare)
+src/scenes/boot.ts      texture UI + icone → Title
+src/scenes/title.ts     titolo, "Gioca" → Subject
+src/scenes/subject.ts   4 materie → Game
+src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
+src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
+```
 
-- `BootScene` — crea texture UI + icone, passa a `Title`
-- `TitleScene` — titolo, sottotitolo, bottone “Gioca” → `Subject`
-- `SubjectScene` — 4 materie, `setMateria(id)` → `Game`
-- `GameScene` — carica il pack della materia, mostra i round con `showChallenge`,
-  “Giusto!” → successivo, “Riprova” sugli errori, riepilogo a fine tappa
-- gancio `window.__GIOCO__` (getter, nessun costo per frame) + `setMateria`
+## I due difetti di input trovati stanotte (importante, non rifarli)
 
-Questo è **il prossimo problema da risolvere**: finché le scene stanno in un solo
-file, due agenti non possono lavorarci in parallelo.
+1. **Aree cliccabili in coordinate sbagliate** — Phaser normalizza il punto
+   locale e **poi** aggiunge `displayOrigin` (128×48 per la card 256×96). Un
+   rettangolo centrato su 0 copriva solo una striscia del chip: il centro, dove
+   tocca un bambino, non rispondeva. Ora la geometria sta in
+   `src/challenges/hit.ts` (modulo puro) e lavora in **coordinate di texture**.
+   Regressione coperta da `tests/hit.test.ts`, che simula la normalizzazione.
+2. **Tocco contro trascinamento** — al rilascio, il drag riportava la tessera
+   nella pozza, annullando il tocco. Ora c'è una soglia di **10 px**: sotto,
+   agisce `onChipTap`; sopra, il drag.
+
+Il primo difetto spiega anche perché il bottone "Rileggi" (scala 0,62) era
+probabilmente morto al centro.
+
+## Come si verifica una tappa (bot che gioca davvero)
+
+`tmp-check-results.mjs` (temporaneo, gitignored) legge i testi dei GameObject
+con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
+(`/src/content/packs.ts`) e tocca i chip. Stesso approccio nel test permanente
+`tests/e2e/tappa.spec.ts`.
 
 ## Processi attivi (non ucciderli senza motivo)
 
 | Cosa | PID | Note |
 |---|---|---|
 | dashboard `--watch 300` | 18276 | rigenera `dashboard.html` ogni 5 min |
-| Vite di collaudo, porta 5210 | 56652 | serve il codice vero, non una copia |
+| Vite di collaudo, porta 5210 | 56652 | serve il codice vero |
 | Sessione B (`opencode run`) | — | **idle**, ultima chiusura 22:38:19 |
 
 ## Verifica in tre comandi
@@ -44,8 +64,8 @@ file, due agenti non possono lavorarci in parallelo.
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 27 passed
-npx playwright test 2>&1 | tail -2           # → 7 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 31 passed
+npx playwright test 2>&1 | tail -2           # → 8 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`
@@ -54,41 +74,31 @@ npx playwright test 2>&1 | tail -2           # → 7 passed
 bash tools/lane.sh <nome> <modello> <file-prompt> <file-write-set>
 ```
 
-Cosa garantisce, meccanicamente:
+Garanzie meccaniche: worktree separato, lock tra corsie, lock sui file non
+committati, audit del write-set (`git status -uall`), `tsc` + `vitest` dentro il
+worktree, patch pronta in `tools/.patches/<nome>.patch` **mai applicata da sola**.
 
-1. **worktree git separato** (`/tmp/scuola-lane-<nome>`, branch `lane/<nome>`);
-2. **lock**: rifiuta se un’altra corsia viva dichiara gli stessi file;
-3. **lock sul working tree**: rifiuta se un file del write-set ha modifiche non
-   committate (cioè se B ci sta lavorando);
-4. **audit**: ogni file toccato fuori dal write-set → corsia **RIFIUTATA**;
-5. **verifica**: `tsc` + `vitest` dentro il worktree; rosso → rifiutata;
-6. **patch pronta** in `tools/.patches/<nome>.patch`, **mai applicata da sola**.
-
-Il merge lo fa A, uno alla volta, con `git apply --3way` e verifica completa.
-Misure reali: C7 (3 file) **91 s**; pilota contenuti (6 round) **113 s**.
+Misure: C7 **91 s** · pilota contenuti **113 s** · hook **77 s** · hit-area
+**110 s** · tap-drag **66 s**. Merge manuale di A con `git apply --3way`.
 
 ## Prossimi passi, in ordine di valore
 
-1. **Spezzare `main.ts` → `src/scenes/`** (Boot, Title, Subject, Game, shared).
-   Sblocca le corsie parallele sulle scene. È il moltiplicatore, non un vezzo.
-2. **`ResultsScene`** + stelle + salvataggio in `localStorage` (il core
-   `progress.ts` esiste già).
-3. **Pannello BES** (profili + interruttori; `resolver.ts` è pronto).
-4. **Audio** (`src/audio/synth.ts` esiste già).
-5. **120 round**: pilota validato (`content/drafts/mat-7-9-l2.json`, 6 prove).
-   Poi 20 pacchetti con le corsie, e **revisione umana obbligatoria**.
-6. Integrare in `src/content/packs.ts` solo i pacchetti approvati.
+1. **Stelle nella schermata materia** (in corso): mostrare `★ n / 3` sotto ogni
+   materia, lette da `starsFor`.
+2. **Pannello BES**: profili e interruttori; `src/bes/resolver.ts` è pronto,
+   manca la UI e il salvataggio delle impostazioni.
+3. **Audio**: `src/audio/synth.ts` esiste e viene già chiamato dalle prove
+   (`synth.play('correct')`); manca la verifica che l'`AudioContext` parta al
+   primo gesto e un interruttore per l'insegnante.
+4. **Contenuti**: pilota validato in `content/drafts/mat-7-9-l2.json`. Generare
+   gli altri pacchetti con le corsie, poi **revisione umana obbligatoria**.
+5. Integrare in `src/content/packs.ts` solo i pacchetti approvati.
 
 ## Problemi noti (veri, non ipotetici)
 
-- **B è lento**: 13–30 min per patch, anche piccola. Il collo di bottiglia è il
-  prefill locale a ogni turno + 5 tok/s. Non è un bug: è il modello.
-- **La Content Factory** (`tools/content-factory/`) usa **lo stesso** LM Studio
-  di B (`:1234`, `parallel=1`): non può girare in parallelo a B.
-- **Dashboard**: nella sezione “Automazione notturna” la riga *Ultimo
-  aggiornamento* è l’ultima del diario del sorvegliante (fermo). Non è un errore.
-- **`main.ts` monolitico**: nessuna corsia può toccare le scene in parallelo.
-  Vedi punto 1 dei prossimi passi.
-- **Nessun test e2e clicca davvero il gioco**: i 7 test verificano caricamento e
-  stato `Title`. Il click è stato collaudato a mano con Playwright (script
-  `tmp-check-*.mjs`): il prossimo test da scrivere è il flusso completo.
+- **B è lento**: 13–30 min per patch. Il collo di bottiglia è il modello locale.
+- **Content Factory** usa lo stesso LM Studio di B (`:1234`, `parallel=1`): non
+  può girare in parallelo a B.
+- **Un solo livello per materia**: `GameScene` usa `levels[0]`; la scelta del
+  livello non esiste ancora.
+- **La dashboard** mostra i numeri dell'ultimo giro, non è in tempo reale.
