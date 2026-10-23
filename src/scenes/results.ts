@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { makeText, makeButton } from '../challenges/ui';
-import { resolveConfig, DEFAULT_SETTINGS } from '../bes/resolver';
+import { resolveConfig } from '../bes/resolver';
+import { loadSettings } from '../core/settings';
 import { setStars } from '../core/progress';
 
 export class ResultsScene extends Phaser.Scene {
@@ -9,7 +10,7 @@ export class ResultsScene extends Phaser.Scene {
   }
 
   create(data: { packId: string; levelId: string; correct: number; total: number }): void {
-    const cfg = resolveConfig(DEFAULT_SETTINGS);
+    const cfg = resolveConfig(loadSettings());
     const { packId, levelId, correct, total } = data;
 
     makeText(this, 512, 90, 'Tappa completata!', cfg, {

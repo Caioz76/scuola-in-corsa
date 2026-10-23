@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_NAME } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
-import { resolveConfig, DEFAULT_SETTINGS } from '../bes/resolver';
+import { resolveConfig } from '../bes/resolver';
+import { loadSettings } from '../core/settings';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -9,7 +10,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
-    const cfg = resolveConfig(DEFAULT_SETTINGS);
+    const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
 

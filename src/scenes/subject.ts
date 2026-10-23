@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { type Materia, setMateria } from './shared';
 import { makeButton, makeText } from '../challenges/ui';
-import { resolveConfig, DEFAULT_SETTINGS } from '../bes/resolver';
+import { resolveConfig } from '../bes/resolver';
+import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
 import { starsFor } from '../core/progress';
 
@@ -11,7 +12,7 @@ export class SubjectScene extends Phaser.Scene {
   }
 
   create(): void {
-    const cfg = resolveConfig(DEFAULT_SETTINGS);
+    const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
 

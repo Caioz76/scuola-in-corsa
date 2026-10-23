@@ -4,7 +4,8 @@ import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks } from '../content/packs';
 import type { Round } from '../content/types';
 import { showBanner, makeText } from '../challenges/ui';
-import { resolveConfig, DEFAULT_SETTINGS } from '../bes/resolver';
+import { resolveConfig } from '../bes/resolver';
+import { loadSettings } from '../core/settings';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -12,7 +13,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    const cfg = resolveConfig(DEFAULT_SETTINGS);
+    const cfg = resolveConfig(loadSettings());
     const pack = allPacks().find((p) => p.subject === getMateria());
     const level = pack?.levels[0];
 

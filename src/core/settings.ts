@@ -1,39 +1,22 @@
 /**
- * Persistenza delle impostazioni BES + profilo studente.
- * Le chiavi sono omonimizzate (vedi core/storage.ts).
+ * Impostazioni BES persistenti.
+ *
+ * Separato da `src/bes/resolver.ts` (che resta puro): qui c'è solo I/O su
+ * localStorage, così il resolver continua a essere testabile senza browser.
  */
 import { storage } from './storage';
-import { DEFAULT_SETTINGS, resolveConfig, type BesSettings, type EffectiveConfig } from '../bes/resolver';
-import { setStudent, type StudentProfile } from './state';
+import { DEFAULT_SETTINGS, type BesSettings } from '../bes/resolver';
 
-const K_SETTINGS = 'settings';
-const K_STUDENT = 'student';
+const K = 'settings';
 
 export function loadSettings(): BesSettings {
-  return storage.get<BesSettings>(K_SETTINGS, DEFAULT_SETTINGS);
+  const s = storage.get<BesSettings>(K, DEFAULT_SETTINGS);
+  return {
+    profileId: s.profileId ?? null,
+    overrides: s.overrides ?? {}
+  };
 }
 
 export function saveSettings(s: BesSettings): void {
-  storage.set(K_SETTINGS, s);
+  storage.set(K, s);
 }
-
-/** Config effettiva corrente (regole risolte) — usata da UI e gioco. */
-export function currentConfig(): EffectiveConfig {
-  return resolveConfig(loadSettings());
-}
-
-export function loadStudent(): StudentProfile {
-  const s = storage.get<StudentProfile>(K_STUDENT, { pseudonym: '', classLabel: '', notes: '' });
-  setStudent(s);
-  return s;
-}
-
-export function saveStudent(): void {
-  storage.set(K_STUDENT, {
-    pseudonym: session.student.pseudonym,
-    classLabel: session.student.classLabel,
-    notes: session.student.notes
-  });
-}
-
-import { session } from './state';
