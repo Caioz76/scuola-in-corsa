@@ -27,5 +27,11 @@ export class TitleScene extends Phaser.Scene {
 
     const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', { depth: 10 });
     gioca.onTap(() => this.scene.start('Subject'));
+
+    const impostazioni = makeButton(this, cfg, w / 2, h / 2 + 170, 'Impostazioni', {
+      scale: 0.62,
+      depth: 10
+    });
+    impostazioni.onTap(() => this.scene.start('Settings'));
   }
 }
