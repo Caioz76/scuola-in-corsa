@@ -1,0 +1,83 @@
+{
+  "packId": "mat-7-9-l2",
+  "version": "1",
+  "title": "Matematica — seconda tappa",
+  "subject": "matematica",
+  "ageRange": "7-9",
+  "difficulty": 2,
+  "levels": [
+    {
+      "id": "mat-7-9-l2",
+      "title": "Seconda tappa: contare, sommare, ordinare",
+      "difficulty": 2,
+      "rounds": [
+        {
+          "id": "mat-l2-1",
+          "type": "quiz",
+          "prompt": "Quanto fa 8 + 7?",
+          "hint": "Parti da 8, arriva prima a 10 aggiungendo 2 e poi aggiungi il resto.",
+          "explanation": "8 più 2 fa 10, e aggiungendo altri 5 si arriva a 15.",
+          "options": [
+            { "label": "15", "correct": true },
+            { "label": "14", "correct": false },
+            { "label": "16", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l2-2",
+          "type": "quiz",
+          "prompt": "Quanto fa 17 - 5?",
+          "hint": "Togli 5 unità alle 7 unità lasciando la decina intatta.",
+          "explanation": "7 meno 5 fa 2, quindi 17 meno 5 fa 12.",
+          "options": [
+            { "label": "11", "correct": false },
+            { "label": "12", "correct": true },
+            { "label": "13", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l2-3",
+          "type": "quiz",
+          "prompt": "Quale numero viene dopo nella sequenza 20, 30, 40, ...?",
+          "hint": "Ogni passo aggiunge una decina in più rispetto al numero precedente.",
+          "explanation": "Contando di 10 in 10, dopo il 40 viene il 50.",
+          "options": [
+            { "label": "45", "correct": false },
+            { "label": "50", "correct": true },
+            { "label": "60", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l2-4",
+          "type": "quiz",
+          "prompt": "Luca ha 9 biglie rosse e ne riceve altre 5 blu: quante biglie ha in tutto?",
+          "hint": "Unisci le biglie rosse e quelle blu facendo una somma.",
+          "explanation": "Sommando 9 biglie rosse e 5 biglie blu si ottengono 14 biglie in tutto.",
+          "options": [
+            { "label": "14", "correct": true },
+            { "label": "13", "correct": false },
+            { "label": "15", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l2-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti questi quattro numeri in ordine dal più piccolo al più grande.",
+          "hint": "Guarda prima le decine e inizia dal numero più piccolo a una cifra.",
+          "explanation": "L'ordine crescente corretto parte da 4 e sale fino a 19.",
+          "sortItems": ["4", "9", "14", "19"]
+        },
+        {
+          "id": "mat-l2-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca i tre passi del conteggio di 5 in 5 nell'ordine giusto.",
+          "hint": "Parti dal numero più piccolo e aggiungi sempre 5 a ogni passo.",
+          "explanation": "Contando di 5 in 5 in ordine crescente troviamo 5, 10 e 15.",
+          "items": ["5", "10", "15"]
+        }
+      ]
+    }
+  ]
+}

@@ -42,7 +42,7 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "⛔ non è un rep
 # ── Normalizza write-set (righe non vuote, senza ./) ─────────────────
 PATHS=()
 while IFS= read -r line; do
-  line="${line%%#*}"; line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s#^\./##')"
+  line="${line%%#*}"; line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s#^\./##;s#/$##')"
   [ -n "$line" ] && PATHS+=("$line")
 done < "$WSET"
 [ "${#PATHS[@]}" -gt 0 ] || { echo "⛔ write-set vuoto"; exit 1; }
@@ -102,7 +102,8 @@ rm -f "$LANES/$NOME.pid"
 echo "◀ corsia '$NOME' terminata (exit $RC) dopo $(( $(date +%s) - INIZIO_TS ))s"
 
 # ── Audit write-set ─────────────────────────────────────────────────
-CAMBIATI="$(git -C "$WT" status --porcelain | awk '{print $2}')"
+# -uall: elenca i FILE, non la cartella "content/" · --no-renames: un path per riga
+CAMBIATI="$(git -C "$WT" -c core.quotepath=false status --porcelain -uall --no-renames | cut -c4- | sed 's#/$##')"
 VIOLAZIONE=0
 while IFS= read -r f; do
   [ -z "$f" ] && continue
