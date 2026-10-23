@@ -319,12 +319,15 @@ spedito senza supervisione: va spezzato in sotto-compiti corti con l'umano prese
 - 🔜 Verificare il Compito 1 quando B lo dichiara (`tsc`=0, `npm test`=26)
 - 🔜 Test e2e di flusso: **attivare** i 2 skip quando B scrive `src/scenes/`
 
-### Sessione B (build)
-- 🔜 Applicare patch A→D (fix `tsc`)
-- 🔜 Applicare patch E (bug runtime)
-- 🔜 **Esporre `window.__GIOCO__` in `src/main.ts`** (vedi §3.5) — ~6 righe, sblocca gli e2e di A
-- 🔜 Scrivere le 5 scene (`src/scenes/`) — chiavi: `Boot`, `Title`, `Subject`, `Game`, `Results`
-- 🔜 DOM: impostazioni, editor, report
+### Sessione B (build) — aggiornato 23/10 22:40
+- ✅ Applicare patch A→D (fix `tsc`) — C1+C2, 0 errori dal 19:48
+- ✅ Fix runtime dell'input (C5): `setInteractive(hit, Phaser.Geom.Rectangle.Contains)`
+- ✅ **Esporre `window.__GIOCO__`** (C3) — getter `scena` + `materia`, §3.5
+- ✅ Scene: `Boot` → `Title` (C4) → `Subject` (C6) → `Game` (C8)
+- 🔜 Spezzare `main.ts` in `src/scenes/` (sblocca le corsie parallele)
+- 🔜 `Results` (mancante) + stelle + salvataggio
+- 🔜 DOM: impostazioni BES, editor, report
+- 🔜 Audio (`src/audio/synth.ts` è pronto)
 
 ---
 

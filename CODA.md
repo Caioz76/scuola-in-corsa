@@ -130,6 +130,9 @@ Finché non ci sono, **nessuna idea di C è implementabile**.
 
 | # | Compito | Messo in coda | Preso da B | Esito |
 |---|---|---|---|---|
-| 1 | Sbloccare il compilatore (36 errori tsc) | 23/10 00:45 | ⏳ | ⬜ |
-| 2 | Gancio `window.__GIOCO__` | 23/10 00:45 | ⏳ | ⬜ |
-| 3 | Prima scena di gioco | 23/10 00:45 | ⏳ | ⬜ |
+| 1 | Sbloccare il compilatore (36 errori tsc) | 23/10 00:45 | 17:05 | ✅ 19:48 (C1+C2: 0 errori) |
+| 2 | Gancio `window.__GIOCO__` | 23/10 00:45 | 21:15 | ✅ 21:24 (C3) |
+| 3 | Prima scena di gioco | 23/10 00:45 | 21:24 | 🔄 C4 `Title` ✅ · C6 `Subject` ✅ · C8 `Game` ✅ · **manca `Results`** |
+| — | Fix input bottoni (`hitAreaCallback`) | 23/10 21:40 | 21:40 | ✅ 21:53 (C5) |
+| — | Leggibilità domanda (testo bianco) | 23/10 21:55 | corsia Argon | ✅ 21:57 (C7, 91 s) |
+| — | Pilota contenuti (6 round matematica) | 23/10 22:09 | corsia Argon | ✅ 22:11 (validato, in `content/drafts/`) |
