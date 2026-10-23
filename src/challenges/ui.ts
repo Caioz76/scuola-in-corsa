@@ -118,13 +118,14 @@ export function makeButton(
   const s = cfg.targetScale * (o.scale ?? 1);
   const sprite = scene.add.sprite(0, 0, 'btn-blue').setScale(s);
   const spec = fontSpec(cfg);
+  const k = o.scale ?? 1;
   const text = scene.add.text(0, 0, label, {
     fontFamily: spec.family,
-    fontSize: `${Math.round(24 * cfg.fontScale)}px`,
+    fontSize: `${Math.round(24 * cfg.fontScale * k)}px`,
     fontStyle: 'bold',
     color: '#14213a',
     align: 'center',
-    wordWrap: { width: BTN_W - 44, useAdvancedWrap: true },
+    wordWrap: { width: (BTN_W - 44) * k, useAdvancedWrap: true },
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
   const root = scene.add.container(x, y, [sprite, text]);

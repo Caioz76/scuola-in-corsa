@@ -1,0 +1,83 @@
+{
+  "packId": "ita-8-10-l2",
+  "version": "1",
+  "title": "Italiano — seconda tappa",
+  "subject": "italiano",
+  "ageRange": "8-10",
+  "difficulty": 2,
+  "levels": [
+    {
+      "id": "ita-8-10-l2",
+      "title": "Seconda tappa: parole, frasi, ordine",
+      "difficulty": 2,
+      "rounds": [
+        {
+          "id": "ita-l2-1",
+          "type": "quiz",
+          "prompt": "Quale parola ha lo stesso significato di «veloce»?",
+          "hint": "Pensa a come corre una lepre rispetto a una tartaruga.",
+          "explanation": "«Rapido» è un sinonimo di «veloce», perché indica qualcuno o qualcosa che si muove in fretta.",
+          "options": [
+            { "label": "rapido", "correct": true },
+            { "label": "lento", "correct": false },
+            { "label": "pesante", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l2-2",
+          "type": "quiz",
+          "prompt": "Quale articolo determinativo è corretto davanti alla parola «zaino»?",
+          "hint": "Davanti alle parole maschili che iniziano per z non si usa «il».",
+          "explanation": "Si scrive «lo zaino» perché davanti ai nomi maschili singolari che iniziano con la lettera z si usa l'articolo «lo».",
+          "options": [
+            { "label": "lo", "correct": true },
+            { "label": "il", "correct": false },
+            { "label": "la", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l2-3",
+          "type": "quiz",
+          "prompt": "Quale di queste frasi è scritta in modo corretto con maiuscola e punto?",
+          "hint": "Controlla come inizia la prima parola e quale segno c'è alla fine della frase.",
+          "explanation": "Ogni frase inizia sempre con la lettera maiuscola e termina con il punto fermo.",
+          "options": [
+            { "label": "Il cane corre nel prato.", "correct": true },
+            { "label": "il cane corre nel prato", "correct": false },
+            { "label": "il cane. corre nel prato", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l2-4",
+          "type": "quiz",
+          "prompt": "Quale parola completa in modo adatto la frase «Quando piove apro ... per non bagnarmi»?",
+          "hint": "È un oggetto che si tiene aperto sopra la testa quando cade la pioggia.",
+          "explanation": "L'ombrello è l'oggetto che serve per ripararsi dalla pioggia e restare asciutti.",
+          "options": [
+            { "label": "l'ombrello", "correct": true },
+            { "label": "l'orologio", "correct": false },
+            { "label": "l'armadio", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l2-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti queste quattro parole in ordine alfabetico.",
+          "hint": "Osserva la prima lettera di ogni parola e segui l'ordine dell'alfabeto dalla A alla Z.",
+          "explanation": "L'ordine alfabetico segue le iniziali: A di albero, F di fiore, M di mare, S di sole.",
+          "sortItems": ["albero", "fiore", "mare", "sole"]
+        },
+        {
+          "id": "ita-l2-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca le tre parole nell'ordine giusto per formare una frase di senso compiuto.",
+          "hint": "Parti dall'articolo con la lettera maiuscola, poi scegli il nome e infine l'azione.",
+          "explanation": "In italiano l'articolo «Il» precede il nome «bambino», seguito dal verbo «sorride».",
+          "items": ["Il", "bambino", "sorride"]
+        }
+      ]
+    }
+  ]
+}
