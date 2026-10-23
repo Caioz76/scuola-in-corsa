@@ -9,6 +9,7 @@
 import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
 import type { Option } from '../content/types';
+import { hitRect } from './hit';
 
 /** Massimo di tentativi falliti per ogni prova (poi si rivela la risposta). */
 export const MAX_ATTEMPTS = 3;
@@ -129,7 +130,8 @@ export function makeButton(
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 10);
 
-  const hit = permissiveHit(cfg, BTN_W * s, BTN_H * s);
+  // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
+  const hit = permissiveHit(cfg, sprite.width, sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
@@ -213,7 +215,8 @@ export function makeChip(
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 20);
 
-  const hit = permissiveHit(cfg, w * s, h * s);
+  // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
+  const hit = permissiveHit(cfg, sprite.width, sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
@@ -291,8 +294,8 @@ export function makeSlot(
 
 /** Rettangolo hit centrato sull'oggetto (ampliato con permissiveTouch). */
 export function permissiveHit(cfg: EffectiveConfig, w: number, h: number): Phaser.Geom.Rectangle {
-  const p = cfg.permissiveTouch ? 1.12 : 1.0;
-  return new Phaser.Geom.Rectangle((-w * p) / 2, (-h * p) / 2, w * p, h * p);
+  const r = hitRect(w, h, cfg.permissiveTouch);
+  return new Phaser.Geom.Rectangle(r.x, r.y, r.width, r.height);
 }
 
 /** Fisher–Yates su una COPIA (non muta l'originale). */
