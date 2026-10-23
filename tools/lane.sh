@@ -117,15 +117,19 @@ if [ -z "$CAMBIATI" ]; then echo "⚠️  nessun file modificato"; fi
 
 # ── Verifica nel worktree ───────────────────────────────────────────
 ERR=$(cd "$WT" && npx tsc --noEmit 2>&1 | grep -c "error TS")
-TESTS=$(cd "$WT" && npx vitest run 2>&1 | grep -oE "Tests +[0-9]+ passed" | head -1)
-echo "  tsc: $ERR errori · $TESTS"
+VOUT=$(cd "$WT" && npx vitest run 2>&1)
+TESTS=$(echo "$VOUT" | grep -E "^ *Tests " | tail -1 | sed 's/^ *//')
+FALLITI=$(echo "$VOUT" | grep -cE "^ *Tests .*failed")
+echo "  tsc: $ERR errori · ${TESTS:-nessun esito test}"
 
 # ── Patch pronta per il merge (non applicata) ───────────────────────
-git -C "$WT" diff > "$PATCHES/$NOME.patch"
+# `add -A` serve a includere i file NUOVI (git diff da solo non li vede).
+git -C "$WT" add -A
+git -C "$WT" diff --cached > "$PATCHES/$NOME.patch"
 echo "  patch: $PATCHES/$NOME.patch ($(wc -l < "$PATCHES/$NOME.patch" | tr -d ' ') righe)"
 
 if [ "$VIOLAZIONE" != 0 ]; then echo "❌ RIFIUTATA: write-set violato"; exit 3; fi
-if [ "$ERR" != 0 ] || ! echo "$TESTS" | grep -q "26 passed"; then
+if [ "$ERR" != 0 ] || [ "$FALLITI" != 0 ] || [ -z "$TESTS" ]; then
   echo "❌ RIFIUTATA: verifica rossa"; exit 3
 fi
 echo "✅ PRONTA per il merge: git apply --3way $PATCHES/$NOME.patch"
