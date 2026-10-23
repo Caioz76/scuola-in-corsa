@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { type Materia, setMateria } from './shared';
 import { makeButton, makeText } from '../challenges/ui';
 import { resolveConfig, DEFAULT_SETTINGS } from '../bes/resolver';
+import { allPacks } from '../content/packs';
+import { starsFor } from '../core/progress';
 
 export class SubjectScene extends Phaser.Scene {
   constructor() {
@@ -33,6 +35,16 @@ export class SubjectScene extends Phaser.Scene {
         setMateria(v.id);
         this.scene.start('Game');
       });
+      const pack = allPacks().find((p) => p.subject === v.id);
+      const livello = pack?.levels[0];
+      if (pack && livello) {
+        const stelle = starsFor(pack.packId, livello.id);
+        makeText(this, v.x, v.y + 62, `★ ${stelle} / 3`, cfg, {
+          size: 18,
+          bold: stelle > 0,
+          color: stelle > 0 ? '#ffd93d' : '#5a6484'
+        });
+      }
     }
   }
 }

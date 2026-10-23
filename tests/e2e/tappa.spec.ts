@@ -207,5 +207,12 @@ test.describe('Tappa completa', () => {
     expect(salvato, 'il progresso deve finire in localStorage').not.toBeNull();
     const p = JSON.parse(salvato!) as Record<string, Record<string, number>>;
     expect(p['mat-7-9'][livello.id]).toBe(3);
+
+    // ── Le stelle sopravvivono al ritorno alla scelta materia
+    await tocco(page, 512, 490); // "Torna al titolo"
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+    await tocco(page, 512, 358); // "Gioca"
+    await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
+    expect((await testi(page)).map((t) => t.text)).toContain('★ 3 / 3');
   });
 });
