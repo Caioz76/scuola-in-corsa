@@ -1,0 +1,84 @@
+{
+  "packId": "sci-8-10-l2",
+  "version": "1",
+  "title": "Scienze — seconda tappa",
+  "subject": "scienze",
+  "ageRange": "8-10",
+  "difficulty": 2,
+  "levels": [
+    {
+      "id": "sci-8-10-l2",
+      "title": "Seconda tappa: viventi e ambiente",
+      "difficulty": 2,
+      "rounds": [
+        {
+          "id": "sci-l2-1",
+          "type": "quiz",
+          "prompt": "Quale di questi animali è un mammifero?",
+          "hint": "Respira con i polmoni e allatta i piccoli.",
+          "explanation": "Il delfino è un mammifero: respira con i polmoni e allatta i suoi piccoli, anche se vive nel mare.",
+          "options": [
+            { "label": "Delfino", "correct": true },
+            { "label": "Squalo", "correct": false },
+            { "label": "Rana", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l2-2",
+          "type": "quiz",
+          "prompt": "Da quale parte della pianta le radici prendono l'acqua?",
+          "hint": "Le radici stanno sotto terra.",
+          "explanation": "Le radici assorbono dal terreno l'acqua e i sali minerali che servono alla pianta.",
+          "options": [
+            { "label": "Dal terreno", "correct": true },
+            { "label": "Dall'aria", "correct": false },
+            { "label": "Dal fiore", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l2-3",
+          "type": "image",
+          "icon": "foglia",
+          "prompt": "Quale parte della pianta vedi nell'immagine?",
+          "hint": "È verde e serve alla pianta per respirare.",
+          "explanation": "L'immagine mostra una foglia: è la parte verde dove la pianta produce il nutrimento.",
+          "options": [
+            { "label": "Una foglia", "correct": true },
+            { "label": "Un fiore", "correct": false },
+            { "label": "Una radice", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l2-4",
+          "type": "quiz",
+          "prompt": "Quale catena alimentare è nell'ordine giusto?",
+          "hint": "Si parte da ciò che mangia il primo animale.",
+          "explanation": "L'erba è mangiata dalla cavalletta, che a sua volta è mangiata dalla rana.",
+          "options": [
+            { "label": "Erba → cavalletta → rana", "correct": true },
+            { "label": "Rana → erba → cavalletta", "correct": false },
+            { "label": "Cavalletta → rana → erba", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l2-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti in ordine le tappe del ciclo dell'acqua.",
+          "hint": "L'acqua prima evapora, poi forma le nuvole e infine cade.",
+          "explanation": "L'acqua evapora, condensa nelle nuvole, cade come pioggia e si raccoglie di nuovo.",
+          "sortItems": ["Evaporazione", "Condensazione", "Precipitazione", "Raccolta"]
+        },
+        {
+          "id": "sci-l2-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca le tappe della farfalla nell'ordine giusto.",
+          "hint": "La farfalla nasce da un piccolo uovo.",
+          "explanation": "La farfalla passa da uovo a bruco, poi crisalide e infine farfalla adulta.",
+          "items": ["Uovo", "Bruco", "Crisalide", "Farfalla"]
+        }
+      ]
+    }
+  ]
+}

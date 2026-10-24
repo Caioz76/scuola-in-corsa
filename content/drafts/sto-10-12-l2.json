@@ -1,0 +1,85 @@
+{
+  "packId": "sto-10-12-l2",
+  "version": "1",
+  "title": "Storia — seconda tappa",
+  "subject": "storia",
+  "ageRange": "10-12",
+  "difficulty": 2,
+  "levels": [
+    {
+      "id": "sto-10-12-l2",
+      "title": "Seconda tappa: Grecia e Roma",
+      "difficulty": 2,
+      "rounds": [
+        {
+          "id": "sto-l2-1",
+          "type": "quiz",
+          "prompt": "In quale città greca nacque la democrazia?",
+          "hint": "È la città dell'Acropoli e del Partenone.",
+          "explanation": "Ad Atene, nel V secolo a.C., i cittadini iniziarono a decidere insieme delle leggi.",
+          "options": [
+            { "label": "Atene", "correct": true },
+            { "label": "Sparta", "correct": false },
+            { "label": "Tebe", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l2-2",
+          "type": "quiz",
+          "prompt": "Chi poteva votare nell'assemblea di Atene?",
+          "hint": "Non tutti gli abitanti erano cittadini.",
+          "explanation": "Votavano solo gli uomini liberi adulti, figli di genitori ateniesi; donne, schiavi e stranieri erano esclusi.",
+          "options": [
+            { "label": "Gli uomini liberi adulti", "correct": true },
+            { "label": "Tutti gli abitanti", "correct": false },
+            { "label": "Solo i soldati", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l2-3",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Metti in ordine le forme di governo di Roma, dalla più antica.",
+          "hint": "Prima ci fu un re, poi la Repubblica, infine l'Impero.",
+          "explanation": "Roma fu prima una monarchia, poi una repubblica e infine un impero.",
+          "items": ["Monarchia", "Repubblica", "Impero"]
+        },
+        {
+          "id": "sto-l2-4",
+          "type": "quiz",
+          "prompt": "Che cosa erano le terme romane?",
+          "hint": "Ci si andava per lavarsi, ma anche per incontrarsi.",
+          "explanation": "Le terme erano edifici pubblici con bagni caldi e freddi, palestre e luoghi di incontro.",
+          "options": [
+            { "label": "Luoghi pubblici per lavarsi e incontrarsi", "correct": true },
+            { "label": "Templi dedicati agli dei", "correct": false },
+            { "label": "Magazzini per il grano", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l2-5",
+          "type": "dragdrop",
+          "mode": "match",
+          "prompt": "Abbina ogni data al suo evento.",
+          "hint": "Più il numero è grande, più l'evento è recente.",
+          "explanation": "Roma fu fondata nel 753 a.C., la Repubblica nacque nel 509 a.C. e l'Impero d'Occidente finì nel 476 d.C.",
+          "leftItems": ["753 a.C.", "509 a.C.", "476 d.C."],
+          "rightItems": ["Fine dell'Impero d'Occidente", "Fondazione di Roma", "Nascita della Repubblica"],
+          "pairs": [[0, 1], [1, 2], [2, 0]]
+        },
+        {
+          "id": "sto-l2-6",
+          "type": "quiz",
+          "prompt": "Chi era Alessandro Magno?",
+          "hint": "Era il re della Macedonia.",
+          "explanation": "Alessandro Magno fu re di Macedonia e creò un vasto impero che unì la Grecia all'Oriente.",
+          "options": [
+            { "label": "Il re macedone che creò un grande impero", "correct": true },
+            { "label": "Un imperatore romano", "correct": false },
+            { "label": "Un filosofo ateniese", "correct": false }
+          ]
+        }
+      ]
+    }
+  ]
+}
