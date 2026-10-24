@@ -41,7 +41,10 @@ const g = window as unknown as {
 
 g.__GIOCO__ = {
   get scena(): string {
-    return game.scene.getScenes(true)[0]?.scene.key ?? 'Boot';
+    // Se più scene restano attive durante una transizione, quella in cima
+    // (registrata dopo) è quella che il bambino vede.
+    const attive = game.scene.getScenes(true);
+    return attive[attive.length - 1]?.scene.key ?? 'Boot';
   },
   get materia(): string | null {
     return getMateria();
@@ -49,7 +52,8 @@ g.__GIOCO__ = {
   // I test leggono i testi dei GameObject per giocare come un bambino (il contenuto è già
   // nel bundle, quindi non rivela nulla di segreto), e il getter non spinge stato.
   get scenaAttiva(): Phaser.Scene | null {
-    return game.scene.getScenes(true)[0] ?? null;
+    const attive = game.scene.getScenes(true);
+    return attive[attive.length - 1] ?? null;
   },
   // Stato audio osservabile: serve agli e2e per verificare che il gesto sblocchi
   // il contesto e che un profilo BES spenga davvero musica ed effetti.
