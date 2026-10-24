@@ -10,6 +10,9 @@ type Ctx = CanvasRenderingContext2D;
 export const SUBJECTS = ['matematica', 'italiano', 'scienze', 'storia'] as const;
 export type SubjectId = (typeof SUBJECTS)[number];
 
+/** Tema neutro per titolo e scelta materia (fuori dalle 4 materie). */
+export type ThemeKey = SubjectId | 'scuola';
+
 const W = 2048;
 const H = 576;
 
@@ -18,7 +21,8 @@ interface Theme {
   hill1: string; hill2: string;
 }
 
-const THEMES: Record<SubjectId, Theme> = {
+const THEMES: Record<ThemeKey, Theme> = {
+  scuola:     { farTop: '#bfe6ff', farBottom: '#7ec8f2', sun: '#ffd93d', hill1: '#9fe0b0', hill2: '#58d68d' },
   matematica: { farTop: '#c9ecff', farBottom: '#7ec8f2', sun: '#ffd93d', hill1: '#a8e6b4', hill2: '#58d68d' },
   italiano:   { farTop: '#ffedd2', farBottom: '#ffd9a0', sun: '#ff9f43', hill1: '#f2b58a', hill2: '#e8926f' },
   scienze:    { farTop: '#d9f9e9', farBottom: '#9fe8c5', sun: '#ffe98a', hill1: '#7ad9a8', hill2: '#35b06f' },
@@ -148,7 +152,7 @@ function book(ctx: Ctx, x: number, y: number, s: number): void {
   ctx.closePath(); ctx.fill();
 }
 
-function decorations(ctx: Ctx, s: SubjectId): void {
+function decorations(ctx: Ctx, s: ThemeKey): void {
   if (s === 'matematica') {
     const syms: [string, number, number, number][] = [
       ['+', 260, 220, 40], ['÷', 520, 150, 34], ['×', 760, 250, 38],
@@ -171,17 +175,26 @@ function decorations(ctx: Ctx, s: SubjectId): void {
     leaf(ctx, 1480, 240, 1.2);
     flask(ctx, 950, 300, 1.4);
     flask(ctx, 1600, 150, 1.1);
-  } else {
+  } else if (s === 'storia') {
     column(ctx, 320, 230, 1.4);
     column(ctx, 1300, 210, 1.2);
     arch(ctx, 750, 220, 1.6);
     arch(ctx, 1550, 260, 1.2);
+  } else {
+    // scuola: libri e lettere, il cortile da cui parte la corsa
+    book(ctx, 300, 250, 1.6);
+    book(ctx, 1250, 230, 1.3);
+    const ls: [string, number, number, number][] = [
+      ['A', 640, 170, 44], ['B', 900, 250, 38], ['C', 1550, 190, 40]
+    ];
+    for (const [ch, x, y, sz] of ls) symbol(ctx, ch, x, y, sz);
   }
 }
 
-/** Crea gli sfondi parallax delle 4 materie (2 texture ciascuna). */
+/** Crea gli sfondi parallax delle 4 materie + il tema neutro (2 texture ciascuna). */
 export function ensureBackgrounds(scene: Phaser.Scene): void {
-  for (const s of SUBJECTS) {
+  const temi: ThemeKey[] = ['scuola', ...SUBJECTS];
+  for (const s of temi) {
     const t = THEMES[s];
     const farKey = `bg-${s}-far`;
     if (scene.textures.exists(farKey)) scene.textures.remove(farKey);

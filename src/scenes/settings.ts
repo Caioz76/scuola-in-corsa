@@ -4,6 +4,7 @@ import { resolveConfig } from '../bes/resolver';
 import { BES_PROFILES } from '../bes/profiles';
 import { RULE_BY_ID } from '../bes/rules';
 import { loadSettings, saveSettings } from '../core/settings';
+import { addWorld } from '../art/world';
 
 /**
  * Impostazioni BES: profili pronti + regole una per una.
@@ -30,7 +31,9 @@ const REGOLE_UI = [
   'musicOff',
   'soundCues',
   'visualInsteadOfAudio',
-  'highContrast'
+  'highContrast',
+  'reduceMotion',
+  'noDecoration'
 ];
 
 let pagina: 'profili' | 'regole' = 'profili';
@@ -44,6 +47,8 @@ export class SettingsScene extends Phaser.Scene {
     const impostazioni = loadSettings();
     const cfg = resolveConfig(impostazioni);
     const w = this.scale.gameSize.width;
+
+    addWorld(this, 'scuola', cfg, { pico: false, speed: 20 });
 
     if (pagina === 'regole') {
       this.creaRegole(cfg, w);
@@ -122,13 +127,13 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     voci.forEach((regola, i) => {
-      const colonna = i < 9 ? 0 : 1;
-      const riga = i % 9;
+      const colonna = i < 10 ? 0 : 1;
+      const riga = i % 10;
       makeToggle(
         this,
         cfg,
         colonna === 0 ? 268 : 756,
-        130 + riga * 40,
+        126 + riga * 38,
         460,
         regola.label,
         cfg.rules[regola.id] === true,

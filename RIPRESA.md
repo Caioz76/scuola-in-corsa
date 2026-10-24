@@ -9,7 +9,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
 | `npm test` (vitest) | **39/39** |
-| `npx playwright test` | **17/17** |
+| `npx playwright test` | **21/21** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
@@ -18,11 +18,12 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
 | Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
-| Regole una per una | 17 regole con effetto reale, salvate subito in `sic.settings.overrides` |
+| Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | Progressi | dal titolo: stelle di ogni tappa e totale, senza rigiocare |
+| Mondo di gioco | scenografia parallax per materia, Pico che corre, pista con checkpoint |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit di codice: **`99ad593`** — “BES: regole una per una”.
+Ultimo commit di codice: **`54beed4`** — “progressi e alto contrasto” (poi mondo di gioco, in commit).
 
 ## Com'è fatto il codice oggi
 
@@ -35,7 +36,11 @@ src/scenes/subject.ts   4 materie → Game (+ "Tutte le tappe" → Levels)
 src/scenes/levels.ts    scelta diretta di ogni tappa, con le stelle
 src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
 src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
-src/scenes/settings.ts  9 profili BES, salvataggio immediato
+src/scenes/settings.ts  9 profili BES + 19 regole singole, salvataggio immediato
+src/scenes/progress.ts  stelle per tappa + ultima partita (solo per l'insegnante)
+src/art/world.ts        scenografia, Pico, pista e checkpoint (livello visivo)
+src/art/backgrounds.ts  cieli/colline delle materie (texture in Boot)
+src/art/pico.ts         frame di Pico (idle, corsa, salto, festa)
 src/core/settings.ts    loadSettings/saveSettings su localStorage (+ evento)
 src/audio/synth.ts      motore Web Audio procedurale (nessun asset)
 src/audio/apply.ts      regole BES → audio, unlock al primo gesto
@@ -106,6 +111,29 @@ Tre regole erano dichiarate ma senza effetto:
 `tests/e2e/pausa.spec.ts` verifica pausa e ripresa reale; senza profilo né il
 bottone né il contatore compaiono.
 
+### Il mondo: una corsa, non un quiz su fondo nero (24/10)
+
+Prima le scene erano rettangoli scuri con bottoni. Ora c'è un livello visivo
+(`src/art/world.ts`) usato da Title, Subject, Levels, Game, Results, Progress e
+Settings:
+
+- **scenografia parallax** per materia (`src/art/backgrounds.ts`, texture create
+  in Boot): cielo, sole, colline e simboli della materia;
+- **Pico**, il robot giallo (`src/art/pico.ts`), corre in basso a sinistra con le
+  ruote che girano;
+- **pista** con un segmento per prova e la bandiera del traguardo: rispondendo
+  giusto Pico salta, il mondo accelera e il segmento si accende; dopo tre errori
+  Pico inciampa ma la corsa prosegue;
+- un **velo scuro** sopra la scenografia tiene leggibili i testi chiari.
+
+Regole BES collegate: `noDecoration` toglie la scenografia (resta la pista),
+`reduceMotion` ferma lo scorrimento. `tests/e2e/mondo.spec.ts` verifica che il
+terreno scorra davvero, che Pico salti alla risposta giusta e che le due regole
+spengano ciò che devono.
+
+La domanda resta un quiz: la corsa è il contesto, non un platformer. Se si vuole
+un gioco d'azione vero (saltare ostacoli), è un'altra scelta di prodotto.
+
 ### Stato reale delle regole BES (aggiornato 24/10)
 
 Dire "9 profili" non basta: ecco quali regole hanno un effetto verificabile e
@@ -127,19 +155,20 @@ quali sono ancora solo dichiarate. Fonte: uso di `EffectiveConfig` in `src/`.
 | `colorCoding`, `immediateFeedback`, `positiveReinforcement` | ✅ sempre attivi |
 | `extraTime`, `noStreakPressure` | ✅ non c'è timer né serie da nascondere |
 | `oneAtATime`, `predictableLayout` | ✅ una prova alla volta, layout fisso |
-| `reduceMotion`, `noDecoration` | ⚠️ nulla da ridurre: gli sfondi non sono usati |
+| `reduceMotion` | ✅ scenografia ferma (pista inclusa) |
+| `noDecoration` | ✅ niente scenografia: resta la pista su fondo scuro |
 | `highContrast` | ✅ testi tenui → bianco, bordo nero (sfondi invariati) |
 | `shorterText`, `simpleLanguage` | ⚠️ i testi dei contenuti non vengono semplificati |
-| `mascotGuide` | ❌ non esiste un personaggio guida |
+| `mascotGuide` | ⚠️ Pico c'è e corre, ma non guida: nessun suggerimento dato da lui |
 
-Le ultime tre sono le uniche promesse non mantenute: o si implementano o si
+Le ultime righe sono le uniche promesse non mantenute: o si implementano o si
 tolgono dai profili. Non vanno lasciate come se funzionassero.
 
 ### Regole una per una (override individuali)
 
 Da `Settings` → "Regole una per una" si accende/spegne ogni regola; l'override
 vince sul profilo e resta salvato in `sic.settings.overrides`. La schermata
-mostra **solo le 17 regole con un effetto verificabile**: esporre anche testi
+mostra **solo le 19 regole con un effetto verificabile**: esporre anche testi
 brevi, linguaggio semplice e Pico guida sarebbe una promessa falsa (vedi
 tabella sopra).
 
@@ -166,8 +195,11 @@ Nessuno entra in `src/content/packs.ts` senza il via dell'umano.
 
 Dal titolo, in alto a destra, "Progressi" apre `src/scenes/progress.ts`: elenca
 tutte le tappe di tutte le materie con le stelle salvate e il totale. Legge solo
-`sic.progress` (nessun dato personale). `tests/e2e/progressi.spec.ts` semina due
-tappe con 3 e 1 stella e verifica che compaiano davvero.
+`sic.progress` e `sic.history` (nessun dato personale). Mostra anche l'ultima
+partita (punteggio e data): `Results` ora chiama `pushResult`, che prima non era
+mai usato, quindi lo storico non veniva salvato affatto.
+`tests/e2e/progressi.spec.ts` semina due tappe con 3 e 1 stella e una partita
+5/6, e verifica che compaiano davvero.
 
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
@@ -205,7 +237,7 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
 npx vitest run 2>&1 | grep -E "Tests"        # → 39 passed
-npx playwright test 2>&1 | tail -2           # → 17 passed
+npx playwright test 2>&1 | tail -2           # → 21 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`

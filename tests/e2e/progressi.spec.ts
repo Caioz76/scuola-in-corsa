@@ -45,6 +45,22 @@ test('le stelle salvate compaiono nella schermata Progressi', async ({ page }) =
       'sic.progress',
       JSON.stringify({ 'mat-7-9': { 'mat-7-9-l1': 3, 'mat-7-9-l2': 1 } })
     );
+    localStorage.setItem(
+      'sic.history',
+      JSON.stringify([
+        {
+          packId: 'mat-7-9',
+          levelId: 'mat-7-9-l2',
+          total: 6,
+          correct: 5,
+          scorePct: 83,
+          durationMs: 60000,
+          profileId: null,
+          outcomes: [],
+          finishedAt: new Date('2026-10-24T09:00:00').getTime()
+        }
+      ])
+    );
   });
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
@@ -58,4 +74,5 @@ test('le stelle salvate compaiono nella schermata Progressi', async ({ page }) =
   expect(etichette).toContain('★ 3 / 3');
   expect(etichette).toContain('★ 1 / 3');
   expect(etichette.some((t) => t.startsWith('Totale: 4 stelle'))).toBe(true);
+  expect(etichette.some((t) => t.startsWith('Ultima partita: 5/6'))).toBe(true);
 });

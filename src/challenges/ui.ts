@@ -474,11 +474,11 @@ export function optionLayout(n: number, scale: number): [number, number][] {
   const gap = 24 * scale;
   if (n <= 1) return [[512, 350]];
   if (n === 2) return [[512 - w / 2 - gap, 350], [512 + w / 2 + gap, 350]];
-  if (n === 3) return [[512 - w / 2 - gap, 296], [512 + w / 2 + gap, 296], [512, 448]];
+  if (n === 3) return [[512 - w / 2 - gap, 296], [512 + w / 2 + gap, 296], [512, 430]];
   return [
     [512 - w / 2 - gap, 296],
     [512 + w / 2 + gap, 296],
-    [512 - w / 2 - gap, 452],
-    [512 + w / 2 + gap, 452]
+    [512 - w / 2 - gap, 432],
+    [512 + w / 2 + gap, 432]
   ];
 }

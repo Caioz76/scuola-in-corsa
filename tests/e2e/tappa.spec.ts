@@ -208,6 +208,23 @@ test.describe('Tappa completa', () => {
     const p = JSON.parse(salvato!) as Record<string, Record<string, number>>;
     expect(p['mat-7-9'][livello.id]).toBe(3);
 
+    // ── Lo storico per l'insegnante è salvato davvero (non solo le stelle)
+    const storiaRaw = await page.evaluate(() => localStorage.getItem('sic.history'));
+    expect(storiaRaw, 'lo storico deve finire in localStorage').not.toBeNull();
+    const storia = JSON.parse(storiaRaw!) as Array<{
+      correct: number;
+      total: number;
+      scorePct: number;
+      durationMs: number;
+      outcomes: Array<{ correct: boolean }>;
+    }>;
+    expect(storia).toHaveLength(1);
+    expect(storia[0].correct).toBe(livello.rounds.length);
+    expect(storia[0].scorePct).toBe(100);
+    expect(storia[0].outcomes).toHaveLength(livello.rounds.length);
+    expect(storia[0].outcomes.every((o) => o.correct)).toBe(true);
+    expect(storia[0].durationMs).toBeGreaterThan(0);
+
     // ── La seconda tappa si raggiunge dai risultati
     expect(finale.map((t) => t.text)).toContain('Tappa successiva');
     expect(await toccaTesto(page, 'Tappa successiva')).toBe(true);

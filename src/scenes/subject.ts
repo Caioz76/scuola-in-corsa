@@ -5,6 +5,7 @@ import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
 import { starsFor } from '../core/progress';
+import { addWorld } from '../art/world';
 
 export class SubjectScene extends Phaser.Scene {
   constructor() {
@@ -15,6 +16,8 @@ export class SubjectScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
+
+    addWorld(this, 'scuola', cfg, { speed: 44 });
 
     makeText(this, w / 2, 90, 'Scegli la materia', cfg, {
       size: 38,
@@ -48,7 +51,7 @@ export class SubjectScene extends Phaser.Scene {
         makeText(this, v.x, v.y + 62, `★ ${stelle} / 3`, cfg, {
           size: 18,
           bold: stelle > 0,
-          color: stelle > 0 ? '#ffd93d' : '#5a6484'
+          color: stelle > 0 ? '#ffd93d' : '#b8c4e0'
         });
       }
     }

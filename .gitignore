@@ -8,6 +8,7 @@ dashboard.html
 playwright-report/
 test-results/
 tmp-*.mjs
+tmp-*.png
 *.log
 tools/.lanes/
 tools/.patches/

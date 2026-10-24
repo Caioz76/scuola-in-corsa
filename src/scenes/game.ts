@@ -3,9 +3,11 @@ import { getMateria, getLevel, setLevel } from './shared';
 import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks } from '../content/packs';
 import type { Round } from '../content/types';
+import type { RoundOutcome } from '../core/state';
 import { showBanner, makeText, makeButton } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
+import { addWorld, themeFor } from '../art/world';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -31,6 +33,11 @@ export class GameScene extends Phaser.Scene {
       color: '#b8c4e0'
     });
 
+    // Il mondo: scenografia della materia, pista e Pico che corre.
+    // I checkpoint in basso sono le prove della tappa.
+    const world = addWorld(this, themeFor(pack.subject), cfg, { track: true, speed: 38 });
+    world.setProgress(0, level.rounds.length);
+
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
     const contatore = makeText(this, 888, 26, '', cfg, { size: 14, color: '#8fe3b0' });
 
@@ -49,6 +56,8 @@ export class GameScene extends Phaser.Scene {
     let index = 0;
     let correct = 0;
     let current: Challenge | null = null;
+    const inizio = Date.now();
+    const outcomes: RoundOutcome[] = [];
 
     const next = (): void => {
       if (current) {
@@ -56,17 +65,28 @@ export class GameScene extends Phaser.Scene {
         current = null;
       }
       if (index >= level.rounds.length) {
-        this.scene.start('Results', { packId: pack.packId, levelId: level.id, correct, total: level.rounds.length });
+        this.scene.start('Results', {
+          packId: pack.packId,
+          levelId: level.id,
+          correct,
+          total: level.rounds.length,
+          durationMs: Date.now() - inizio,
+          outcomes
+        });
         return;
       }
       if (cfg.clearProgress) {
         contatore.setText(`Prova ${index + 1} di ${level.rounds.length}`);
       }
       const round: Round = level.rounds[index];
+      let errori = 0;
       current = showChallenge(this, round, cfg, {
         onCorrect: () => {
           correct += 1;
           index += 1;
+          outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
+          world.dash();
+          world.setProgress(index, level.rounds.length);
           const ok = showBanner(this, cfg, 'Giusto!', null, 'ok');
           this.time.delayedCall(900 * ritmo, () => {
             ok.dispose();
@@ -74,6 +94,7 @@ export class GameScene extends Phaser.Scene {
           });
         },
         onWrong: (attempts) => {
+          errori += 1;
           const no = showBanner(
             this,
             cfg,
@@ -85,6 +106,9 @@ export class GameScene extends Phaser.Scene {
           // 3 errori: la prova rivela la risposta, poi si prosegue (mai bloccarsi)
           if (attempts >= 3) {
             index += 1;
+            outcomes.push({ roundId: round.id, correct: false, attempts: errori, timeMs: 0 });
+            world.stumble();
+            world.setProgress(index, level.rounds.length);
             this.time.delayedCall(2600 * ritmo, () => next());
           }
         }

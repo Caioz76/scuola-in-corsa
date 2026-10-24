@@ -5,6 +5,7 @@ import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
 import { starsFor } from '../core/progress';
 import { type Materia, setMateria, setLevel } from './shared';
+import { addWorld } from '../art/world';
 
 /**
  * Scelta diretta della tappa.
@@ -29,6 +30,8 @@ export class LevelsScene extends Phaser.Scene {
   create(): void {
     const cfg = resolveConfig(loadSettings());
 
+    addWorld(this, 'scuola', cfg, { speed: 24 });
+
     makeText(this, 512, 50, 'Tutte le tappe', cfg, {
       size: 32,
       bold: true,
@@ -46,7 +49,7 @@ export class LevelsScene extends Phaser.Scene {
       makeText(this, 210, y, m.label, cfg, { size: 20, bold: true, color: '#ffffff' });
 
       pack?.levels.forEach((livello, i) => {
-        const x = i === 0 ? 520 : 760;
+        const x = i === 0 ? 495 : 785;
         const stelle = starsFor(pack.packId, livello.id);
         const b = makeButton(this, cfg, x, y, `Tappa ${i + 1} · ★ ${stelle}`, {
           scale: 0.82,

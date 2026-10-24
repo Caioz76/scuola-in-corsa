@@ -3,6 +3,7 @@ import { GAME_NAME } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
+import { addWorld } from '../art/world';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,8 @@ export class TitleScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
+
+    addWorld(this, 'scuola', cfg, { speed: 58 });
 
     makeText(this, w / 2, h / 2 - 110, GAME_NAME, cfg, {
       size: 48,
