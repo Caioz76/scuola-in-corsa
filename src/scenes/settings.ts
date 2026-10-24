@@ -1,8 +1,38 @@
 import Phaser from 'phaser';
-import { makeButton, makeText } from '../challenges/ui';
+import { makeButton, makeText, makeToggle } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { BES_PROFILES } from '../bes/profiles';
+import { RULE_BY_ID } from '../bes/rules';
 import { loadSettings, saveSettings } from '../core/settings';
+
+/**
+ * Impostazioni BES: profili pronti + regole una per una.
+ *
+ * Le regole mostrate qui sono SOLO quelle con un effetto verificabile nel
+ * gioco. Le altre (alto contrasto, testi brevi, linguaggio semplice, Pico
+ * guida) non hanno ancora un'implementazione: esporle come interruttori
+ * sarebbe una promessa falsa. Vedi RIPRESA.md.
+ */
+const REGOLE_UI = [
+  'pauseAllowed',
+  'slowPace',
+  'fewerOptions',
+  'hintFirst',
+  'errorExplanation',
+  'dyslexiaFont',
+  'largerText',
+  'visualSupports',
+  'tapInsteadOfDrag',
+  'largerTargets',
+  'noPrecision',
+  'repeatPrompt',
+  'clearProgress',
+  'musicOff',
+  'soundCues',
+  'visualInsteadOfAudio'
+];
+
+let pagina: 'profili' | 'regole' = 'profili';
 
 export class SettingsScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +43,11 @@ export class SettingsScene extends Phaser.Scene {
     const impostazioni = loadSettings();
     const cfg = resolveConfig(impostazioni);
     const w = this.scale.gameSize.width;
+
+    if (pagina === 'regole') {
+      this.creaRegole(cfg, w);
+      return;
+    }
 
     makeText(this, w / 2, 46, 'Impostazioni', cfg, {
       size: 32,
@@ -47,13 +82,70 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    const nessuno = makeButton(this, cfg, 300, 500, 'Nessun profilo', { scale: 0.62, depth: 10 });
+    const nessuno = makeButton(this, cfg, 250, 500, 'Nessun profilo', { scale: 0.62, depth: 10 });
     nessuno.onTap(() => {
       saveSettings({ profileId: null, overrides: {} });
       this.scene.restart();
     });
 
-    const indietro = makeButton(this, cfg, 724, 500, 'Torna al titolo', { scale: 0.62, depth: 10 });
-    indietro.onTap(() => this.scene.start('Title'));
+    const personalizza = makeButton(this, cfg, 512, 500, 'Regole una per una', {
+      scale: 0.62,
+      depth: 10
+    });
+    personalizza.onTap(() => {
+      pagina = 'regole';
+      this.scene.restart();
+    });
+
+    const indietro = makeButton(this, cfg, 774, 500, 'Torna al titolo', { scale: 0.62, depth: 10 });
+    indietro.onTap(() => {
+      pagina = 'profili';
+      this.scene.start('Title');
+    });
+  }
+
+  private creaRegole(cfg: ReturnType<typeof resolveConfig>, w: number): void {
+    makeText(this, w / 2, 46, 'Regole una per una', cfg, {
+      size: 30,
+      bold: true,
+      color: '#ffd93d',
+      outline: true
+    });
+    makeText(this, w / 2, 86, 'Tocca una regola per accenderla o spegnerla. Il profilo scelto resta.', cfg, {
+      size: 14,
+      color: '#b8c4e0'
+    });
+
+    const voci = REGOLE_UI.map((id) => RULE_BY_ID.get(id)).filter(
+      (r): r is NonNullable<typeof r> => Boolean(r)
+    );
+
+    voci.forEach((regola, i) => {
+      const colonna = i < 8 ? 0 : 1;
+      const riga = i % 8;
+      makeToggle(
+        this,
+        cfg,
+        colonna === 0 ? 268 : 756,
+        140 + riga * 44,
+        460,
+        regola.label,
+        cfg.rules[regola.id] === true,
+        () => {
+          const s = loadSettings();
+          saveSettings({
+            ...s,
+            overrides: { ...s.overrides, [regola.id]: !(cfg.rules[regola.id] === true) }
+          });
+          this.scene.restart();
+        }
+      );
+    });
+
+    const indietro = makeButton(this, cfg, 512, 525, 'Torna ai profili', { scale: 0.62, depth: 10 });
+    indietro.onTap(() => {
+      pagina = 'profili';
+      this.scene.restart();
+    });
   }
 }

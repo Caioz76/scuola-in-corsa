@@ -1,0 +1,82 @@
+{
+  "packId": "ita-8-10-l3",
+  "version": "1",
+  "title": "Italiano — terza tappa",
+  "subject": "italiano",
+  "ageRange": "8-10",
+  "difficulty": 3,
+  "levels": [
+    {
+      "id": "ita-8-10-l3",
+      "title": "Terza tappa: significati e tempi",
+      "difficulty": 3,
+      "rounds": [
+        {
+          "id": "ita-l3-1",
+          "type": "quiz",
+          "prompt": "Quale parola ha lo stesso significato di «felice»?",
+          "hint": "Pensa a come ti senti quando ricevi un regalo che desideri.",
+          "explanation": "«Contento» è un sinonimo di «felice»: indicano la stessa emozione.",
+          "options": [
+            { "label": "contento", "correct": true },
+            { "label": "triste", "correct": false },
+            { "label": "stanco", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l3-2",
+          "type": "quiz",
+          "prompt": "Qual è il contrario di «alto»?",
+          "hint": "Pensa a una cosa che sta vicino al pavimento.",
+          "explanation": "«Basso» è il contrario di «alto».",
+          "options": [
+            { "label": "basso", "correct": true },
+            { "label": "lungo", "correct": false },
+            { "label": "grande", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l3-3",
+          "type": "quiz",
+          "prompt": "Quale frase racconta qualcosa che è già successo?",
+          "hint": "Cerca la parola che indica un tempo passato.",
+          "explanation": "«Ieri ho giocato al parco» è al passato: l'azione è già avvenuta.",
+          "options": [
+            { "label": "Ieri ho giocato al parco.", "correct": true },
+            { "label": "Oggi gioco al parco.", "correct": false },
+            { "label": "Domani giocherò al parco.", "correct": false }
+          ]
+        },
+        {
+          "id": "ita-l3-4",
+          "type": "dragdrop",
+          "mode": "match",
+          "prompt": "Abbina ogni parola al suo contrario.",
+          "hint": "Ogni parola ha un opposto di significato.",
+          "explanation": "Alto/basso, giorno/notte e caldo/freddo sono coppie di contrari.",
+          "leftItems": ["alto", "giorno", "caldo"],
+          "rightItems": ["freddo", "basso", "notte"],
+          "pairs": [[0, 1], [1, 2], [2, 0]]
+        },
+        {
+          "id": "ita-l3-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti queste parole in ordine alfabetico.",
+          "hint": "Guarda la prima lettera e poi la seconda.",
+          "explanation": "L'ordine è: casa, dado, festa, gomma.",
+          "sortItems": ["casa", "dado", "festa", "gomma"]
+        },
+        {
+          "id": "ita-l3-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca le parole nell'ordine giusto per formare una frase.",
+          "hint": "Si parte dall'articolo, poi il nome, il verbo e dove avviene.",
+          "explanation": "La frase corretta è «La luna splende nel cielo».",
+          "items": ["La", "luna", "splende", "nel cielo"]
+        }
+      ]
+    }
+  ]
+}

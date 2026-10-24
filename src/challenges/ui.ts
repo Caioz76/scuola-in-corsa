@@ -342,6 +342,51 @@ export function flashCue(scene: Phaser.Scene, cfg: EffectiveConfig, kind: 'ok' |
 }
 
 /**
+ * Riga interruttore per il pannello "regole una per una".
+ * Il tocco agisce sull'intera riga (zona interattiva), non solo sul testo.
+ */
+export function makeToggle(
+  scene: Phaser.Scene,
+  cfg: EffectiveConfig,
+  x: number,
+  y: number,
+  w: number,
+  label: string,
+  on: boolean,
+  onTap: () => void
+): void {
+  const h = 38;
+  const spec = fontSpec(cfg);
+  const g = scene.add.graphics().setDepth(10);
+  g.fillStyle(on ? 0x1f4d36 : 0x242a44, 0.95);
+  g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 8);
+  g.lineStyle(2, on ? 0x58d68d : 0x3a4160, 1);
+  g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 8);
+
+  scene.add
+    .text(x - w / 2 + 12, y, label, {
+      fontFamily: spec.family,
+      fontSize: `${Math.round(13 * cfg.fontScale)}px`,
+      color: '#e8ecf7'
+    })
+    .setOrigin(0, 0.5)
+    .setDepth(11);
+  scene.add
+    .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
+      fontFamily: spec.family,
+      fontSize: `${Math.round(13 * cfg.fontScale)}px`,
+      color: on ? '#8fe3b0' : '#8b93ad',
+      fontStyle: 'bold'
+    })
+    .setOrigin(1, 0.5)
+    .setDepth(11);
+
+  const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
+  zona.setDepth(12);
+  zona.on('pointerup', onTap);
+}
+
+/**
  * Banner di feedback (sotto, sopra la terra). Il chiamante decide la durata
  * e chiama dispose() (con fade out).
  */

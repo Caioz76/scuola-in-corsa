@@ -8,8 +8,8 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **35/35** |
-| `npx playwright test` | **14/14** |
+| `npm test` (vitest) | **37/37** |
+| `npx playwright test` | **15/15** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
@@ -18,6 +18,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
 | Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
+| Regole una per una | 16 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
 Ultimo commit: **`8a09903`** — “BES: pausa, contatore e ritmo applicati”.
@@ -104,6 +105,47 @@ Tre regole erano dichiarate ma senza effetto:
 `tests/e2e/pausa.spec.ts` verifica pausa e ripresa reale; senza profilo né il
 bottone né il contatore compaiono.
 
+### Stato reale delle regole BES (aggiornato 24/10)
+
+Dire "9 profili" non basta: ecco quali regole hanno un effetto verificabile e
+quali sono ancora solo dichiarate. Fonte: uso di `EffectiveConfig` in `src/`.
+
+| Regola | Effetto |
+|---|---|
+| `pauseAllowed` | ✅ pausa reale, ripresa dallo stesso punto |
+| `clearProgress` | ✅ "Prova 2 di 6" |
+| `slowPace` | ✅ feedback 1,6× più lunghi |
+| `fewerOptions` | ✅ massimo 2 opzioni, la corretta resta |
+| `hintFirst` | ✅ suggerimento subito (quiz) |
+| `errorExplanation` | ✅ spiegazione dopo l'errore (quiz) |
+| `dyslexiaFont`, `largerText` | ✅ font e scala del testo |
+| `visualSupports` | ✅ riga numerica / base dieci / tabella |
+| `tapInsteadOfDrag`, `largerTargets`, `noPrecision` | ✅ |
+| `repeatPrompt` | ✅ bottone "Rileggi" |
+| `musicOff`, `soundCues`, `visualInsteadOfAudio` | ✅ audio |
+| `colorCoding`, `immediateFeedback`, `positiveReinforcement` | ✅ sempre attivi |
+| `extraTime`, `noStreakPressure` | ✅ non c'è timer né serie da nascondere |
+| `oneAtATime`, `predictableLayout` | ✅ una prova alla volta, layout fisso |
+| `reduceMotion`, `noDecoration` | ⚠️ nulla da ridurre: gli sfondi non sono usati |
+| `highContrast` | ⚠️ palette `C_HC` pronta ma non applicata |
+| `shorterText`, `simpleLanguage` | ⚠️ i testi dei contenuti non vengono semplificati |
+| `mascotGuide` | ❌ non esiste un personaggio guida |
+
+Le ultime quattro sono le uniche promesse non mantenute: o si implementano o si
+tolgono dai profili. Non vanno lasciate come se funzionassero.
+
+### Regole una per una (override individuali)
+
+Da `Settings` → "Regole una per una" si accende/spegne ogni regola; l'override
+vince sul profilo e resta salvato in `sic.settings.overrides`. La schermata
+mostra **solo le 16 regole con un effetto verificabile**: esporre anche alto
+contrasto, testi brevi, linguaggio semplice e Pico guida sarebbe una promessa
+falsa (vedi tabella sopra).
+
+`makeToggle` in `src/challenges/ui.ts` disegna la riga e rende tutta la superficie
+toccabile (non solo il testo). `tests/e2e/override.spec.ts` accende "Pausa quando
+serve" senza profilo e verifica che il bottone "Pausa" compaia davvero in gioco.
+
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
 1. **Aree cliccabili in coordinate sbagliate** — Phaser normalizza il punto
@@ -139,8 +181,8 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 35 passed
-npx playwright test 2>&1 | tail -2           # → 14 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 37 passed
+npx playwright test 2>&1 | tail -2           # → 15 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`

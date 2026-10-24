@@ -1,0 +1,83 @@
+{
+  "packId": "mat-7-9-l3",
+  "version": "1",
+  "title": "Matematica — terza tappa",
+  "subject": "matematica",
+  "ageRange": "7-9",
+  "difficulty": 3,
+  "levels": [
+    {
+      "id": "mat-7-9-l3",
+      "title": "Terza tappa: moltiplicare e dividere",
+      "difficulty": 3,
+      "rounds": [
+        {
+          "id": "mat-l3-1",
+          "type": "quiz",
+          "prompt": "Quanto fa 7 × 8?",
+          "hint": "Pensa a 7 × 4 = 28 e raddoppia.",
+          "explanation": "7 × 8 = 56, perché 7 × 4 fa 28 e il doppio di 28 è 56.",
+          "options": [
+            { "label": "56", "correct": true },
+            { "label": "48", "correct": false },
+            { "label": "64", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l3-2",
+          "type": "quiz",
+          "prompt": "Quanto fa 36 ÷ 6?",
+          "hint": "Cerca quel numero che moltiplicato per 6 dà 36.",
+          "explanation": "6 × 6 = 36, quindi 36 diviso 6 fa 6.",
+          "options": [
+            { "label": "6", "correct": true },
+            { "label": "5", "correct": false },
+            { "label": "7", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l3-3",
+          "type": "quiz",
+          "prompt": "Ci sono 3 scatole con 8 matite ciascuna. Quante matite in tutto?",
+          "hint": "Tre gruppi uguali: usa una moltiplicazione.",
+          "explanation": "3 × 8 = 24: tre scatole da otto matite fanno ventiquattro matite.",
+          "options": [
+            { "label": "24", "correct": true },
+            { "label": "11", "correct": false },
+            { "label": "32", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l3-4",
+          "type": "quiz",
+          "prompt": "Quale operazione dà come risultato 20?",
+          "hint": "Prova a moltiplicare, non solo ad addizionare.",
+          "explanation": "4 × 5 = 20. Le altre due operazioni danno 9 e 4.",
+          "options": [
+            { "label": "4 × 5", "correct": true },
+            { "label": "4 + 5", "correct": false },
+            { "label": "20 ÷ 5", "correct": false }
+          ]
+        },
+        {
+          "id": "mat-l3-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti in ordine crescente i risultati della tabellina del 6.",
+          "hint": "Parti da 6 × 2 e aggiungi sempre 6.",
+          "explanation": "6 × 2 = 12, 6 × 3 = 18, 6 × 4 = 24, 6 × 5 = 30.",
+          "sortItems": ["12", "18", "24", "30"]
+        },
+        {
+          "id": "mat-l3-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca i risultati di 3 × 2, 3 × 3 e 3 × 4 nell'ordine.",
+          "hint": "Il risultato cresce di 3 a ogni passo.",
+          "explanation": "3 × 2 = 6, 3 × 3 = 9, 3 × 4 = 12.",
+          "items": ["6", "9", "12"]
+        }
+      ]
+    }
+  ]
+}
