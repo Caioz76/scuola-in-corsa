@@ -21,6 +21,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | Modalità di gioco | **Quiz** (bottoni) o **Runner** (cartelli sulla pista), scelta in Impostazioni |
 | Telefono | layout a tutto schermo senza scroll; in verticale invita a ruotare; provato su iPhone 13 emulato |
+| Pubblicazione | **https://caioz76.github.io/scuola-in-corsa/** — GitHub Pages, aggiornata a ogni push su `main` |
 | Progressi | dal titolo: stelle di ogni tappa e totale, senza rigiocare |
 | Mondo di gioco | scenografia parallax per materia, Pico che corre, pista con checkpoint |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
@@ -172,9 +173,22 @@ bottoni con i cartelli, il salto di Pico verso la risposta giusta,
 
 `.github/workflows/deploy.yml` costruisce e pubblica su GitHub Pages a ogni push
 su `main`: typecheck, test unitari, build, deploy di `dist/ScuolaInCorsa`. La
-build è un solo `index.html`, quindi funziona anche sotto `/<repo>/`. Serve però
-un repository **pubblico** (piano GitHub free) e un'identità GitHub autenticata:
-sulla macchina non c'è né `gh` né una chiave SSH.
+build è un solo `index.html`, quindi funziona anche sotto `/<repo>/`.
+
+Il repository è **pubblico**: https://github.com/Caioz76/scuola-in-corsa
+Il gioco è online: **https://caioz76.github.io/scuola-in-corsa/**
+
+Ultimo deploy verificato (24/10): workflow verde in 30 s, sito raggiungibile,
+prova da iPhone 13 emulato in landscape (Impostazioni → Runner → partita con 4
+cartelli), nessun errore console.
+
+Per aggiornare il sito basta `git push origin main`. Se il workflow fallisce,
+GitHub non tocca l'ultima versione pubblicata.
+
+Nota sull'autenticazione: su questa macchina `gh` è installato e l'accesso è
+dell'account **Caioz76**, con scope `repo` + `workflow` (quest'ultimo serve per
+pubblicare il file del workflow). L'autore dei commit è stato riallineato a
+`Caioz76 <Caioz76@users.noreply.github.com>`.
 
 ### Stile grafico: ispirazione Wii, non copia (24/10)
 
@@ -321,18 +335,14 @@ Misure: C7 **91 s** · pilota contenuti **113 s** · hook **77 s** · hit-area
 
 ## Prossimi passi, in ordine di valore
 
-1. **Pubblicazione su GitHub Pages**: il workflow è pronto e la build è un solo
-   file. Serve un'identità GitHub autenticata (`brew install gh && gh auth
-   login`) e un repo **pubblico**; poi `git remote add origin …`, push su `main`
-   e attivazione di Pages (Settings → Pages → GitHub Actions).
-2. **Revisione umana delle 6 bozze** in `content/drafts/`: è il cancello. Senza
+1. **Revisione umana delle 6 bozze** in `content/drafts/`: è il cancello. Senza
    approvazione i contenuti non entrano in `src/content/`.
-3. **Regole BES ancora dichiarate**: `shorterText`/`simpleLanguage` (testi più
+2. **Regole BES ancora dichiarate**: `shorterText`/`simpleLanguage` (testi più
    brevi e semplici) e `mascotGuide` (Pico che suggerisce). O si implementano o
    si tolgono dai profili.
-4. **Contenuti mancanti**: scienze e storia hanno una sola tappa; matematica e
+3. **Contenuti mancanti**: scienze e storia hanno una sola tappa; matematica e
    italiano ne hanno due.
-5. **Collaudo in classe**: la modalità Runner va provata con i bambini; il
+4. **Collaudo in classe**: la modalità Runner va provata con i bambini; il
    giudizio vero è lì, non negli screenshot.
 
 ## Problemi noti (veri, non ipotetici)
