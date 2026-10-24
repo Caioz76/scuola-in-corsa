@@ -25,6 +25,7 @@ import {
   makeText,
   shuffle,
   showBanner,
+  testoSemplice,
   type Btn,
   type Challenge,
   type ChallengeCallbacks,
@@ -92,7 +93,7 @@ export class OrderChallenge implements Challenge {
     this.xs = Array.from({ length: this.n }, (_, i) => x0 + i * (this.slotW + GAP));
 
     // ── Prompt / hint / istruzione ──
-    this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
+    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
       size: 26,
       bold: true,
       color: '#2f3b4c',
@@ -107,9 +108,11 @@ export class OrderChallenge implements Challenge {
       scene,
       512,
       152,
-      dragOk
-        ? `Trascina (o tocca) gli elementi negli slot, dall'1 al ${this.n}`
-        : `Tocca gli elementi nell'ordine giusto, dall'1 al ${this.n}`,
+      cfg.simpleLanguage
+        ? `Metti nell'ordine da 1 a ${this.n}`
+        : dragOk
+          ? `Trascina (o tocca) gli elementi negli slot, dall'1 al ${this.n}`
+          : `Tocca gli elementi nell'ordine giusto, dall'1 al ${this.n}`,
       cfg,
       { size: 15, color: '#5f7186', wrap: 760 }
     );
@@ -153,7 +156,7 @@ export class OrderChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${this.round.hint}`, this.cfg, {
+    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 15,
       color: C.orangeDeep,
       italic: true,

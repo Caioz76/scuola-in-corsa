@@ -117,9 +117,9 @@ test.describe('Tappa completa', () => {
     await tocco(page, 322, 248);
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
 
-    // ── La tappa reale, letta dal pack che il gioco sta usando
+    // ── La tappa reale, con le prove estratte per la partita in corso
     const livello = await page.evaluate(async () => {
-      // Percorso non letterale: TypeScript non deve risolverlo (gira nel browser).
+      const g = (window as unknown as { __GIOCO__?: { rounds?: Array<Record<string, unknown>> } }).__GIOCO__;
       const percorso = '/src/content/packs.ts';
       const m = (await import(/* @vite-ignore */ percorso)) as {
         allPacks: () => Array<{
@@ -131,9 +131,10 @@ test.describe('Tappa completa', () => {
         }>;
       };
       const pack = m.allPacks().find((x) => x.subject === 'matematica');
-      return pack!.levels[0] as unknown as {
-        id: string;
-        rounds: Array<{
+      const lv = pack!.levels[0];
+      return {
+        id: lv.id,
+        rounds: (g?.rounds && g.rounds.length > 0 ? g.rounds : lv.rounds) as unknown as Array<{
           prompt: string;
           type: string;
           mode?: string;
@@ -143,7 +144,7 @@ test.describe('Tappa completa', () => {
           rightItems?: string[];
           pairs?: Array<[number, number]>;
           items?: string[];
-        }>;
+        }>
       };
     });
     expect(livello.rounds.length).toBeGreaterThan(0);
@@ -231,6 +232,8 @@ test.describe('Tappa completa', () => {
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
 
     const secondoPrompt = await page.evaluate(async () => {
+      const g = (window as unknown as { __GIOCO__?: { rounds?: Array<{ prompt: string }> } }).__GIOCO__;
+      if (g?.rounds && g.rounds.length > 0) return g.rounds[0].prompt;
       const percorso = '/src/content/packs.ts';
       const m = (await import(/* @vite-ignore */ percorso)) as {
         allPacks: () => Array<{

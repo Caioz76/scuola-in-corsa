@@ -173,7 +173,7 @@ async function avviaMatematica(page: Page): Promise<void> {
   await expect.poll(() => scena(page)).toBe('Game');
 }
 
-/** Le prove della tappa 1 di Matematica, lette dal pack vero. */
+/** Le prove della partita attiva di Matematica, lette da window.__GIOCO__.rounds (o fallback al pack). */
 async function prove(page: Page): Promise<
   Array<{
     prompt: string;
@@ -182,6 +182,12 @@ async function prove(page: Page): Promise<
   }>
 > {
   return page.evaluate(async () => {
+    const g = (window as unknown as {
+      __GIOCO__?: {
+        rounds?: Array<{ prompt: string; type: string; options?: Array<{ label: string; correct: boolean }> }>;
+      };
+    }).__GIOCO__;
+    if (g?.rounds && g.rounds.length > 0) return g.rounds;
     const percorso = '/src/content/packs.ts';
     const m = (await import(/* @vite-ignore */ percorso)) as {
       allPacks: () => Array<{

@@ -1,32 +1,39 @@
-# RIPRESA — stato al 24/10/2026, 05:45
+# RIPRESA — stato al 24/10/2026
+
+> **Proprietà e Licenza**: `© 2026 Claudio Borsotti — Applicazione in fase di sviluppo. Tutti i diritti riservati. Vietata la riproduzione e la diffusione senza autorizzazione.` (vedi file [`LICENSE`](LICENSE)).
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
-questo file: in fondo ci sono le tre verifiche che dicono la verità.
+questo file: in fondo ci sono le verifiche che dicono la verità.
 
 ## Cosa funziona ORA (verificato, non dichiarato)
 
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **39/39** |
-| `npx playwright test` | **30/30** |
-| Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
+| `npm test` (vitest) | **43/43 test unitari passati (<1 s)** |
+| `npx playwright test` | **39/39 test E2E verificati** |
+| Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`, `Progress`, `Pause`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
 | Audio | si sblocca al primo gesto; profilo Sordità = zero suoni e zero contesto |
-| Contenuti in gioco | 4 materie; **matematica e italiano con 2 tappe** (12 esercizi revisionati) |
-| Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
+| Contenuti in gioco | **184 prove totali**: 4 materie con **3 tappe ciascuna** (72 prove in `packs.ts`) + **112 prove extra** nella banca domande (`question-bank.ts`, 28 per materia) |
+| Anni scolastici (8 classi) | **Primaria 1ª–5ª (`P1`–`P5`)** e **Secondaria I grado 1ª–3ª (`S1`–`S3`)**: calibrano difficoltà (1–3), tappa iniziale, velocità Runner (360–560 px/s) e numero opzioni |
+| Estrazione randomica | `selectRoundsForGame` unisce le prove della tappa al bacino dell'anno scolastico, mescola senza ripetere le prove appena giocate (`randomQuestions`, disattivabile in Impostazioni) |
+| Tappa successiva | da `Results` si passa alla tappa seguente, senza tornare al titolo |
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
 | Navigazione in partita | barra **Pausa / Esci** sempre visibile (HTML sopra il canvas, safe area, ≥44 px); pausa reale e ripresa dallo stesso punto; uscita con conferma |
 | Profilo BES e pausa | col profilo: "Prova 2 di 6"; "Pausa quando serve" ferma la partita da sola se si cambia app o si nasconde la pagina |
-| Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
+| Regole BES una per una | **22/22 regole tutte con effetto reale** (incluse `shorterText`, `simpleLanguage` e `mascotGuide`), salvate subito in `sic.settings.overrides` |
 | Modalità di gioco | **Quiz** (bottoni) o **Runner** (cartelli sulla pista), scelta in Impostazioni |
 | Grafica | **2D** o **3D** (terza persona, Three.js), scelta separata dalla modalità |
+| Homepage (`Title`) | Level-up grafico in stile Wii pastello, scenografia viva con Pico in corsa e navigazione immediata |
 | Telefono | layout a tutto schermo senza scroll; in verticale invita a ruotare; provato su iPhone 13 emulato |
-| Pubblicazione | **https://caioz76.github.io/scuola-in-corsa/** — GitHub Pages, aggiornata a ogni push su `main` |
+| Pubblicazione Gioco | **https://caioz76.github.io/scuola-in-corsa/** — GitHub Pages, aggiornata a ogni push su `main` |
+| Dashboard Smartphone | **https://caioz76.github.io/scuola-in-corsa/dashboard.html** (e in LAN `http://192.168.1.188:5211/dashboard.html`), rigenerabile in ~2 s con `bash tools/dashboard.sh --fast` |
+| Licenza | **© 2026 Claudio Borsotti** (`LICENSE`), tutti i diritti riservati, inclusa anche in `dist/ScuolaInCorsa/` |
 | Progressi | dal titolo: stelle di ogni tappa e totale, senza rigiocare |
 | Mondo di gioco | scenografia parallax per materia, Pico che corre, pista con checkpoint |
-| `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio, treD }` |
+| `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio, treD, rounds }` |
 
 Ultimo commit di codice: leggi `git log -1 --oneline` (un hash scritto a mano
 invecchia subito).
@@ -34,26 +41,30 @@ invecchia subito).
 ## Com'è fatto il codice oggi
 
 ```
-src/main.ts             creazione gioco + gancio di test + avvio audio
-src/scenes/shared.ts    tipo Materia + get/set (nessun import circolare)
-src/scenes/boot.ts      texture UI + icone → Title
-src/scenes/title.ts     titolo, "Gioca" → Subject
-src/scenes/subject.ts   4 materie → Game (+ "Tutte le tappe" → Levels)
-src/scenes/levels.ts    scelta diretta di ogni tappa, con le stelle
-src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
-src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
-src/scenes/settings.ts  9 profili BES + 19 regole singole, salvataggio immediato
-src/scenes/progress.ts  stelle per tappa + ultima partita (solo per l'insegnante)
-src/art/world.ts        scenografia, Pico, pista e checkpoint (livello visivo 2D)
-src/art/three-world.ts  mondo 3D in terza persona (Three.js) e cancello con porte
-src/ui/nav.ts           barra HTML Pausa/Esci, sempre disponibile
+src/main.ts               creazione gioco + gancio di test + avvio audio
+src/scenes/shared.ts      tipo Materia + get/set (nessun import circolare)
+src/scenes/boot.ts        texture UI + icone → Title
+src/scenes/title.ts       homepage (level-up grafico), "Gioca" → Subject
+src/scenes/subject.ts     4 materie → Game (+ "Tutte le tappe" → Levels)
+src/scenes/levels.ts      scelta diretta di ogni tappa, con le stelle
+src/scenes/game.ts        prove reali, estrazione per anno, guida Pico, 3 errori → si prosegue
+src/scenes/results.ts     punteggio, 3 stelle, salvataggio, Rigioca/Tappa succ./Titolo
+src/scenes/settings.ts    9 profili BES + 22 regole singole + 8 anni scolastici
+src/scenes/progress.ts    stelle per tappa + ultima partita (solo per l'insegnante)
+src/content/packs.ts      12 tappe (3 per materia, 72 prove) + selectRoundsForGame
+src/content/question-bank.ts  banca estesa (112 prove, 28 per materia) targata per anno (P1..P5, S1..S3)
+src/bes/resolver.ts       resolver BES (22 regole) + 8 anni scolastici (ANNI_SCOLASTICI)
+src/art/world.ts          scenografia, Pico, pista e checkpoint (livello visivo 2D)
+src/art/three-world.ts    mondo 3D in terza persona (Three.js) e cancello con porte
+src/ui/nav.ts             barra HTML Pausa/Esci, sempre disponibile
 src/ui/runner-answers.ts  risposte HTML in basso per il Runner 3D
-src/art/backgrounds.ts  cieli/colline delle materie (texture in Boot)
-src/art/pico.ts         frame di Pico (idle, corsa, salto, festa)
-src/core/settings.ts    loadSettings/saveSettings su localStorage (+ evento)
-src/audio/synth.ts      motore Web Audio procedurale (nessun asset)
-src/audio/apply.ts      regole BES → audio, unlock al primo gesto
-src/challenges/hit.ts   geometria pura delle aree cliccabili
+src/art/backgrounds.ts    cieli/colline delle materie (texture in Boot)
+src/art/pico.ts           frame di Pico (idle, corsa, salto, festa)
+src/core/settings.ts      loadSettings/saveSettings su localStorage (+ evento)
+src/audio/synth.ts        motore Web Audio procedurale (nessun asset)
+src/audio/apply.ts        regole BES → audio, unlock al primo gesto
+src/challenges/hit.ts     geometria pura delle aree cliccabili
+src/challenges/ui.ts      testi BES, testoSemplice (shorterText/simpleLanguage), bottoni, banner
 ```
 
 ## Audio: cosa è cambiato (24/10)
@@ -284,63 +295,81 @@ risultati, i bottoni della pausa si sovrapponevano alle opzioni del quiz, il
 feedback "Giusto!" copriva le opzioni e Pico (ora compare sopra i bottoni nelle
 prove a scelta, in basso nelle altre).
 
-### Stato reale delle regole BES (aggiornato 24/10)
+### Selezione per Anno Scolastico: Primaria (1ª–5ª) e Secondaria I grado (1ª–3ª) (24/10)
 
-Dire "9 profili" non basta: ecco quali regole hanno un effetto verificabile e
-quali sono ancora solo dichiarate. Fonte: uso di `EffectiveConfig` in `src/`.
+In **Impostazioni → Anno scolastico** (e riassunto nell'intestazione di Impostazioni e in `GameScene`) lo studente o l'insegnante può scegliere fra **8 classi** (`ANNI_SCOLASTICI` in `src/bes/resolver.ts`, salvate in `sic.settings.schoolYear`, default `P3`):
+
+- **Scuola Primaria**:
+  - `P1` (**1ª Primaria**): difficoltà 1/3, tappa iniziale 1, massimo 3 opzioni nei quiz, velocità Runner `360 px/s`;
+  - `P2` (**2ª Primaria**): difficoltà 1/3, tappa iniziale 1, velocità Runner `420 px/s`;
+  - `P3` (**3ª Primaria**): difficoltà 1/3, tappa iniziale 1, velocità Runner `480 px/s`;
+  - `P4` (**4ª Primaria**): difficoltà 2/3, tappa iniziale 2, velocità Runner `480 px/s`;
+  - `P5` (**5ª Primaria**): difficoltà 2/3, tappa iniziale 3, velocità Runner `500 px/s`;
+- **Scuola Secondaria di primo grado**:
+  - `S1` (**1ª Secondaria**): difficoltà 3/3, tappa iniziale 3, velocità Runner `520 px/s`;
+  - `S2` (**2ª Secondaria**): difficoltà 3/3, tappa iniziale 3, velocità Runner `540 px/s`;
+  - `S3` (**3ª Secondaria**): difficoltà 3/3, tappa iniziale 3, velocità Runner `560 px/s`.
+
+### Banca Domande Estesa ed Estrazione Randomica (24/10)
+
+Tutte e 4 le materie (**Matematica**, **Italiano**, **Scienze**, **Storia**) dispongono ora di **3 tappe complete** ciascuna in `src/content/packs.ts` (12 tappe × 6 prove = **72 prove strutturate**), affiancate dalla banca domande per anno scolastico in `src/content/question-bank.ts` (**112 prove extra**, 28 per materia, etichettate per `years: ['P1', ...]`), per un totale di **184 prove didattiche** nel gioco.
+
+All'avvio di ogni partita, `selectRoundsForGame(pack, level, settings)` in `src/content/packs.ts`:
+- se `settings.randomQuestions !== false` (attivo di default, commutabile nella scheda *Anno scolastico* in Impostazioni), unisce le prove della tappa selezionata con quelle di `BANCA_DOMANDE[pack.subject]` compatibili con l'anno scolastico attivo;
+- evita di riproporre subito le prove appena uscite nella partita precedente (`ultimiRoundIds`) e mescola l'ordine tenendo prima 4 prove a scelta (`quiz`/`image`, ideali per i varchi del Runner) e in coda 2 prove interattive (`dragdrop`/`sequence`);
+- espone le prove estratte tramite `getActiveRounds()` e `window.__GIOCO__.rounds`.
+
+### Level-up Grafico della Homepage (`TitleScene`) (24/10)
+
+La schermata iniziale (`src/scenes/title.ts`) accoglie il giocatore con il tema pastello ispirato alla Nintendo Wii, scenografia animata a scorrimento con Pico in corsa, tipografia curata ad alta leggibilità e pulsanti immediati per **Gioca**, **Impostazioni** e **Progressi**.
+
+### Stato reale delle regole BES: tutte le 22 regole attive (aggiornato 24/10)
+
+Tutte le **22 regole BES** hanno ora un effetto reale e verificabile nel motore di gioco (`EffectiveConfig` in `src/bes/resolver.ts`, `src/challenges/ui.ts` e `src/scenes/game.ts`):
 
 | Regola | Effetto |
 |---|---|
 | `pauseAllowed` | ✅ pausa automatica quando la pagina viene nascosta (la pausa manuale è sempre disponibile) |
 | `clearProgress` | ✅ "Prova 2 di 6" |
-| `slowPace` | ✅ feedback 1,6× più lunghi |
+| `slowPace` | ✅ feedback 1,6× più lunghi e movimento ridotto |
 | `fewerOptions` | ✅ massimo 2 opzioni, la corretta resta |
 | `hintFirst` | ✅ suggerimento subito (quiz) |
 | `errorExplanation` | ✅ spiegazione dopo l'errore (quiz) |
-| `dyslexiaFont`, `largerText` | ✅ font e scala del testo |
+| `dyslexiaFont`, `largerText` | ✅ font Comic Sans spaziato e scala del testo `1.25×` |
 | `visualSupports` | ✅ riga numerica / base dieci / tabella |
-| `tapInsteadOfDrag`, `largerTargets`, `noPrecision` | ✅ |
+| `tapInsteadOfDrag`, `largerTargets`, `noPrecision` | ✅ tocco al posto del drag, bersagli `1.3×`, area di tocco permissiva |
 | `repeatPrompt` | ✅ bottone "Rileggi" |
-| `musicOff`, `soundCues`, `visualInsteadOfAudio` | ✅ audio |
+| `musicOff`, `soundCues`, `visualInsteadOfAudio` | ✅ controllo completo Web Audio e lampeggio visivo (`flashCue`) |
 | `colorCoding`, `immediateFeedback`, `positiveReinforcement` | ✅ sempre attivi |
-| `extraTime`, `noStreakPressure` | ✅ non c'è timer né serie da nascondere |
+| `extraTime`, `noStreakPressure` | ✅ non c'è timer punitivo né serie da nascondere |
 | `oneAtATime`, `predictableLayout` | ✅ una prova alla volta, layout fisso |
 | `reduceMotion` | ✅ scenografia ferma (pista inclusa) |
-| `noDecoration` | ✅ niente scenografia: resta la pista su fondo scuro |
-| `highContrast` | ✅ testi tenui → bianco, bordo nero (sfondi invariati) |
-| `shorterText`, `simpleLanguage` | ⚠️ i testi dei contenuti non vengono semplificati |
-| `mascotGuide` | ⚠️ Pico c'è e corre, ma non guida: nessun suggerimento dato da lui |
+| `noDecoration` | ✅ niente scenografia: resta la pista pulita |
+| `highContrast` | ✅ testi nero pieno `#000000` su fondo chiaro, 3D disattivato |
+| `shorterText`, `simpleLanguage` | ✅ `testoSemplice(str, cfg)` in `src/challenges/ui.ts` accorcia le consegne, rimuove subordinate secondarie e semplifica il lessico |
+| `mascotGuide` | ✅ in `src/scenes/game.ts` Pico accompagna lo studente passo per passo con messaggi guida contestuali al tipo di prova e all'esito |
 
-Le ultime righe sono le uniche promesse non mantenute: o si implementano o si
-tolgono dai profili. Non vanno lasciate come se funzionassero.
+### Regole una per una (override individuali — 22/22)
 
-### Regole una per una (override individuali)
-
-Da `Settings` → "Regole una per una" si accende/spegne ogni regola; l'override
-vince sul profilo e resta salvato in `sic.settings.overrides`. La schermata
-mostra **solo le 19 regole con un effetto verificabile**: esporre anche testi
-brevi, linguaggio semplice e Pico guida sarebbe una promessa falsa (vedi
-tabella sopra).
+Da `Settings` → "Regole una per una" si accende/spegne ciascuna delle **22 regole** (`REGOLE_UI` in `src/scenes/settings.ts`); l'override vince sul profilo e resta salvato in `sic.settings.overrides`.
 
 `makeToggle` in `src/challenges/ui.ts` disegna la riga e rende tutta la superficie
 toccabile (non solo il testo). `tests/e2e/override.spec.ts` accende "Pausa quando
 serve" senza profilo e verifica che la regola arrivi fino al gioco: la pagina
 nascosta mette la partita in pausa.
 
-## Bozze di contenuto in attesa di revisione umana
+### Licenza e Proprietà Intellettuale (`LICENSE`) (24/10)
 
-In `content/drafts/` ci sono 8 pacchetti validati ma **non ancora in gioco**
-(6 prove ciascuno): `mat-7-9-l2` e `ita-8-10-l2` sono già stati approvati e
-integrati; restano da leggere:
+Il progetto è tutelato dal file [`LICENSE`](LICENSE) nella radice del repository (copiato anche in `dist/ScuolaInCorsa/LICENSE` durante il deploy):
 
-- `sci-8-10-l2` — viventi e ambiente (mammiferi, radici, catena alimentare, ciclo dell'acqua, farfalla)
-- `sto-10-12-l2` — Grecia e Roma (democrazia ateniese, forme di governo, terme, date)
-- `mat-7-9-l3` — moltiplicare e dividere (tabelline, divisioni, problemi, ordine)
-- `ita-8-10-l3` — significati e tempi (sinonimi, contrari, passato, ordine alfabetico)
-- `sci-8-10-l3` — materia, energia, pianeta (particelle, rinnovabili, stati, pianeti, semina)
-- `sto-10-12-l3` — Medioevo e Rinascimento (feudo, Carlo Magno, peste, umanesimo)
+> `© 2026 Claudio Borsotti — Applicazione in fase di sviluppo. Tutti i diritti riservati. Vietata la riproduzione e la diffusione senza autorizzazione.`
 
-Nessuno entra in `src/content/packs.ts` senza il via dell'umano.
+### Dashboard di Controllo Smartphone & Flag `--fast` (24/10)
+
+Lo script `tools/dashboard.sh` genera `dashboard.html` con layout responsive per smartphone, barra di stato fissa in alto, pulsanti grandi per i link diretti (Gioco e Dashboard in rete locale Wi-Fi `:5211` e su GitHub Pages), stato della squadra agenti Antigravity e conteggio dinamico delle 184 prove per materia e per gli 8 anni scolastici:
+
+- `bash tools/dashboard.sh --fast` rigenera `dashboard.html` in **~2 secondi** (esegue `tsc --noEmit` + `vitest` e conta i test E2E senza attendere i 3 minuti di Playwright);
+- `.github/workflows/deploy.yml` esegue `bash tools/dashboard.sh --fast` a ogni push e pubblica `dashboard.html` e `LICENSE` su **`https://caioz76.github.io/scuola-in-corsa/dashboard.html`**.
 
 ### Progressi per l'insegnante
 
@@ -374,20 +403,21 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 (`/src/content/packs.ts`) e tocca i chip. Stesso approccio nel test permanente
 `tests/e2e/tappa.spec.ts`.
 
-## Processi attivi (non ucciderli senza motivo)
+## Processi e monitoraggio
 
-| Cosa | PID | Note |
+| Cosa | Comando / URL | Note |
 |---|---|---|
-| dashboard `--watch 300` | 18276 | rigenera `dashboard.html` ogni 5 min |
-| Vite di collaudo, porta 5211 | 68119 | `--host`, raggiungibile in LAN su `http://192.168.1.188:5211/` |
+| Dashboard rapida (~2 s) | `bash tools/dashboard.sh --fast` | aggiorna `dashboard.html` (anche pubblicata su GitHub Pages) |
+| Vite di collaudo, porta 5211 | `http://192.168.1.188:5211/` | `--host`, raggiungibile da smartphone sulla stessa Wi-Fi |
+| Sito e Dashboard Online | `https://caioz76.github.io/scuola-in-corsa/` | e `/dashboard.html`, aggiornati da GitHub Actions |
 
 ## Verifica in tre comandi
 
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 39 passed
-npx playwright test 2>&1 | tail -2           # → 26 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → tutti passati
+npx playwright test 2>&1 | tail -2           # → 39 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`
@@ -400,26 +430,8 @@ Garanzie meccaniche: worktree separato, lock tra corsie, lock sui file non
 committati, audit del write-set (`git status -uall`), `tsc` + `vitest` dentro il
 worktree, patch pronta in `tools/.patches/<nome>.patch` **mai applicata da sola**.
 
-Misure: C7 **91 s** · pilota contenuti **113 s** · hook **77 s** · hit-area
-**110 s** · tap-drag **66 s**. Merge manuale di A con `git apply --3way`.
-
 ## Prossimi passi, in ordine di valore
 
-1. **Revisione umana delle 6 bozze** in `content/drafts/`: è il cancello. Senza
-   approvazione i contenuti non entrano in `src/content/`.
-2. **Regole BES ancora dichiarate**: `shorterText`/`simpleLanguage` (testi più
-   brevi e semplici) e `mascotGuide` (Pico che suggerisce). O si implementano o
-   si tolgono dai profili.
-3. **Contenuti mancanti**: scienze e storia hanno una sola tappa; matematica e
-   italiano ne hanno due.
-4. **Collaudo in classe**: la modalità Runner va provata con i bambini; il
-   giudizio vero è lì, non negli screenshot.
-
-## Problemi noti (veri, non ipotetici)
-
-- **B è lento**: 13–30 min per patch. Il collo di bottiglia è il modello locale.
-- **Content Factory** usa lo stesso LM Studio di B (`:1234`, `parallel=1`): non
-  può girare in parallelo a B.
-- **Copertura dei contenuti diseguale**: matematica e italiano hanno 2 tappe,
-  scienze e storia 1 sola; le bozze per le seconde tappe aspettano revisione.
-- **La dashboard** mostra i numeri dell'ultimo giro, non è in tempo reale.
+1. **Collaudo in classe su tablet e smartphone**: provare con alunni della Primaria (1ª–5ª) e Secondaria di I grado (1ª–3ª) sia la modalità Quiz sia il Runner 2D/3D.
+2. **Espansione continua della banca domande** (`src/content/question-bank.ts`): aggiungere nuovi quesiti curricolari per ciascuno degli 8 anni scolastici o tramite pacchetti personalizzati dell'insegnante (`packs.custom`).
+3. **Monitoraggio da remoto**: consultare `https://caioz76.github.io/scuola-in-corsa/dashboard.html` o `http://192.168.1.188:5211/dashboard.html` da smartphone.

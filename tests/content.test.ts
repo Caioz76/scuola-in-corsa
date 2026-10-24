@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isValid, validatePack } from '../src/content/validate';
+import { EMBEDDED_PACKS, selectRoundsForGame } from '../src/content/packs';
+import { BANCA_DOMANDE } from '../src/content/question-bank';
 import type { Pack, QuizRound } from '../src/content/types';
 
 function quiz(id: string, options: { label: string; correct: boolean }[]): QuizRound {
@@ -161,5 +163,53 @@ describe('validatore contenuti', () => {
       }
     ]);
     expect(validatePack(p).some((i) => /usata più volte/.test(i.message))).toBe(true);
+  });
+
+  it('tutti i pacchetti embedded (3 tappe per materia) e la banca domande sono validi', () => {
+    expect(EMBEDDED_PACKS).toHaveLength(4);
+    for (const p of EMBEDDED_PACKS) {
+      expect(p.levels.length).toBeGreaterThanOrEqual(3);
+      expect(validatePack(p), `errori in ${p.packId}`).toEqual([]);
+    }
+    for (const [materia, voci] of Object.entries(BANCA_DOMANDE)) {
+      const p: Pack = {
+        packId: `qb-${materia}`,
+        version: '1',
+        title: materia,
+        subject: materia,
+        ageRange: '6-14',
+        difficulty: 2,
+        levels: [
+          {
+            id: `qb-${materia}-lv`,
+            title: 'Banca',
+            difficulty: 2,
+            rounds: voci.map((v) => v.round)
+          }
+        ]
+      };
+      expect(validatePack(p), `errori nella banca di ${materia}`).toEqual([]);
+    }
+  });
+
+  it('selectRoundsForGame estrae 6 prove in modo casuale e varia tra partite successive', () => {
+    const mat = EMBEDDED_PACKS.find((p) => p.subject === 'matematica')!;
+    const lv = mat.levels[0];
+    const g1 = selectRoundsForGame(mat, lv, {
+      profileId: null,
+      overrides: {},
+      schoolYear: 'P3',
+      randomQuestions: true
+    });
+    const g2 = selectRoundsForGame(mat, lv, {
+      profileId: null,
+      overrides: {},
+      schoolYear: 'P3',
+      randomQuestions: true
+    });
+    expect(g1).toHaveLength(6);
+    expect(g2).toHaveLength(6);
+    // Due partite consecutive attingono a domande diverse o in ordine diverso
+    expect(g1.map((r) => r.id).join(',')).not.toBe(g2.map((r) => r.id).join(','));
   });
 });

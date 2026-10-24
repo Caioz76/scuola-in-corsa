@@ -76,6 +76,8 @@ test('dalla schermata tappe si gioca direttamente la seconda', async ({ page }) 
   await expect.poll(() => scena(page)).toBe('Game');
 
   const primoPrompt = await page.evaluate(async () => {
+    const g = (window as unknown as { __GIOCO__?: { rounds?: Array<{ prompt: string }> } }).__GIOCO__;
+    if (g?.rounds && g.rounds.length > 0) return g.rounds[0].prompt;
     const percorso = '/src/content/packs.ts';
     const m = (await import(/* @vite-ignore */ percorso)) as {
       allPacks: () => Array<{
@@ -87,4 +89,5 @@ test('dalla schermata tappe si gioca direttamente la seconda', async ({ page }) 
     return pack!.levels[1].rounds[0].prompt;
   });
   expect((await testi(page)).map((t) => t.text)).toContain(primoPrompt);
+  expect((await testi(page)).some((t) => t.text.includes('Seconda tappa'))).toBe(true);
 });

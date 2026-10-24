@@ -89,7 +89,13 @@ test('prova immagine: l\'icona vecchia sparisce quando cambia la domanda', async
   await page.addInitScript(() => {
     localStorage.setItem(
       'sic.settings',
-      JSON.stringify({ profileId: null, overrides: {}, mode: 'quiz', graphics: '2d' })
+      JSON.stringify({
+        profileId: null,
+        overrides: {},
+        mode: 'quiz',
+        graphics: '2d',
+        randomQuestions: false
+      })
     );
   });
   await page.goto('/');

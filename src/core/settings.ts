@@ -5,7 +5,7 @@
  * localStorage, così il resolver continua a essere testabile senza browser.
  */
 import { storage } from './storage';
-import { DEFAULT_SETTINGS, type BesSettings } from '../bes/resolver';
+import { DEFAULT_SETTINGS, normalizzaAnno, type BesSettings } from '../bes/resolver';
 
 const K = 'settings';
 
@@ -15,7 +15,9 @@ export function loadSettings(): BesSettings {
     profileId: s.profileId ?? null,
     overrides: s.overrides ?? {},
     mode: s.mode === 'runner' ? 'runner' : 'quiz',
-    graphics: s.graphics === '3d' ? '3d' : '2d'
+    graphics: s.graphics === '3d' ? '3d' : '2d',
+    schoolYear: normalizzaAnno(s.schoolYear),
+    randomQuestions: s.randomQuestions !== false
   };
 }
 

@@ -2,6 +2,8 @@
   "name": "scuola-in-corsa",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
+  "author": "Claudio Borsotti",
   "type": "module",
   "description": "Scuola in Corsa — gioco didattico a scorrimento con adattamento BES",
   "scripts": {

@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
-import { getMateria, getLevel, setLevel } from './shared';
+import { getMateria, getLevel } from './shared';
 import { showChallenge, type Challenge } from '../challenges/index';
-import { allPacks } from '../content/packs';
+import { allPacks, defaultLevelForYear, selectRoundsForGame } from '../content/packs';
 import type { Round } from '../content/types';
 import type { RoundOutcome } from '../core/state';
 import { showBanner, makeText } from '../challenges/ui';
-import { resolveConfig } from '../bes/resolver';
+import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
@@ -21,7 +21,9 @@ export class GameScene extends Phaser.Scene {
     const cfg = resolveConfig(impostazioni);
     const mode = impostazioni.mode ?? 'quiz';
     const pack = allPacks().find((p) => p.subject === getMateria());
-    const level = pack?.levels.find((l) => l.id === getLevel()) ?? pack?.levels[0];
+    const level =
+      pack?.levels.find((l) => l.id === getLevel()) ??
+      (pack ? defaultLevelForYear(pack, cfg.schoolYear) : undefined);
 
     if (!pack || !level || level.rounds.length === 0) {
       const banner = showBanner(this, cfg, 'Nessuna prova disponibile', "Torna al titolo e scegli un'altra materia.", 'bad');
@@ -32,43 +34,56 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    makeText(this, 512, 26, `${pack.title} — ${level.title}`, cfg, {
-      size: 16,
-      color: '#5f7186'
-    });
+    // Estrazione delle prove della partita (casuale dal bacino dell'anno scolastico,
+    // oppure fissa se randomQuestions === false).
+    const rounds = selectRoundsForGame(pack, level, impostazioni);
+    const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
+
+    makeText(
+      this,
+      512,
+      26,
+      `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`,
+      cfg,
+      {
+        size: 16,
+        color: '#5f7186'
+      }
+    );
 
     // Il mondo: scenografia della materia, pista e Pico che corre.
-    // I checkpoint in basso sono le prove della tappa.
-    // In modalità Runner è un side-scroller: Pico corre di profilo, il mondo
-    // scorre e i cartelli arrivano da destra. In Quiz Pico avanza da solo.
-    // Con la grafica 3D il mondo è Three.js (terza persona); l'interfaccia
-    // delle prove resta Phaser, sopra.
     const runner = mode === 'runner';
+    const runSpeed = cfg.runnerSpeed > 0 ? cfg.runnerSpeed : 480;
     const treD = (impostazioni.graphics ?? '2d') === '3d' && !cfg.highContrast;
     const world = treD
-      ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? 480 : 38)
+      ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? runSpeed : 38)
       : addWorld(this, themeFor(pack.subject), cfg, {
           track: true,
-          speed: runner ? 480 : 38,
+          speed: runner ? runSpeed : 38,
           advance: !runner,
           sidePico: runner,
           picoX: runner ? 110 : 66,
           props: runner
         });
-    world.setProgress(0, level.rounds.length);
+    world.setProgress(0, rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
-    // Nel Runner 3D si sposta a sinistra: in alto a destra c'è l'HUD (cuori,
-    // stelline, punti) e i due testi non devono sovrapporsi.
     const contatore = makeText(this, treD && runner ? 700 : 888, 26, '', cfg, {
       size: 14,
       color: '#1f8a4c'
     });
 
+    // Regola BES `mascotGuide`: Pico accompagna lo studente passo per passo.
+    const guidaPico = cfg.mascotGuide
+      ? makeText(this, 248, 548, '', cfg, {
+          size: 14,
+          bold: true,
+          color: '#1d6fb8',
+          outline: true
+        })
+      : null;
+
     // ── Navigazione sempre disponibile ──────────────────────────────
-    // Pausa e uscita non dipendono dal profilo BES: chiunque, in qualsiasi
-    // momento, deve potersi fermare o lasciare la partita. La barra è HTML
-    // (src/ui/nav.ts) per restare grande e leggibile anche su telefono.
     let inPausa = false;
     const azioni = {
       onPausa: () => apriPausa(false),
@@ -83,7 +98,6 @@ export class GameScene extends Phaser.Scene {
       if (inPausa) return;
       inPausa = true;
       nascondiNav();
-      // one-shot: la barra torna solo quando la partita riprende davvero.
       this.events.once(Phaser.Scenes.Events.RESUME, suRipresa);
       this.scene.launch('Pause', { conferma });
       this.scene.pause();
@@ -123,31 +137,39 @@ export class GameScene extends Phaser.Scene {
     const inizio = Date.now();
     const outcomes: RoundOutcome[] = [];
 
+    const testoGuidaPer = (round: Round): string => {
+      if (round.type === 'quiz' || round.type === 'image') {
+        return 'Pico: Scegli la risposta giusta!';
+      }
+      if (round.type === 'dragdrop' && round.mode === 'match') {
+        return 'Pico: Tocca le coppie giuste!';
+      }
+      return 'Pico: Metti gli elementi in ordine!';
+    };
+
     const next = (): void => {
       if (current) {
         current.dispose();
         current = null;
       }
-      if (index >= level.rounds.length) {
+      if (index >= rounds.length) {
         this.scene.start('Results', {
           packId: pack.packId,
           levelId: level.id,
           correct,
-          total: level.rounds.length,
+          total: rounds.length,
           durationMs: Date.now() - inizio,
           outcomes
         });
         return;
       }
       if (cfg.clearProgress) {
-        contatore.setText(`Prova ${index + 1} di ${level.rounds.length}`);
+        contatore.setText(`Prova ${index + 1} di ${rounds.length}`);
       }
-      const round: Round = level.rounds[index];
+      const round: Round = rounds[index];
+      guidaPico?.setText(testoGuidaPer(round));
       const scelta = round.type === 'quiz' || round.type === 'image';
-      // In Runner il mondo si ferma per le prove che non sono una corsa
-      // (riordino, abbinamento): lì si tocca e si trascina, non si corre.
-      if (runner) world.setSpeed(scelta ? 480 : 0);
-      // Le prove a opzioni hanno i bottoni in basso: il feedback va sopra.
+      if (runner) world.setSpeed(scelta ? runSpeed : 0);
       const bannerY = scelta ? 186 : 468;
       let errori = 0;
       current = showChallenge(this, round, cfg, {
@@ -155,9 +177,10 @@ export class GameScene extends Phaser.Scene {
           correct += 1;
           index += 1;
           outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
-          if (runner) world.setSpeed(560);
+          guidaPico?.setText('Pico: Bravissimo, avanti così!');
+          if (runner) world.setSpeed(Math.max(560, runSpeed + 80));
           else world.dash();
-          world.setProgress(index, level.rounds.length);
+          world.setProgress(index, rounds.length);
           const ok = showBanner(this, cfg, 'Giusto!', null, 'ok', { y: bannerY });
           this.time.delayedCall(900 * ritmo, () => {
             ok.dispose();
@@ -166,6 +189,7 @@ export class GameScene extends Phaser.Scene {
         },
         onWrong: (attempts) => {
           errori += 1;
+          guidaPico?.setText('Pico: Niente paura, riprova con calma!');
           const no = showBanner(
             this,
             cfg,
@@ -175,12 +199,11 @@ export class GameScene extends Phaser.Scene {
             { y: bannerY }
           );
           this.time.delayedCall(900 * ritmo, () => no.dispose());
-          // 3 errori: la prova rivela la risposta, poi si prosegue (mai bloccarsi)
           if (attempts >= 3) {
             index += 1;
             outcomes.push({ roundId: round.id, correct: false, attempts: errori, timeMs: 0 });
             world.stumble();
-            world.setProgress(index, level.rounds.length);
+            world.setProgress(index, rounds.length);
             this.time.delayedCall(2600 * ritmo, () => next());
           }
         }

@@ -338,6 +338,11 @@ documentazione per l'insegnante, test end-to-end.
 
 ---
 
-## Licenza
+## Licenza e Proprietà Intellettuale
 
-Da definire.
+**Copyright © 2026 Claudio Borsotti. Tutti i diritti riservati.**
+
+Questa applicazione è **in fase di sviluppo** ed è di proprietà esclusiva di **Claudio Borsotti**.
+Non è concessa alcuna licenza di utilizzo, copia, modifica, pubblicazione o diffusione a terzi, in tutto o in parte, senza la preventiva ed esplicita autorizzazione scritta del titolare. La presenza del progetto su GitHub ha finalità esclusivamente tecniche di sviluppo e collaudo.
+
+Consulta il file [`LICENSE`](LICENSE) per il testo integrale delle condizioni di proprietà e riservatezza.

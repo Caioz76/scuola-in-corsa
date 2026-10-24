@@ -7,10 +7,12 @@
  *  - `ChallengeCallbacks`: come la prova comunica il risultato al GameScene
  */
 import Phaser from 'phaser';
-import type { EffectiveConfig } from '../bes/resolver';
+import { testoSemplice, type EffectiveConfig } from '../bes/resolver';
 import { T } from '../art/palette';
 import type { Option } from '../content/types';
 import { hitRect } from './hit';
+
+export { testoSemplice };
 
 /** Massimo di tentativi falliti per ogni prova (poi si rivela la risposta). */
 export const MAX_ATTEMPTS = 3;

@@ -22,6 +22,7 @@ import {
   makeText,
   shuffle,
   showBanner,
+  testoSemplice,
   type Btn,
   type Challenge,
   type ChallengeCallbacks,
@@ -92,7 +93,7 @@ export class MatchChallenge implements Challenge {
     this.rightOrder = order;
 
     // ── Prompt / hint / istruzione ──
-    this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
+    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
       size: 26,
       bold: true,
       color: '#2f3b4c',
@@ -106,7 +107,9 @@ export class MatchChallenge implements Challenge {
       scene,
       512,
       150,
-      'Abbina: tocca un elemento e poi il suo compagno giusto',
+      cfg.simpleLanguage
+        ? 'Tocca le coppie giuste'
+        : 'Abbina: tocca un elemento e poi il suo compagno giusto',
       cfg,
       { size: 15, color: '#5f7186', wrap: 760 }
     );
@@ -144,7 +147,7 @@ export class MatchChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${this.round.hint}`, this.cfg, {
+    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 15,
       color: C.orangeDeep,
       italic: true,

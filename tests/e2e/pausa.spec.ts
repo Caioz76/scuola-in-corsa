@@ -73,6 +73,8 @@ async function vaiAllaPrimaTappa(page: Page): Promise<void> {
 
 async function primoPrompt(page: Page): Promise<string> {
   return page.evaluate(async () => {
+    const g = (window as unknown as { __GIOCO__?: { rounds?: Array<{ prompt: string }> } }).__GIOCO__;
+    if (g?.rounds && g.rounds.length > 0) return g.rounds[0].prompt;
     const percorso = '/src/content/packs.ts';
     const m = (await import(/* @vite-ignore */ percorso)) as {
       allPacks: () => Array<{

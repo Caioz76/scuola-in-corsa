@@ -13,6 +13,8 @@ import { getMateria } from './scenes/shared';
 import { initAudio } from './audio/apply';
 import { synth } from './audio/synth';
 import { stato3D, type Stato3D } from './art/three-world';
+import { getActiveRounds } from './content/packs';
+import type { Round } from './content/types';
 
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
@@ -44,6 +46,7 @@ const g = window as unknown as {
     scenaAttiva: Phaser.Scene | null;
     audio: { sfx: boolean; music: boolean; running: boolean; musicPlaying: boolean };
     treD: Stato3D;
+    rounds: Round[];
   };
 };
 
@@ -77,5 +80,9 @@ g.__GIOCO__ = {
   // Come gli altri getter, legge il valore al momento della richiesta.
   get treD(): Stato3D {
     return stato3D();
+  },
+  // Prove estratte per la partita in corso.
+  get rounds(): Round[] {
+    return getActiveRounds();
   }
 };

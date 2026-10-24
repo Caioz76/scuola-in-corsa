@@ -40,6 +40,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Genera dashboard e allega licenza
+        run: |
+          bash tools/dashboard.sh --fast
+          cp dashboard.html dist/ScuolaInCorsa/dashboard.html
+          cp LICENSE dist/ScuolaInCorsa/LICENSE
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/ScuolaInCorsa

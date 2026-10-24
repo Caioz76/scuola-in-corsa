@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { type Materia, setMateria, setLevel } from './shared';
 import { makeButton, makeText } from '../challenges/ui';
-import { resolveConfig } from '../bes/resolver';
+import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { allPacks } from '../content/packs';
+import { allPacks, defaultLevelForYear } from '../content/packs';
 import { starsFor } from '../core/progress';
 import { addWorld } from '../art/world';
 
@@ -26,6 +26,14 @@ export class SubjectScene extends Phaser.Scene {
       outline: true
     });
 
+    const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
+    if (infoAnno) {
+      makeText(this, w / 2, 134, `Classe attiva: ${infoAnno.label}`, cfg, {
+        size: 15,
+        color: '#5f7186'
+      });
+    }
+
     // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
     const tappe = makeButton(this, cfg, 872, 44, 'Tutte le tappe', { scale: 0.55, depth: 10 });
     tappe.onTap(() => this.scene.start('Levels'));
@@ -45,7 +53,7 @@ export class SubjectScene extends Phaser.Scene {
         this.scene.start('Game');
       });
       const pack = allPacks().find((p) => p.subject === v.id);
-      const livello = pack?.levels[0];
+      const livello = pack ? defaultLevelForYear(pack, cfg.schoolYear) : undefined;
       if (pack && livello) {
         const stelle = starsFor(pack.packId, livello.id);
         makeText(this, v.x, v.y + 62, `★ ${stelle} / 3`, cfg, {

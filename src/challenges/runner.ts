@@ -34,6 +34,7 @@ import {
   makeButton,
   makeText,
   showBanner,
+  testoSemplice,
   type Btn,
   type Challenge,
   type ChallengeCallbacks
@@ -214,7 +215,7 @@ export class RunnerChallenge implements Challenge {
     this.options = fitOptions(round.options, cfg.maxOptions);
 
     // ── Domanda ──
-    this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
+    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
       size: 26,
       bold: true,
       color: T.body,
@@ -527,7 +528,7 @@ export class RunnerChallenge implements Challenge {
         this.scene,
         this.cfg,
         'Quasi! Guarda la spiegazione',
-        this.round.explanation!,
+        testoSemplice(this.round.explanation!, this.cfg),
         'bad',
         { y: 186 }
       );
@@ -598,7 +599,7 @@ export class RunnerChallenge implements Challenge {
 
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${this.round.hint}`, this.cfg, {
+    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 15,
       color: '#c96a12',
       italic: true,

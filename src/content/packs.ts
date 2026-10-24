@@ -1,12 +1,14 @@
 /**
  * Pacchetti EMBEDDED nel gioco (funzionano anche via file://, zero rete).
- * Questo è il pack di partenza: in Fase 9 viene sostituito/esteso dai
- * 120 contenuti generati e revisionati dal Content Factory.
+ * Include le 3 tappe complete per ciascuna delle 4 materie (72 prove nelle
+ * tappe + la banca estesa per anno scolastico in `question-bank.ts`).
  * I pacchetti caricati dall'insegnante (editor / file JSON) vivono in
  * localStorage sotto 'packs.custom' e qui vengono uniti a questi.
  */
-import type { Pack } from './types';
+import type { Level, Pack, Round } from './types';
 import { storage } from '../core/storage';
+import { normalizzaAnno, type AnnoScolastico, type BesSettings } from '../bes/resolver';
+import { BANCA_DOMANDE } from './question-bank';
 
 const K_CUSTOM = 'packs.custom';
 
@@ -37,7 +39,7 @@ const MAT: Pack = {
         },
         {
           id: 'mat-2', type: 'quiz',
-          prompt: 'Quale numero manca? 14, 15, __, 17',
+          prompt: 'Quale numero manca? 14, 15, ..., 17',
           options: [
             { label: '16', correct: true },
             { label: '18', correct: false },
@@ -151,6 +153,71 @@ const MAT: Pack = {
           explanation: 'Contando di 5 in 5 in ordine crescente troviamo 5, 10 e 15.'
         }
       ]
+    },
+    {
+      id: 'mat-7-9-l3',
+      title: 'Terza tappa: moltiplicare e dividere',
+      difficulty: 3,
+      rounds: [
+        {
+          id: 'mat-l3-1', type: 'quiz',
+          prompt: 'Quanto fa 7 × 8?',
+          options: [
+            { label: '56', correct: true },
+            { label: '48', correct: false },
+            { label: '64', correct: false }
+          ],
+          hint: 'Pensa a 7 × 4 = 28 e raddoppia.',
+          explanation: '7 × 8 = 56, perché 7 × 4 fa 28 e il doppio di 28 è 56.'
+        },
+        {
+          id: 'mat-l3-2', type: 'quiz',
+          prompt: 'Quanto fa 36 ÷ 6?',
+          options: [
+            { label: '6', correct: true },
+            { label: '5', correct: false },
+            { label: '7', correct: false }
+          ],
+          hint: 'Cerca quel numero che moltiplicato per 6 dà 36.',
+          explanation: '6 × 6 = 36, quindi 36 diviso 6 fa 6.'
+        },
+        {
+          id: 'mat-l3-3', type: 'quiz',
+          prompt: 'Ci sono 3 scatole con 8 matite ciascuna. Quante matite in tutto?',
+          options: [
+            { label: '24', correct: true },
+            { label: '11', correct: false },
+            { label: '32', correct: false }
+          ],
+          hint: 'Tre gruppi uguali: usa una moltiplicazione.',
+          explanation: '3 × 8 = 24: tre scatole da otto matite fanno ventiquattro matite.'
+        },
+        {
+          id: 'mat-l3-4', type: 'quiz',
+          prompt: 'Quale operazione dà come risultato 20?',
+          options: [
+            { label: '4 × 5', correct: true },
+            { label: '4 + 5', correct: false },
+            { label: '20 ÷ 5', correct: false }
+          ],
+          hint: 'Prova a moltiplicare, non solo ad addizionare.',
+          explanation: '4 × 5 = 20. Le altre due operazioni danno 9 e 4.'
+        },
+        {
+          id: 'mat-l3-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti in ordine crescente i risultati della tabellina del 6.',
+          sortItems: ['12', '18', '24', '30'],
+          hint: 'Parti da 6 × 2 e aggiungi sempre 6.',
+          explanation: '6 × 2 = 12, 6 × 3 = 18, 6 × 4 = 24, 6 × 5 = 30.'
+        },
+        {
+          id: 'mat-l3-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca i risultati di 3 × 2, 3 × 3 e 3 × 4 nell\'ordine.',
+          items: ['6', '9', '12'],
+          hint: 'Il risultato cresce di 3 a ogni passo.',
+          explanation: '3 × 2 = 6, 3 × 3 = 9, 3 × 4 = 12.'
+        }
+      ]
     }
   ]
 };
@@ -216,7 +283,7 @@ const ITA: Pack = {
         },
         {
           id: 'ita-5', type: 'image', icon: 'nave',
-          prompt: 'Con quale parola completa la frase? "La ___ attraversa il mare."',
+          prompt: 'Con quale parola completa la frase? "La ... attraversa il mare."',
           options: [
             { label: 'nave', correct: true },
             { label: 'luna', correct: false },
@@ -296,6 +363,69 @@ const ITA: Pack = {
           items: ['Il', 'bambino', 'sorride'],
           hint: "Parti dall'articolo con la lettera maiuscola, poi scegli il nome e infine l'azione.",
           explanation: 'In italiano l\'articolo «Il» precede il nome «bambino», seguito dal verbo «sorride».'
+        }
+      ]
+    },
+    {
+      id: 'ita-8-10-l3',
+      title: 'Terza tappa: significati e tempi',
+      difficulty: 3,
+      rounds: [
+        {
+          id: 'ita-l3-1', type: 'quiz',
+          prompt: 'Quale parola ha lo stesso significato di «felice»?',
+          options: [
+            { label: 'contento', correct: true },
+            { label: 'triste', correct: false },
+            { label: 'stanco', correct: false }
+          ],
+          hint: 'Pensa a come ti senti quando ricevi un regalo che desideri.',
+          explanation: '«Contento» è un sinonimo di «felice»: indicano la stessa emozione.'
+        },
+        {
+          id: 'ita-l3-2', type: 'quiz',
+          prompt: 'Qual è il contrario di «alto»?',
+          options: [
+            { label: 'basso', correct: true },
+            { label: 'lungo', correct: false },
+            { label: 'grande', correct: false }
+          ],
+          hint: 'Pensa a una cosa che sta vicino al pavimento.',
+          explanation: '«Basso» è il contrario di «alto».'
+        },
+        {
+          id: 'ita-l3-3', type: 'quiz',
+          prompt: 'Quale frase racconta qualcosa che è già successo?',
+          options: [
+            { label: 'Ieri ho giocato al parco.', correct: true },
+            { label: 'Oggi gioco al parco.', correct: false },
+            { label: 'Domani giocherò al parco.', correct: false }
+          ],
+          hint: 'Cerca la parola che indica un tempo passato.',
+          explanation: '«Ieri ho giocato al parco» è al passato: l\'azione è già avvenuta.'
+        },
+        {
+          id: 'ita-l3-4', type: 'dragdrop', mode: 'match',
+          prompt: 'Abbina ogni parola al suo contrario.',
+          leftItems: ['alto', 'giorno', 'caldo'],
+          rightItems: ['freddo', 'basso', 'notte'],
+          pairs: [[0, 1], [1, 2], [2, 0]],
+          hint: 'Ogni parola ha un opposto di significato.',
+          explanation: 'Alto/basso, giorno/notte e caldo/freddo sono coppie di contrari.'
+        },
+        {
+          id: 'ita-l3-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti queste parole in ordine alfabetico.',
+          sortItems: ['casa', 'dado', 'festa', 'gomma'],
+          hint: 'Guarda la prima lettera e poi la seconda.',
+          explanation: 'L\'ordine è: casa, dado, festa, gomma.'
+        },
+        {
+          id: 'ita-l3-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca le parole nell\'ordine giusto per formare una frase.',
+          items: ['La', 'luna', 'splende', 'nel cielo'],
+          hint: 'Si parte dall\'articolo, poi il nome, il verbo e dove avviene.',
+          explanation: 'La frase corretta è «La luna splende nel cielo».'
         }
       ]
     }
@@ -381,6 +511,136 @@ const SCI: Pack = {
           explanation: "L'acqua del ghiacciolo è allo stato solido."
         }
       ]
+    },
+    {
+      id: 'sci-8-10-l2',
+      title: 'Seconda tappa: viventi e ambiente',
+      difficulty: 2,
+      rounds: [
+        {
+          id: 'sci-l2-1', type: 'quiz',
+          prompt: 'Quale di questi animali è un mammifero?',
+          options: [
+            { label: 'Delfino', correct: true },
+            { label: 'Squalo', correct: false },
+            { label: 'Rana', correct: false }
+          ],
+          hint: 'Respira con i polmoni e allatta i piccoli.',
+          explanation: 'Il delfino è un mammifero: respira con i polmoni e allatta i suoi piccoli, anche se vive nel mare.'
+        },
+        {
+          id: 'sci-l2-2', type: 'quiz',
+          prompt: 'Da quale parte della pianta le radici prendono l\'acqua?',
+          options: [
+            { label: 'Dal terreno', correct: true },
+            { label: 'Dall\'aria', correct: false },
+            { label: 'Dal fiore', correct: false }
+          ],
+          hint: 'Le radici stanno sotto terra.',
+          explanation: 'Le radici assorbono dal terreno l\'acqua e i sali minerali che servono alla pianta.'
+        },
+        {
+          id: 'sci-l2-3', type: 'image', icon: 'foglia',
+          prompt: 'Quale parte della pianta vedi nell\'immagine?',
+          options: [
+            { label: 'Una foglia', correct: true },
+            { label: 'Un fiore', correct: false },
+            { label: 'Una radice', correct: false }
+          ],
+          hint: 'È verde e serve alla pianta per respirare.',
+          explanation: 'L\'immagine mostra una foglia: è la parte verde dove la pianta produce il nutrimento.'
+        },
+        {
+          id: 'sci-l2-4', type: 'quiz',
+          prompt: 'Quale catena alimentare è nell\'ordine giusto?',
+          options: [
+            { label: 'Erba → cavalletta → rana', correct: true },
+            { label: 'Rana → erba → cavalletta', correct: false },
+            { label: 'Cavalletta → rana → erba', correct: false }
+          ],
+          hint: 'Si parte da ciò che mangia il primo animale.',
+          explanation: 'L\'erba è mangiata dalla cavalletta, che a sua volta è mangiata dalla rana.'
+        },
+        {
+          id: 'sci-l2-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti in ordine le tappe del ciclo dell\'acqua.',
+          sortItems: ['Evaporazione', 'Condensazione', 'Precipitazione', 'Raccolta'],
+          hint: 'L\'acqua prima evapora, poi forma le nuvole e infine cade.',
+          explanation: 'L\'acqua evapora, condensa nelle nuvole, cade come pioggia e si raccoglie di nuovo.'
+        },
+        {
+          id: 'sci-l2-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca le tappe della farfalla nell\'ordine giusto.',
+          items: ['Uovo', 'Bruco', 'Crisalide', 'Farfalla'],
+          hint: 'La farfalla nasce da un piccolo uovo.',
+          explanation: 'La farfalla passa da uovo a bruco, poi crisalide e infine farfalla adulta.'
+        }
+      ]
+    },
+    {
+      id: 'sci-8-10-l3',
+      title: 'Terza tappa: materia, energia, pianeta',
+      difficulty: 3,
+      rounds: [
+        {
+          id: 'sci-l3-1', type: 'quiz',
+          prompt: 'Di che cosa è fatta la materia?',
+          options: [
+            { label: 'Di particelle piccolissime', correct: true },
+            { label: 'Solo di acqua', correct: false },
+            { label: 'Solo di aria', correct: false }
+          ],
+          hint: 'Anche un granello di sale è fatto di parti piccolissime.',
+          explanation: 'Tutta la materia è fatta di particelle piccolissime, invisibili a occhio nudo.'
+        },
+        {
+          id: 'sci-l3-2', type: 'quiz',
+          prompt: 'Quale di queste è una fonte di energia rinnovabile?',
+          options: [
+            { label: 'Il Sole', correct: true },
+            { label: 'Il carbone', correct: false },
+            { label: 'Il petrolio', correct: false }
+          ],
+          hint: 'Si rinnova da sola e non finisce.',
+          explanation: 'Il Sole è una fonte rinnovabile: la sua energia non si esaurisce come carbone o petrolio.'
+        },
+        {
+          id: 'sci-l3-3', type: 'image', icon: 'montagna',
+          prompt: 'Quale ambiente vedi nell\'immagine?',
+          options: [
+            { label: 'La montagna', correct: true },
+            { label: 'Il deserto', correct: false },
+            { label: 'Il mare', correct: false }
+          ],
+          hint: 'È un rilievo molto alto, spesso con la neve in cima.',
+          explanation: 'L\'immagine mostra una montagna: un rilievo alto con pendii e vette.'
+        },
+        {
+          id: 'sci-l3-4', type: 'quiz',
+          prompt: 'Quali sono i tre stati della materia?',
+          options: [
+            { label: 'Solido, liquido, gassoso', correct: true },
+            { label: 'Caldo, freddo, tiepido', correct: false },
+            { label: 'Grande, medio, piccolo', correct: false }
+          ],
+          hint: 'Pensa al ghiaccio, all\'acqua e al vapore.',
+          explanation: 'La materia può essere solida, liquida o gassosa: è il caso dell\'acqua.'
+        },
+        {
+          id: 'sci-l3-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti in ordine i pianeti dal più vicino al più lontano dal Sole.',
+          sortItems: ['Mercurio', 'Terra', 'Giove', 'Saturno'],
+          hint: 'La Terra è il terzo pianeta.',
+          explanation: 'L\'ordine è Mercurio, Terra, Giove, Saturno.'
+        },
+        {
+          id: 'sci-l3-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca le tappe della semina nell\'ordine giusto.',
+          items: ['Prepara il terreno', 'Semina', 'Annaffia', 'Raccogli'],
+          hint: 'Prima si prepara la terra, per ultimo si raccoglie.',
+          explanation: 'Si prepara il terreno, si semina, si annaffia e infine si raccoglie.'
+        }
+      ]
     }
   ]
 };
@@ -396,7 +656,7 @@ const STO: Pack = {
     {
       id: 'sto-10-12-l1',
       title: 'Prima tappa: antichi popoli',
-      difficulty: 2,
+      difficulty: 1,
       rounds: [
         {
           id: 'sto-1', type: 'quiz',
@@ -454,6 +714,140 @@ const STO: Pack = {
           explanation: 'Il Foro era la piazza principale della città, centro della vita pubblica.'
         }
       ]
+    },
+    {
+      id: 'sto-10-12-l2',
+      title: 'Seconda tappa: Grecia e Roma',
+      difficulty: 2,
+      rounds: [
+        {
+          id: 'sto-l2-1', type: 'quiz',
+          prompt: 'In quale città greca nacque la democrazia?',
+          options: [
+            { label: 'Atene', correct: true },
+            { label: 'Sparta', correct: false },
+            { label: 'Tebe', correct: false }
+          ],
+          hint: 'È la città dell\'Acropoli e del Partenone.',
+          explanation: 'Ad Atene, nel V secolo a.C., i cittadini iniziarono a decidere insieme delle leggi.'
+        },
+        {
+          id: 'sto-l2-2', type: 'quiz',
+          prompt: 'Chi poteva votare nell\'assemblea di Atene?',
+          options: [
+            { label: 'Gli uomini liberi adulti', correct: true },
+            { label: 'Tutti gli abitanti', correct: false },
+            { label: 'Solo i soldati', correct: false }
+          ],
+          hint: 'Non tutti gli abitanti erano cittadini.',
+          explanation: 'Votavano solo gli uomini liberi adulti, figli di genitori ateniesi; donne, schiavi e stranieri erano esclusi.'
+        },
+        {
+          id: 'sto-l2-3', type: 'sequence', direction: 'tap',
+          prompt: 'Metti in ordine le forme di governo di Roma, dalla più antica.',
+          items: ['Monarchia', 'Repubblica', 'Impero'],
+          hint: 'Prima ci fu un re, poi la Repubblica, infine l\'Impero.',
+          explanation: 'Roma fu prima una monarchia, poi una repubblica e infine un impero.'
+        },
+        {
+          id: 'sto-l2-4', type: 'quiz',
+          prompt: 'Che cosa erano le terme romane?',
+          options: [
+            { label: 'Luoghi pubblici per lavarsi e incontrarsi', correct: true },
+            { label: 'Templi dedicati agli dei', correct: false },
+            { label: 'Magazzini per il grano', correct: false }
+          ],
+          hint: 'Ci si andava per lavarsi, ma anche per incontrarsi.',
+          explanation: 'Le terme erano edifici pubblici con bagni caldi e freddi, palestre e luoghi di incontro.'
+        },
+        {
+          id: 'sto-l2-5', type: 'dragdrop', mode: 'match',
+          prompt: 'Abbina ogni data al suo evento.',
+          leftItems: ['753 a.C.', '509 a.C.', '476 d.C.'],
+          rightItems: ['Fine dell\'Impero d\'Occidente', 'Fondazione di Roma', 'Nascita della Repubblica'],
+          pairs: [[0, 1], [1, 2], [2, 0]],
+          hint: 'Più il numero è grande, più l\'evento è recente.',
+          explanation: 'Roma fu fondata nel 753 a.C., la Repubblica nacque nel 509 a.C. e l\'Impero d\'Occidente finì nel 476 d.C.'
+        },
+        {
+          id: 'sto-l2-6', type: 'quiz',
+          prompt: 'Chi era Alessandro Magno?',
+          options: [
+            { label: 'Il re macedone che creò un grande impero', correct: true },
+            { label: 'Un imperatore romano', correct: false },
+            { label: 'Un filosofo ateniese', correct: false }
+          ],
+          hint: 'Era il re della Macedonia.',
+          explanation: 'Alessandro Magno fu re di Macedonia e creò un vasto impero che unì la Grecia all\'Oriente.'
+        }
+      ]
+    },
+    {
+      id: 'sto-10-12-l3',
+      title: 'Terza tappa: Medioevo e Rinascimento',
+      difficulty: 3,
+      rounds: [
+        {
+          id: 'sto-l3-1', type: 'quiz',
+          prompt: 'Che cos\'era un feudo nel Medioevo?',
+          options: [
+            { label: 'Una terra concessa in cambio di fedeltà', correct: true },
+            { label: 'Una nave da guerra', correct: false },
+            { label: 'Una moneta d\'oro', correct: false }
+          ],
+          hint: 'Il signore concedeva terre in cambio di fedeltà e servizio.',
+          explanation: 'Il feudo era la terra concessa dal signore al vassallo, che in cambio gli giurava fedeltà.'
+        },
+        {
+          id: 'sto-l3-2', type: 'quiz',
+          prompt: 'Chi era Carlo Magno?',
+          options: [
+            { label: 'Il re dei Franchi incoronato imperatore', correct: true },
+            { label: 'Un imperatore romano del I secolo', correct: false },
+            { label: 'Un pirata del Mediterraneo', correct: false }
+          ],
+          hint: 'Fu incoronato imperatore nell\'800.',
+          explanation: 'Carlo Magno era il re dei Franchi; nell\'800 fu incoronato imperatore dal Papa.'
+        },
+        {
+          id: 'sto-l3-3', type: 'sequence', direction: 'tap',
+          prompt: 'Metti in ordine questi eventi, dal più antico al più recente.',
+          items: ['Fine dell\'Impero d\'Occidente', 'Incoronazione di Carlo Magno', 'Scoperta dell\'America'],
+          hint: 'La fine dell\'Impero romano d\'Occidente viene prima del Medioevo.',
+          explanation: '476: fine dell\'Impero d\'Occidente; 800: incoronazione di Carlo Magno; 1492: scoperta dell\'America.'
+        },
+        {
+          id: 'sto-l3-4', type: 'quiz',
+          prompt: 'Che cos\'era la peste nera?',
+          options: [
+            { label: 'Una grave epidemia del Trecento', correct: true },
+            { label: 'Una guerra tra Francia e Inghilterra', correct: false },
+            { label: 'Un tipo di nave mercantile', correct: false }
+          ],
+          hint: 'Nel Trecento colpì l\'Europa e fece moltissime vittime.',
+          explanation: 'La peste nera fu una grave epidemia che nel XIV secolo uccise gran parte della popolazione europea.'
+        },
+        {
+          id: 'sto-l3-5', type: 'dragdrop', mode: 'match',
+          prompt: 'Abbina ogni opera o invenzione al suo autore.',
+          leftItems: ['Stampa a caratteri mobili', 'Scoperta dell\'America', 'Ultima Cena'],
+          rightItems: ['Leonardo da Vinci', 'Gutenberg', 'Colombo'],
+          pairs: [[0, 1], [1, 2], [2, 0]],
+          hint: 'Gutenberg lavorava con i caratteri mobili.',
+          explanation: 'Gutenberg inventò la stampa a caratteri mobili, Colombo scoprì l\'America, Leonardo dipinse l\'Ultima Cena.'
+        },
+        {
+          id: 'sto-l3-6', type: 'quiz',
+          prompt: 'Che cosa metteva al centro l\'umanesimo?',
+          options: [
+            { label: 'L\'uomo e la sua capacità di creare', correct: true },
+            { label: 'Solo la guerra', correct: false },
+            { label: 'Solo il commercio', correct: false }
+          ],
+          hint: 'Riprendeva lo studio dei testi antichi e la fiducia nell\'uomo.',
+          explanation: 'L\'umanesimo metteva al centro l\'uomo, la sua capacità di ragionare e di creare.'
+        }
+      ]
     }
   ]
 };
@@ -476,4 +870,91 @@ export function allPacks(): Pack[] {
   for (const p of EMBEDDED_PACKS) map.set(p.packId, p);
   for (const p of loadCustomPacks()) map.set(p.packId, p);
   return Array.from(map.values());
+}
+
+// ── Selezione per anno scolastico ed estrazione casuale ─────────────
+
+function mescola<T>(arr: readonly T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+  }
+  return a;
+}
+
+/** Tappa predefinita di un pacchetto modellata sull'anno scolastico scelto. */
+export function defaultLevelForYear(pack: Pack, year?: AnnoScolastico): Level {
+  const y = normalizzaAnno(year);
+  if (y === 'P4' || y === 'P5') {
+    return pack.levels[1] ?? pack.levels[0];
+  }
+  if (y === 'S1' || y === 'S2' || y === 'S3') {
+    return pack.levels[2] ?? pack.levels[pack.levels.length - 1] ?? pack.levels[0];
+  }
+  return pack.levels[0];
+}
+
+let ultimiRoundIds = new Set<string>();
+let proveAttive: Round[] = [];
+
+/** Prove della partita in corso (esposte anche su window.__GIOCO__.rounds). */
+export function getActiveRounds(): Round[] {
+  return proveAttive;
+}
+
+/**
+ * Seleziona le 6 prove per la partita:
+ * - se `settings.randomQuestions === false`, mantiene le prove originali della tappa;
+ * - altrimenti unisce le prove della tappa al bacino dell'anno scolastico attivo
+ *   (`BANCA_DOMANDE`), evita per quanto possibile le prove appena giocate e
+ *   mescola l'ordine (tenendo 4 prove a scelta prima e 2 interattive in coda,
+ *   così il Runner inizia sempre con i varchi di corsa).
+ */
+export function selectRoundsForGame(
+  pack: Pack,
+  level: Level,
+  settings: BesSettings
+): Round[] {
+  if (settings.randomQuestions === false) {
+    proveAttive = level.rounds.slice(0, 6);
+    return proveAttive;
+  }
+
+  const anno = normalizzaAnno(settings.schoolYear);
+  const extra = (BANCA_DOMANDE[pack.subject] ?? [])
+    .filter((t) => t.years.includes(anno))
+    .map((t) => t.round);
+
+  // Unisce le prove della tappa con quelle dell'anno scolastico senza duplicare ID
+  const mappa = new Map<string, Round>();
+  // Per la Secondaria (S1..S3) o Primaria 1ª–2ª (P1..P2), diamo priorità ai quesiti
+  // calibrati sull'anno scolastico, affiancati da quelli della tappa.
+  for (const r of extra) mappa.set(r.id, r);
+  for (const r of level.rounds) {
+    if (!mappa.has(r.id)) mappa.set(r.id, r);
+  }
+
+  const tutti = Array.from(mappa.values());
+  const isScelta = (r: Round): boolean => r.type === 'quiz' || r.type === 'image';
+
+  const ordinaFreschi = (lista: Round[]): Round[] => {
+    const freschi = mescola(lista.filter((r) => !ultimiRoundIds.has(r.id)));
+    const giaVisti = mescola(lista.filter((r) => ultimiRoundIds.has(r.id)));
+    return [...freschi, ...giaVisti];
+  };
+
+  const scelte = ordinaFreschi(tutti.filter(isScelta));
+  const interattive = ordinaFreschi(tutti.filter((r) => !isScelta(r)));
+
+  const nScelte = Math.min(scelte.length, Math.max(4, 6 - interattive.length));
+  const selezionateScelte = scelte.slice(0, nScelte);
+  const selezionateInter = interattive.slice(0, Math.max(0, 6 - selezionateScelte.length));
+
+  const risultato = [...selezionateScelte, ...selezionateInter].slice(0, 6);
+  ultimiRoundIds = new Set(risultato.map((r) => r.id));
+  proveAttive = risultato;
+  return risultato;
 }

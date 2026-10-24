@@ -19,35 +19,65 @@ function lgrad(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, stops: 
  * Niente contorno nero: il bordo è una versione più scura del colore stesso.
  */
 function button(ctx: Ctx, w: number, h: number, base: string, dark: string, light: string): void {
-  // ombra morbida staccata dal corpo
-  ctx.fillStyle = 'rgba(59,74,90,0.16)';
-  ctx.beginPath(); ctx.roundRect(4, 8, w - 8, h - 10, h / 2.1); ctx.fill();
-  // corpo
+  // Ombra esterna morbida a doppio livello
+  ctx.fillStyle = 'rgba(43,66,94,0.14)';
+  ctx.beginPath(); ctx.roundRect(4, 10, w - 8, h - 12, h / 2.1); ctx.fill();
+  ctx.fillStyle = 'rgba(43,66,94,0.10)';
+  ctx.beginPath(); ctx.roundRect(2, 7, w - 4, h - 9, h / 2.05); ctx.fill();
+
+  // Base 3D / bordo inferiore più intenso
   ctx.fillStyle = dark;
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, h / 2.1); ctx.fill();
-  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 8, [[0, light], [0.45, base], [1, base]]);
-  ctx.beginPath(); ctx.roundRect(5, 5, w - 10, h - 16, h / 2.6); ctx.fill();
-  // riflesso alto, ampio e morbido
-  ctx.fillStyle = 'rgba(255,255,255,0.44)';
-  ctx.beginPath(); ctx.roundRect(14, 9, w - 28, h * 0.30, h / 4); ctx.fill();
-  // riga di luce sul bordo superiore
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.beginPath(); ctx.roundRect(18, 7, w - 36, 4, 2); ctx.fill();
+
+  // Corpo principale in gradiente morbido stile Wii
+  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 10, [
+    [0, light],
+    [0.38, base],
+    [0.85, base],
+    [1, dark]
+  ]);
+  ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 14, h / 2.35); ctx.fill();
+
+  // Bordo interno luminoso sottile
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(5.5, 5.5, w - 11, h - 17, h / 2.45); ctx.stroke();
+
+  // Riflesso superiore ampio e vellutato (glossy cap)
+  ctx.fillStyle = lgrad(ctx, 0, 7, 0, 7 + h * 0.36, [
+    [0, 'rgba(255,255,255,0.72)'],
+    [1, 'rgba(255,255,255,0.14)']
+  ]);
+  ctx.beginPath(); ctx.roundRect(14, 7, w - 28, h * 0.34, h / 3.8); ctx.fill();
+
+  // Riga speculare sul bordo superiore
+  ctx.fillStyle = 'rgba(255,255,255,0.88)';
+  ctx.beginPath(); ctx.roundRect(24, 6.5, w - 48, 3.5, 2); ctx.fill();
 }
 
-/** Pannello scuro con bordo, header e fondo in gradiente. */
+/** Pannello chiaro con bordo, header luminoso e fondo in gradiente morbido. */
 function panel(ctx: Ctx, w: number, h: number): void {
-  // ombra morbida
-  ctx.fillStyle = 'rgba(59,74,90,0.16)';
-  ctx.beginPath(); ctx.roundRect(6, 10, w - 12, h - 12, 24); ctx.fill();
-  // carta bianca
-  ctx.fillStyle = C.panel;
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 22); ctx.fill();
-  // fascia d'intestazione azzurra
-  ctx.fillStyle = '#eaf4ff';
-  ctx.beginPath(); ctx.roundRect(12, 12, w - 24, 44, 16); ctx.fill();
-  ctx.strokeStyle = 'rgba(59,74,90,0.10)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 22); ctx.stroke();
+  // Ombra morbida stratificata
+  ctx.fillStyle = 'rgba(43,66,94,0.15)';
+  ctx.beginPath(); ctx.roundRect(6, 10, w - 12, h - 12, 26); ctx.fill();
+  ctx.fillStyle = 'rgba(43,66,94,0.08)';
+  ctx.beginPath(); ctx.roundRect(3, 6, w - 6, h - 8, 25); ctx.fill();
+
+  // Carta avorio/bianca con lieve gradiente verticale
+  ctx.fillStyle = lgrad(ctx, 0, 2, 0, h - 8, [[0, '#ffffff'], [1, '#f5faff']]);
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 24); ctx.fill();
+
+  // Fascia d'intestazione azzurra pastello
+  ctx.fillStyle = lgrad(ctx, 0, 10, 0, 58, [[0, '#f0f8ff'], [1, '#dff0ff']]);
+  ctx.beginPath(); ctx.roundRect(12, 12, w - 24, 46, 16); ctx.fill();
+
+  // Cornice esterna celeste morbida e filetto interno bianco
+  ctx.strokeStyle = 'rgba(102,184,242,0.45)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 24); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(4.5, 4.5, w - 9, h - 13, 22); ctx.stroke();
 }
 
 function star(ctx: Ctx, s: number): void {
@@ -120,21 +150,24 @@ function flag(ctx: Ctx, w: number, h: number): void {
 
 /** Tile di terra tileabile (bordi piatto = si ripete senza cuciture). */
 function ground(ctx: Ctx, w: number, h: number): void {
-  // prato chiaro
-  ctx.fillStyle = lgrad(ctx, 0, 20, 0, h, [[0, '#a8e39a'], [1, '#7ccf72']]);
+  // Prato ricco in gradiente morbido
+  ctx.fillStyle = lgrad(ctx, 0, 18, 0, h, [[0, '#a6e597'], [0.45, '#88d67c'], [1, '#6ec464']]);
   ctx.fillRect(0, 20, w, h - 20);
-  // chiazze d'erba
-  ctx.fillStyle = 'rgba(60,120,60,0.12)';
-  for (const [x, y, r] of [[18, 52, 5], [46, 70, 6], [80, 48, 4], [104, 76, 5], [64, 88, 4]] as const) {
-    ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.7, 0, 0, 7); ctx.fill();
+  // Sentiero chiaro di corsa nella fascia alta del prato
+  ctx.fillStyle = 'rgba(255,250,230,0.22)';
+  ctx.fillRect(0, 28, w, 24);
+  // Chiazze d'erba morbide
+  ctx.fillStyle = 'rgba(50,115,55,0.12)';
+  for (const [x, y, r] of [[18, 56, 6], [46, 72, 7], [80, 52, 5], [104, 78, 6], [64, 88, 5]] as const) {
+    ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.65, 0, 0, 7); ctx.fill();
   }
-  // fascia di erba più alta
+  // Fascia d'erba superiore brillante
   ctx.fillStyle = '#8fe08a';
   ctx.fillRect(0, 12, w, 12);
-  // bordo chiaro, non nero
-  ctx.fillStyle = '#c9f0b8';
+  // Bordo luminoso baciato dal sole
+  ctx.fillStyle = '#d8f7c8';
   ctx.fillRect(0, 10, w, 3);
-  // ciuffi (posizioni interne, tileabili)
+  // Ciuffi d'erba (posizioni interne, tileabili senza cuciture)
   ctx.fillStyle = '#7ccf72';
   for (const x of [12, 34, 58, 82, 108]) {
     ctx.beginPath(); ctx.moveTo(x - 5, 12); ctx.lineTo(x, 4); ctx.lineTo(x + 5, 12); ctx.closePath(); ctx.fill();
@@ -143,16 +176,19 @@ function ground(ctx: Ctx, w: number, h: number): void {
 
 /** Chip bianco (base per opzioni trascinabili, riordino, abbinamenti). */
 function card(ctx: Ctx, w: number, h: number): void {
-  // ombra morbida
-  ctx.fillStyle = 'rgba(59,74,90,0.18)';
-  ctx.beginPath(); ctx.roundRect(4, 7, w - 8, h - 10, 18); ctx.fill();
-  // carta bianca
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 17); ctx.fill();
-  ctx.fillStyle = 'rgba(234,244,255,0.9)';
+  // Ombra morbida
+  ctx.fillStyle = 'rgba(43,66,94,0.16)';
+  ctx.beginPath(); ctx.roundRect(4, 8, w - 8, h - 10, 19); ctx.fill();
+  // Carta bianca con gradiente perlaceo
+  ctx.fillStyle = lgrad(ctx, 0, 2, 0, h - 8, [[0, '#ffffff'], [1, '#f4f9ff']]);
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 18); ctx.fill();
+  // Riflesso superiore celeste chiaro
+  ctx.fillStyle = 'rgba(234,245,255,0.88)';
   ctx.beginPath(); ctx.roundRect(10, 6, w - 20, h * 0.28, 12); ctx.fill();
-  ctx.strokeStyle = 'rgba(59,74,90,0.16)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 17); ctx.stroke();
+  // Bordo morbido
+  ctx.strokeStyle = 'rgba(95,140,185,0.28)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 18); ctx.stroke();
 }
 
 /** Slot vuoto (bordo tratteggiato) per le prove di riordino. */

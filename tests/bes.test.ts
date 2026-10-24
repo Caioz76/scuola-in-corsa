@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { resolveConfig, DEFAULT_SETTINGS, type BesSettings } from '../src/bes/resolver';
+import {
+  ANNI_SCOLASTICI,
+  resolveConfig,
+  testoSemplice,
+  DEFAULT_SETTINGS,
+  type BesSettings
+} from '../src/bes/resolver';
 import { BES_RULES, RULE_BY_ID } from '../src/bes/rules';
-import { BES_PROFILES, PROFILE_BY_ID } from '../src/bes/profiles';
+import { BES_PROFILES } from '../src/bes/profiles';
 
 describe('BES resolver', () => {
   it('default: nessuna regola BES attiva, tempo presente', () => {
@@ -79,5 +85,42 @@ describe('BES resolver', () => {
       }
     }
     expect(RULE_BY_ID.size).toBeGreaterThanOrEqual(28);
+  });
+
+  it('anno scolastico: Primaria (1ª–5ª) e Secondaria I grado (1ª–3ª) modellano difficoltà e velocità', () => {
+    expect(ANNI_SCOLASTICI.map((a) => a.id)).toEqual([
+      'P1',
+      'P2',
+      'P3',
+      'P4',
+      'P5',
+      'S1',
+      'S2',
+      'S3'
+    ]);
+    const p1 = resolveConfig({ profileId: null, overrides: {}, schoolYear: 'P1' });
+    expect(p1.schoolCycle).toBe('primaria');
+    expect(p1.targetDifficulty).toBe(1);
+    expect(p1.maxOptions).toBe(3);
+    expect(p1.visualSupports).toBe(true);
+    expect(p1.runnerSpeed).toBe(360);
+
+    const p4 = resolveConfig({ profileId: null, overrides: {}, schoolYear: 'P4' });
+    expect(p4.schoolCycle).toBe('primaria');
+    expect(p4.targetDifficulty).toBe(2);
+
+    const s3 = resolveConfig({ profileId: null, overrides: {}, schoolYear: 'S3' });
+    expect(s3.schoolCycle).toBe('secondaria');
+    expect(s3.targetDifficulty).toBe(3);
+    expect(s3.runnerSpeed).toBe(560);
+  });
+
+  it('simpleLanguage e shorterText semplificano e accorciano i testi solo quando attive', () => {
+    const base = resolveConfig(DEFAULT_SETTINGS);
+    const frase = 'Metti i numeri in ordine, dal più piccolo al più grande.';
+    expect(testoSemplice(frase, base)).toBe(frase);
+
+    const dislessia = resolveConfig({ profileId: 'dislessia', overrides: {} });
+    expect(testoSemplice(frase, dislessia)).toBe('Ordina dal più piccolo.');
   });
 });

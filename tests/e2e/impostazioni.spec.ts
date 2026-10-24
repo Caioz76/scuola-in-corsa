@@ -101,6 +101,10 @@ test.describe('Impostazioni BES', () => {
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
 
     const livello = await page.evaluate(async () => {
+      const g = (window as unknown as {
+        __GIOCO__?: { rounds?: Array<{ options?: Array<{ label: string; correct: boolean }> }> };
+      }).__GIOCO__;
+      if (g?.rounds && g.rounds.length > 0) return g.rounds[0];
       const percorso = '/src/content/packs.ts';
       const m = (await import(/* @vite-ignore */ percorso)) as {
         allPacks: () => Array<{
@@ -115,5 +119,46 @@ test.describe('Impostazioni BES', () => {
     const visibili = (await testi(page)).filter((t) => risposte.includes(t.text));
     expect(visibili.length, 'con fewerOptions devono restare 2 opzioni').toBe(2);
     expect(visibili.map((v) => v.text)).toContain(livello.options!.find((o) => o.correct)!.label);
+  });
+
+  test('selezione per anno scolastico (Primaria 1ª–5ª e Secondaria I grado 1ª–3ª) modella la difficoltà', async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto('/');
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    expect(await toccaTesto(page, 'Impostazioni')).toBe(true);
+    await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
+
+    // Apro la scheda Anno scolastico
+    expect(await toccaTesto(page, 'Anno scolastico')).toBe(true);
+    const etichette = (await testi(page)).map((t) => t.text);
+    for (const atteso of [
+      '1ª Primaria',
+      '2ª Primaria',
+      '3ª Primaria',
+      '4ª Primaria',
+      '5ª Primaria',
+      '1ª Secondaria',
+      '2ª Secondaria',
+      '3ª Secondaria'
+    ]) {
+      expect(etichette, `anno "${atteso}" mancante`).toContain(atteso);
+    }
+
+    // Scelgo 2ª Secondaria (Secondaria di I grado)
+    expect(await toccaTesto(page, '2ª Secondaria')).toBe(true);
+    await page.waitForTimeout(300);
+
+    const salvato = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(salvato.schoolYear).toBe('S2');
+
+    // Torno ai profili e poi al titolo → avvio Matematica e verifico che parta col livello/quesiti di 2ª Media
+    expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+    expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+    await tocco(page, 512, 358); // Gioca
+    await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
+    expect((await testi(page)).some((t) => t.text.includes('2ª Secondaria'))).toBe(true);
   });
 });

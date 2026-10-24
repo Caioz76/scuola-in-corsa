@@ -24,7 +24,8 @@ import {
   flashCue,
   fitOptions,
   makeButton,
-  makeText
+  makeText,
+  testoSemplice
 } from './ui';
 
 type ChoiceRound = QuizRound | ImageRound;
@@ -55,7 +56,8 @@ export class ChoiceChallenge implements Challenge {
     this.cb = cb;
 
     // ── Prompt ──
-    this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
+    const promptStr = testoSemplice(round.prompt, cfg);
+    this.promptText = makeText(scene, 512, 64, promptStr, cfg, {
       size: 26,
       bold: true,
       color: '#2f3b4c',
@@ -211,7 +213,7 @@ export class ChoiceChallenge implements Challenge {
     const explain = this.cfg.showExplanationOnWrong && this.round.explanation;
     const delay = explain ? 2000 : 950;
     if (explain) {
-      const banner = showBanner(this.scene, this.cfg, 'Quasi! Guarda la spiegazione', this.round.explanation!, 'bad', { y: 186 });
+      const banner = showBanner(this.scene, this.cfg, 'Quasi! Guarda la spiegazione', testoSemplice(this.round.explanation!, this.cfg), 'bad', { y: 186 });
       this.schedule(() => banner.dispose(), delay - 250);
     }
     this.schedule(() => {
@@ -226,7 +228,7 @@ export class ChoiceChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${this.round.hint}`, this.cfg, {
+    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 15,
       color: C.orangeDeep,
       italic: true,

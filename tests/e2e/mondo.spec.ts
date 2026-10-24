@@ -144,6 +144,12 @@ test('risposta giusta: Pico salta (il mondo reagisce alla prova)', async ({ page
   await expect.poll(() => scena(page)).toBe('Game');
 
   const giusta = await page.evaluate(async () => {
+    const g = (window as unknown as {
+      __GIOCO__?: { rounds?: Array<{ options?: Array<{ label: string; correct: boolean }> }> };
+    }).__GIOCO__;
+    if (g?.rounds && g.rounds.length > 0 && g.rounds[0].options) {
+      return g.rounds[0].options.find((o) => o.correct)!.label;
+    }
     const percorso = '/src/content/packs.ts';
     const m = (await import(/* @vite-ignore */ percorso)) as {
       allPacks: () => Array<{ subject: string; levels: Array<{ rounds: Array<{ options?: Array<{ label: string; correct: boolean }> }> }> }>;
