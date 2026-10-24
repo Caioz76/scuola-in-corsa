@@ -212,6 +212,17 @@ interface StatoTreD {
   pannelli: Array<{ x: number; y: number }>;
   etichette: string[];
   errori: number;
+  corsia: number;
+  cuori: number;
+  stelle: number;
+  punteggio: number;
+  combo: number;
+  turbo: number;
+  boost: boolean;
+  ostacoli: number;
+  raccoglibili: number;
+  inSalto: boolean;
+  inScivolata: boolean;
 }
 
 async function treD(page: Page): Promise<StatoTreD | null> {
@@ -428,7 +439,7 @@ test.describe('Modalità Runner', () => {
 });
 
 test.describe('Grafica 3D', () => {
-  test('Runner 3D: risposte in basso sotto Pico, il varco arriva e la corsa riparte', async ({ page }) => {
+  test('Runner 3D: HUD e comandi durante la corsa, risposte in basso al varco', async ({ page }) => {
     test.setTimeout(90_000);
     await impostaGrafica(page, 'runner', '3d');
     await avviaMatematica(page);
@@ -436,11 +447,19 @@ test.describe('Grafica 3D', () => {
     await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
     await expect(page.locator('canvas.tre-d')).toHaveCount(1);
 
-    // Le risposte non sono più pannelli 3D davanti a Pico: sono una barra HTML
-    // in basso. Prima dell'arrivo si vedono ma non si possono toccare.
-    const risposte = page.locator('#risposte-runner .risposta-runner');
-    await expect(page.locator('#risposte-runner')).toBeVisible();
-    await expect(risposte.first()).toBeDisabled();
+    // Durante la corsa: HUD e comandi sì, risposte no. Le risposte non sono
+    // più pannelli 3D davanti a Pico né una barra sempre accesa: compaiono
+    // solo quando il varco si ferma, altrimenti coprirebbero il personaggio.
+    await expect(page.locator('#hud-runner')).toBeVisible();
+    await expect(page.locator('#comandi-runner')).toBeVisible();
+    await expect(page.locator('#risposte-runner')).toBeHidden();
+
+    const partenza = (await treD(page))!;
+    expect(partenza.corsia, 'Pico parte in corsia').toBeGreaterThanOrEqual(0);
+    expect(partenza.cuori).toBe(3);
+    expect(partenza.stelle).toBe(0);
+    expect(partenza.ostacoli, 'il percorso ha ostacoli da superare').toBeGreaterThan(0);
+    expect(partenza.raccoglibili, 'il percorso ha stelline da prendere').toBeGreaterThan(0);
 
     const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
     expect(arrivato, 'il cancello 3D deve arrivare e fermarsi').toBe(true);
@@ -451,7 +470,10 @@ test.describe('Grafica 3D', () => {
     // La corsa finisce di frenare: a cancello fermo la velocità va a zero.
     await expect.poll(async () => (await treD(page))?.velocita ?? 999).toBeLessThan(5);
 
-    // Le etichette sono le stesse, ma in basso: sotto il centro dello schermo.
+    // Al varco i comandi lasciano il posto alle risposte, in basso sotto Pico.
+    await expect(page.locator('#risposte-runner')).toBeVisible();
+    await expect(page.locator('#comandi-runner')).toBeHidden();
+    const risposte = page.locator('#risposte-runner .risposta-runner');
     const etichette = (await risposte.allTextContents()).map((t) => t.trim());
     expect(etichette).toEqual(primo.etichette);
     const scatola = await risposte.first().boundingBox();
@@ -480,6 +502,10 @@ test.describe('Grafica 3D', () => {
     await expect(risposte.nth(iGiusta)).toBeEnabled({ timeout: 5000 });
     await risposte.nth(iGiusta).click();
 
+    // La barra si richiude e la corsa riparte: HUD e comandi tornano.
+    await expect(page.locator('#risposte-runner')).toBeHidden({ timeout: 5000 });
+    await expect(page.locator('#comandi-runner')).toBeVisible({ timeout: 5000 });
+
     const cambiata = await attendi(page, async () => {
       const t = await treD(page);
       return Boolean(t && t.etichette.length > 0 && t.etichette.join('|') !== primo.etichette.join('|'));
@@ -488,6 +514,118 @@ test.describe('Grafica 3D', () => {
 
     const arrivo2 = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
     expect(arrivo2, 'anche il secondo cancello deve fermarsi davanti a Pico').toBe(true);
+  });
+
+  test('Runner 3D: corsie, salto, scivolata, stelline e cuori funzionano davvero', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    await impostaGrafica(page, 'runner', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+
+    // ── Corsie da tastiera ──
+    const iniziale = (await treD(page))!.corsia;
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => (await treD(page))?.corsia).toBe(Math.min(3, iniziale + 1));
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(async () => (await treD(page))?.corsia).toBe(iniziale);
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(async () => (await treD(page))?.corsia).toBe(0);
+    // Ai bordi non si esce dalla pista.
+    await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(120);
+    expect((await treD(page))!.corsia).toBe(0);
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => (await treD(page))?.corsia).toBe(1);
+
+    // ── Scivolata e salto: stati veri, non solo animazioni ──
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(async () => (await treD(page))?.inScivolata ?? false, { timeout: 2000 }).toBe(
+      true
+    );
+    await expect.poll(async () => (await treD(page))?.inScivolata ?? true, { timeout: 8000 }).toBe(
+      false
+    );
+
+    await page.keyboard.press('Space');
+    await expect.poll(async () => (await treD(page))?.inSalto ?? false, { timeout: 2000 }).toBe(true);
+    await expect.poll(async () => (await treD(page))?.inSalto ?? true, { timeout: 8000 }).toBe(false);
+
+    // ── Stelline: raccoglierle aumenta stelle e punteggio nell'HUD ──
+    const raccolta = await attendi(page, async () => ((await treD(page))?.stelle ?? 0) >= 1, 15_000);
+    expect(raccolta, 'correndo sulla corsia giusta si raccoglie una stellina').toBe(true);
+    expect((await treD(page))!.punteggio, 'le stelline danno punti').toBeGreaterThan(0);
+    await expect(page.locator('#hud-runner [data-hud="stelle"]')).not.toHaveText('0');
+  });
+
+  test('Runner 3D: sbattere contro un ostacolo toglie un cuore, mai la partita', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    await impostaGrafica(page, 'runner', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+
+    // Nessun input: Pico resta nella sua corsia e trova l'ostacolo basso.
+    const colpito = await attendi(page, async () => ((await treD(page))?.cuori ?? 3) < 3, 20_000);
+    expect(colpito, 'un ostacolo non saltato deve togliere un cuore').toBe(true);
+
+    const dopo = (await treD(page))!;
+    expect(dopo.cuori).toBe(2);
+    // Mai game over: la partita continua e il varco arriva lo stesso.
+    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 25_000);
+    expect(arrivato, 'dopo l’urto la corsa continua fino al varco').toBe(true);
+    await expect(page.locator('#hud-runner [data-hud="cuori"]')).toHaveAttribute(
+      'aria-label',
+      '2 cuori su 3'
+    );
+  });
+
+  test('Runner 3D: al varco si risponde anche allineando Pico alla porta e saltando', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    await impostaGrafica(page, 'runner', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
+    expect(arrivato, 'il cancello deve arrivare').toBe(true);
+    await expect.poll(async () => (await treD(page))?.velocita ?? 999).toBeLessThan(5);
+
+    const stato = (await treD(page))!;
+    const rounds = await prove(page);
+    const giusta = rounds[0].options!.find((o) => o.correct)!.label;
+    const porta = stato.etichette.indexOf(giusta);
+    expect(porta, `la risposta "${giusta}" deve avere una porta`).toBeGreaterThanOrEqual(0);
+
+    // Porta → corsia: con 4 porte è la stessa, con meno porte alcune corsie
+    // sono equivalenti. Si cerca la corsia che sceglie davvero quella porta.
+    const n = stato.etichette.length;
+    const corsiaPerPorta = (i: number): number =>
+      n >= 4 ? i : n === 3 ? (i === 0 ? 0 : i === 2 ? 3 : 1) : n === 2 ? (i === 0 ? 1 : 2) : 1;
+    const bersaglio = corsiaPerPorta(porta);
+    for (let giro = 0; giro < 6 && (await treD(page))!.corsia !== bersaglio; giro++) {
+      const ora = (await treD(page))!.corsia;
+      await page.keyboard.press(bersaglio > ora ? 'ArrowRight' : 'ArrowLeft');
+      await page.waitForTimeout(180);
+    }
+    expect((await treD(page))!.corsia).toBe(bersaglio);
+
+    // Salto sulla porta allineata: risposta giusta senza toccare la barra.
+    await page.keyboard.press('Space');
+    await expect(page.locator('#risposte-runner')).toBeHidden({ timeout: 5000 });
+    expect((await treD(page))!.combo, 'la risposta giusta aumenta la serie').toBeGreaterThan(0);
+
+    const cambiata = await attendi(page, async () => {
+      const t = await treD(page);
+      return Boolean(t && t.etichette.length > 0 && t.etichette.join('|') !== stato.etichette.join('|'));
+    }, 10_000);
+    expect(cambiata, 'dopo il salto sulla porta giusta arriva il varco successivo').toBe(true);
   });
 
   test('Runner 3D in verticale: domanda in alto, risposte in basso, avviso nascosto', async ({

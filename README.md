@@ -61,6 +61,10 @@ funziona offline una volta caricato.
    Three.js). Entrambe restano salvate sul dispositivo.
 3. Sceglie una **materia**: matematica, italiano, scienze o storia.
 4. Percorre il livello: il personaggio scorre, a ogni checkpoint compare una sfida.
+   In **Runner 3D** si cambia corsia (←/→, swipe o bottoni), si salta (Spazio/↑)
+   e si scivola (↓) per evitare ostacoli e raccogliere stelline; cuori, punti,
+   serie e turbo sono nell'HUD in alto a destra. Gli ostacoli tolgono un cuore
+   ma non fermano mai la partita.
 5. Risponde; il gioco dà un **riscontro immediato** (positivo o con spiegazione).
 6. In alto a sinistra ci sono sempre **Pausa** ed **Esci**: la pausa ferma la
    partita e riprende dallo stesso punto; l'uscita chiede conferma, perché la
@@ -68,11 +72,11 @@ funziona offline una volta caricato.
 7. Il progresso viene salvato in locale: si può riprendere da dove si era rimasti.
 
 Su telefono il gioco si adatta a orizzontale e verticale: la barra
-**Pausa / Esci** e le risposte del Runner 3D sono HTML, fuori dal canvas, con
-aree toccabili grandi e `env(safe-area-inset-*)`. In verticale il canvas 16:9
-si aggancia in alto sotto la barra, la domanda resta lassù, Pico al centro e le
-risposte in basso. L'avviso "Ruota il telefono" suggerisce l'orizzontale ma non
-blocca il gioco.
+**Pausa / Esci**, l'HUD e le risposte del Runner 3D sono HTML, fuori dal canvas,
+con aree toccabili grandi e `env(safe-area-inset-*)`. In verticale il canvas 16:9
+si aggancia in alto sotto la barra, l'HUD scende sotto i bottoni, la domanda
+resta lassù, Pico al centro e le risposte in basso. In 3D l'avviso "Ruota il
+telefono" sparisce: il gioco si adatta davvero al verticale.
 
 ---
 

@@ -58,7 +58,12 @@ export class GameScene extends Phaser.Scene {
     world.setProgress(0, level.rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
-    const contatore = makeText(this, 888, 26, '', cfg, { size: 14, color: '#1f8a4c' });
+    // Nel Runner 3D si sposta a sinistra: in alto a destra c'è l'HUD (cuori,
+    // stelline, punti) e i due testi non devono sovrapporsi.
+    const contatore = makeText(this, treD && runner ? 700 : 888, 26, '', cfg, {
+      size: 14,
+      color: '#1f8a4c'
+    });
 
     // ── Navigazione sempre disponibile ──────────────────────────────
     // Pausa e uscita non dipendono dal profilo BES: chiunque, in qualsiasi

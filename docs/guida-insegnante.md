@@ -28,6 +28,23 @@ il percorso continua.
 
 Accanto al bambino c'è **Pico**, la mascotte, che dà indicazioni e incoraggia.
 
+### Le due modalità e le due grafiche
+
+In **Impostazioni** si scelgono separatamente:
+
+- la **modalità**: *Quiz* (si risponde con i bottoni) oppure *Runner* (la
+  domanda è un cancello sulla pista e Pico ci corre incontro);
+- la **grafica**: *2D* (disegno laterale) oppure *3D* (terza persona).
+
+Nel **Runner 3D** il bambino guida Pico su quattro corsie con le frecce, lo
+swipe o i bottoni in basso: **salta** i coni con Spazio/↑, **scivola** sotto le
+sbarre con ↓ e raccoglie le **stelline** che caricano il **turbo**. Gli
+ostacoli tolgono un cuore e azzerano la serie, ma non fermano mai la partita:
+con zero cuori si riparte con un cuore e una breve frenata. In alto a destra
+l'**HUD** mostra cuori, stelline, punti, serie e turbo. Quando il cancello si
+ferma, le risposte compaiono in basso, sotto Pico: si può toccarle oppure
+allineare Pico alla porta e saltare. Non c'è nessun timer.
+
 ### Cosa serve
 
 - Un computer, un tablet o una LIM con un browser aggiornato (Chrome, Safari,

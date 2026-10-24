@@ -39,6 +39,8 @@ export function mostraRisposteRunner(
   el.setAttribute('role', 'group');
   el.setAttribute('aria-label', 'Scegli la risposta');
   el.style.setProperty('--n', String(Math.max(1, labels.length)));
+  // Durante la corsa le risposte non si vedono: compaiono solo a varco fermo.
+  el.style.display = 'none';
 
   const bottoni = labels.map((label, i) => {
     const b = document.createElement('button');
@@ -57,12 +59,13 @@ export function mostraRisposteRunner(
   });
 
   document.body.appendChild(el);
-  // L'avviso "ruota il telefono" finirebbe dietro alle risposte.
-  document.body.classList.add('risposte-aperte');
   barra = el;
 
   return {
     abilita(): void {
+      el.style.display = '';
+      // L'avviso "ruota il telefono" finirebbe dietro alle risposte.
+      document.body.classList.add('risposte-aperte');
       bottoni.forEach((b) => {
         b.disabled = false;
         b.classList.remove('spento');
@@ -86,9 +89,11 @@ export function mostraRisposteRunner(
     },
     nascondi(): void {
       el.style.display = 'none';
+      document.body.classList.remove('risposte-aperte');
     },
     mostra(): void {
       el.style.display = '';
+      document.body.classList.add('risposte-aperte');
     },
     dispose: nascondiRisposte
   };

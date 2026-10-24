@@ -19,6 +19,8 @@ import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
 import type { ThemeKey } from './backgrounds';
 import type { World } from './world';
+import { synth } from '../audio/synth';
+import { aggiornaHudRunner } from '../ui/runner-hud';
 
 export interface Gate3D {
   /** Il cancello è arrivato e la barra delle risposte si può abilitare. */
@@ -36,6 +38,14 @@ export interface Gate3D {
 
 export interface World3D extends World {
   openGate(labels: string[]): Gate3D;
+  /** Corsia attuale, da 0 a 3 (da sinistra a destra). */
+  corsia(): number;
+  /** Sposta Pico di corsia; ai bordi resta fermo. */
+  setCorsia(i: number): void;
+  /** Salto: al varco fermo sceglie la porta allineata. */
+  salta(): void;
+  /** Scivolata: passa sotto le sbarre alte. */
+  scivola(): void;
 }
 
 export interface Stato3D {
@@ -53,6 +63,26 @@ export interface Stato3D {
   errori: number;
   /** Come scegliere la porta i (per i test, senza passare dal mouse). */
   pick: (i: number) => void;
+  /** Corsia di Pico (0 = più a sinistra, 3 = più a destra). */
+  corsia: number;
+  cuori: number;
+  stelle: number;
+  punteggio: number;
+  combo: number;
+  /** Carica del turbo, 0..1. */
+  turbo: number;
+  boost: boolean;
+  /** Ostacoli ancora da superare e stelline ancora da prendere. */
+  ostacoli: number;
+  raccoglibili: number;
+  /** Pico è a mezz'aria / sta scivolando. */
+  inSalto: boolean;
+  inScivolata: boolean;
+  scivolataT: number;
+  /** Comandi per i test: le stesse azioni di tastiera e bottoni. */
+  vaiA: (i: number) => void;
+  salta: () => void;
+  scivola: () => void;
 }
 
 const VUOTO: Stato3D = {
@@ -64,7 +94,22 @@ const VUOTO: Stato3D = {
   pannelli: [],
   etichette: [],
   errori: 0,
-  pick: () => undefined
+  pick: () => undefined,
+  corsia: 1,
+  cuori: 3,
+  stelle: 0,
+  punteggio: 0,
+  combo: 0,
+  turbo: 0,
+  boost: false,
+  ostacoli: 0,
+  raccoglibili: 0,
+  inSalto: false,
+  inScivolata: false,
+  scivolataT: 0,
+  vaiA: () => undefined,
+  salta: () => undefined,
+  scivola: () => undefined
 };
 
 let stato: Stato3D = VUOTO;
@@ -80,6 +125,45 @@ const SCALA = 0.018;
 const STOP_Z = -6;
 /** Da dove arriva il cancello. */
 const START_Z = -34;
+/** Le quattro corsie, da sinistra a destra (stessa scala del cancello). */
+const CORSIE = [-3.3, -1.1, 1.1, 3.3];
+const MAX_CUORI = 3;
+/** Pico parte nella seconda corsia da sinistra, come nel prototipo. */
+const CORSIA_INIZIALE = 1;
+
+type TipoOstacolo = 'basso' | 'alto' | 'ingombro';
+
+interface Ostacolo {
+  mesh: THREE.Group;
+  corsia: number;
+  tipo: TipoOstacolo;
+  z: number;
+  colpito: boolean;
+}
+
+interface StellaRacc {
+  mesh: THREE.Mesh;
+  corsia: number;
+  z: number;
+  y: number;
+  presa: boolean;
+}
+
+/** Da corsia a porta, quando le porte sono meno di quattro. */
+function corsiaPerPorta(i: number, n: number): number {
+  if (n >= 4) return Math.min(3, Math.max(0, i));
+  if (n === 3) return i === 0 ? 0 : i === 2 ? 3 : 1;
+  if (n === 2) return i === 0 ? 1 : 2;
+  return 1;
+}
+
+/** Dalla corsia alla porta allineata (l'inverso di `corsiaPerPorta`). */
+function portaPerCorsia(corsia: number, n: number): number {
+  if (n >= 4) return Math.min(3, Math.max(0, corsia));
+  if (n === 3) return corsia <= 0 ? 0 : corsia >= 3 ? 2 : 1;
+  if (n === 2) return corsia <= 1 ? 0 : 1;
+  return 0;
+}
 
 interface Tema {
   cielo: string;
@@ -310,12 +394,42 @@ class Mondo3D implements World3D {
   private bersaglio: number;
   private spinta = 0;
   private saltoT = -1;
-  private saltoX = 0;
   private saltoDur = 0.62;
+  private scivolataT = 0;
   private inciampoT = 0;
   private tempo = 0;
   private errori = 0;
   private ultimoSync = '';
+
+  // ── Corsa vera: corsie, ostacoli, stelline, cuori, turbo ──
+  private corsiaAttuale = CORSIA_INIZIALE;
+  private cuori = MAX_CUORI;
+  private stelleRaccolte = 0;
+  private punteggio = 0;
+  private combo = 0;
+  private turbo = 0;
+  private invulnT = 0;
+  private frenoT = 0;
+  private ostacoli: Ostacolo[] = [];
+  private raccoglibili: StellaRacc[] = [];
+
+  private matCono = new THREE.MeshStandardMaterial({ color: 0xffa94d, roughness: 0.6 });
+  private matBianco = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+  private matSbarra = new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.6 });
+  private matCesto = new THREE.MeshStandardMaterial({ color: 0xc98b5e, roughness: 0.8 });
+  private matPozza = new THREE.MeshStandardMaterial({
+    color: 0x9fd8ff,
+    roughness: 0.35,
+    transparent: true,
+    opacity: 0.8
+  });
+  private matStella = new THREE.MeshStandardMaterial({
+    color: 0xffd646,
+    emissive: 0x8a6a00,
+    emissiveIntensity: 0.35,
+    roughness: 0.4
+  });
+  private geoStella = new THREE.OctahedronGeometry(0.36, 0);
 
   private onResize = (): void => this.sincronizza();
 
@@ -371,7 +485,22 @@ class Mondo3D implements World3D {
       pannelli: [],
       etichette: [],
       errori: 0,
-      pick: (i: number) => this.scegli(i)
+      pick: (i: number) => this.scegli(i),
+      corsia: this.corsiaAttuale,
+      cuori: this.cuori,
+      stelle: this.stelleRaccolte,
+      punteggio: this.punteggio,
+      combo: this.combo,
+      turbo: this.turbo,
+      boost: false,
+      ostacoli: 0,
+      raccoglibili: 0,
+      inSalto: false,
+      inScivolata: false,
+      scivolataT: 0,
+      vaiA: (i: number) => this.setCorsia(i),
+      salta: () => this.salta(),
+      scivola: () => this.scivola()
     };
   }
 
@@ -658,11 +787,35 @@ class Mondo3D implements World3D {
 
   dash(): void {
     this.spinta = 0.7;
-    this.salta(0, 0.5);
+    this.avviaSalto(0.5);
   }
 
   leap(_x: number, _y: number): void {
-    this.salta(0, 0.55);
+    this.avviaSalto(0.55);
+  }
+
+  corsia(): number {
+    return this.corsiaAttuale;
+  }
+
+  setCorsia(i: number): void {
+    if (!Number.isFinite(i)) return;
+    this.corsiaAttuale = Math.max(0, Math.min(3, Math.round(i)));
+  }
+
+  salta(): void {
+    const c = this.cancello;
+    if (c?.arrived && c.enabled && !c.uscita) {
+      this.scegli(portaPerCorsia(this.corsiaAttuale, c.porte.length));
+      return;
+    }
+    if (this.saltoT < 0) this.avviaSalto(0.62);
+  }
+
+  scivola(): void {
+    if (this.cancello?.arrived) return;
+    if (this.saltoT >= 0) return;
+    this.scivolataT = 0.55;
   }
 
   stumble(): void {
@@ -739,6 +892,8 @@ class Mondo3D implements World3D {
     };
     this.cancello = c;
     this.errori = 0;
+    if (this.animato) this.popolaPercorso();
+    else this.svuotaPercorso();
     this.bersaglio = this.animato ? 480 : 0;
     if (!this.animato) {
       c.gruppo.position.z = STOP_Z;
@@ -761,6 +916,11 @@ class Mondo3D implements World3D {
       reset: () => this.resetSegni(),
       reveal: (correct) => {
         c.enabled = false;
+        this.corsiaAttuale = corsiaPerPorta(correct, c.porte.length);
+        this.combo = 1;
+        this.cuori = Math.min(MAX_CUORI, this.cuori + 1);
+        this.punteggio += 75;
+        this.avviaSalto(0.7);
         c.materiali.forEach((m, i) => {
           if (i === correct) m.color.set(0x9df0b8);
           else {
@@ -799,14 +959,19 @@ class Mondo3D implements World3D {
     });
     if (!giusto) {
       this.errori += 1;
+      this.combo = 0;
       c.scosso = 0.32;
       this.stumble();
       return;
     }
-    // salto verso la porta scelta, stelline, cancello che esce
+    // Pico si allinea alla porta scelta, salta, stelline, cancello che esce
+    this.corsiaAttuale = corsiaPerPorta(i, c.porte.length);
+    this.combo += 1;
+    this.cuori = Math.min(MAX_CUORI, this.cuori + 1);
+    this.punteggio += 150 * this.combo;
     const p = c.porte[i];
     const px = p ? p.position.x : 0;
-    this.salta(px * 0.62, 0.72);
+    this.avviaSalto(0.72);
     this.stelline(c.gruppo.position.x + px, 2.45, c.gruppo.position.z + (p?.position.z ?? 0));
     this.setSpeed(560);
     c.uscita = true;
@@ -855,9 +1020,8 @@ class Mondo3D implements World3D {
 
   // ── Animazioni ─────────────────────────────────────────────────
 
-  private salta(x: number, dur: number): void {
+  private avviaSalto(dur: number): void {
     this.saltoT = 0;
-    this.saltoX = x;
     this.saltoDur = dur;
   }
 
@@ -890,6 +1054,151 @@ class Mondo3D implements World3D {
     this.polvere.push({ mesh, vita: 0.45 });
   }
 
+  // ── Percorso: ostacoli e stelline ─────────────────────────────
+
+  private svuotaPercorso(): void {
+    for (const o of this.ostacoli) {
+      this.mondo.remove(o.mesh);
+      o.mesh.traverse((n) => {
+        const m = n as THREE.Mesh;
+        if (m.geometry) m.geometry.dispose();
+      });
+    }
+    for (const s of this.raccoglibili) this.mondo.remove(s.mesh);
+    this.ostacoli = [];
+    this.raccoglibili = [];
+  }
+
+  private creaOstacolo(tipo: TipoOstacolo): THREE.Group {
+    const g = new THREE.Group();
+    if (tipo === 'basso') {
+      const cono = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.95, 10), this.matCono);
+      cono.position.y = 0.48;
+      cono.castShadow = true;
+      const striscia = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.33, 0.22, 10),
+        this.matBianco
+      );
+      striscia.position.y = 0.46;
+      g.add(cono, striscia);
+    } else if (tipo === 'alto') {
+      const palo = new THREE.CylinderGeometry(0.08, 0.08, 2.35, 8);
+      const sx = new THREE.Mesh(palo, this.matBianco);
+      sx.position.set(-0.82, 1.17, 0);
+      const dx = new THREE.Mesh(palo, this.matBianco);
+      dx.position.set(0.82, 1.17, 0);
+      const trave = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.58, 0.32), this.matSbarra);
+      trave.position.y = 1.82;
+      trave.castShadow = true;
+      g.add(sx, dx, trave);
+    } else {
+      const pozza = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.85, 0.88, 0.06, 14),
+        this.matPozza
+      );
+      pozza.position.y = 0.03;
+      const cesto = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.58, 0.46, 1.45, 10),
+        this.matCesto
+      );
+      cesto.position.y = 0.72;
+      cesto.castShadow = true;
+      g.add(pozza, cesto);
+    }
+    return g;
+  }
+
+  /** Un piccolo percorso per ogni varco: sempre le stesse posizioni, così i
+   *  test possono prevederle e il bambino impara il ritmo. */
+  private popolaPercorso(): void {
+    this.svuotaPercorso();
+
+    const stelle: Array<[number, number, number]> = [
+      [-6, 1, 0.75],
+      [-9, 1, 0.75],
+      [-12, 2, 0.75],
+      [-16, 1, 1.55],
+      [-19, 2, 0.75],
+      [-24, 0, 0.75],
+      [-27, 3, 0.75]
+    ];
+    for (const [z, corsia, y] of stelle) {
+      const mesh = new THREE.Mesh(this.geoStella, this.matStella);
+      mesh.position.set(CORSIE[corsia], y, z);
+      mesh.scale.set(1.1, 1.1, 0.45);
+      mesh.castShadow = true;
+      this.mondo.add(mesh);
+      this.raccoglibili.push({ mesh, corsia, z, y, presa: false });
+    }
+
+    const ostacoli: Array<[number, number, TipoOstacolo]> = [
+      [-13, 1, 'basso'],
+      [-13, 3, 'ingombro'],
+      [-18, 2, 'alto'],
+      [-18, 0, 'basso'],
+      [-23, 0, 'alto'],
+      [-23, 2, 'ingombro']
+    ];
+    for (const [z, corsia, tipo] of ostacoli) {
+      const mesh = this.creaOstacolo(tipo);
+      mesh.position.set(CORSIE[corsia], 0, z);
+      this.mondo.add(mesh);
+      this.ostacoli.push({ mesh, corsia, tipo, z, colpito: false });
+    }
+  }
+
+  private collisioniOstacoli(): void {
+    for (const s of this.raccoglibili) {
+      if (s.presa) continue;
+      if (Math.abs(s.z) < 0.95 && Math.abs(CORSIE[s.corsia] - this.pico.position.x) < 0.95) {
+        s.presa = true;
+        s.mesh.visible = false;
+        this.stelleRaccolte += 1;
+        this.punteggio += 25 * (1 + this.combo * 0.2);
+        synth.play('pickup');
+        if (this.spinta <= 0) {
+          this.turbo = Math.min(1, this.turbo + 0.25);
+          if (this.turbo >= 1) {
+            this.turbo = 1;
+            this.spinta = 3;
+            this.invulnT = Math.max(this.invulnT, 3);
+            synth.play('start');
+          }
+        }
+      }
+    }
+
+    if (this.invulnT > 0) return;
+    for (const o of this.ostacoli) {
+      if (o.colpito) continue;
+      if (Math.abs(o.z) < 0.85 && Math.abs(CORSIE[o.corsia] - this.pico.position.x) < 0.85) {
+        const saltato = o.tipo === 'basso' && this.pico.position.y > 0.62;
+        const scivolato = o.tipo === 'alto' && this.scivolataT > 0;
+        const sfondato = this.spinta > 0;
+        if (saltato || scivolato || sfondato) {
+          o.colpito = true;
+          if (sfondato) {
+            o.mesh.visible = false;
+            this.punteggio += 20;
+          }
+          continue;
+        }
+        o.colpito = true;
+        this.cuori -= 1;
+        this.combo = 0;
+        this.invulnT = 1.2;
+        this.stumble();
+        synth.play('drop');
+        if (this.cuori <= 0) {
+          // Mai game over per un ostacolo: si riprende fiato e si continua.
+          this.cuori = 1;
+          this.frenoT = 2;
+          this.turbo = 0;
+        }
+      }
+    }
+  }
+
   // ── Ciclo ──────────────────────────────────────────────────────
 
   /**
@@ -909,6 +1218,13 @@ class Mondo3D implements World3D {
     this.canvas.style.height = `${vh}px`;
     this.renderer.setSize(vw, vh, false);
     this.camera.aspect = vw / vh;
+    // In verticale lo schermo è stretto: avvicinando la camera Pico e le
+    // porte riempirebbero tutto e le porte esterne uscirebbero. Ci si allontana
+    // quel tanto che basta a tenere in scena Pico, le quattro porte e le
+    // risposte in basso, senza rimpicciolire il gioco su desktop e landscape.
+    const largo = vw / vh;
+    const distanza = largo >= 1.2 ? 1 : Math.min(1.55, 1.2 / largo);
+    this.camera.position.z = 7.4 * distanza;
     this.camera.updateProjectionMatrix();
   }
 
@@ -919,7 +1235,10 @@ class Mondo3D implements World3D {
 
     // velocità con accelerazione e frenata morbide
     if (this.spinta > 0) this.spinta -= dt;
-    const desiderata = this.spinta > 0 ? Math.max(this.bersaglio, 560) : this.bersaglio;
+    else if (this.turbo >= 1) this.turbo = 0;
+    if (this.frenoT > 0) this.frenoT = Math.max(0, this.frenoT - dt);
+    const base = this.spinta > 0 ? Math.max(this.bersaglio, 560) : this.bersaglio;
+    const desiderata = this.frenoT > 0 ? base * 0.6 : base;
     if (!this.animato) this.velocita = 0;
     else if (this.velocita < desiderata) this.velocita = Math.min(desiderata, this.velocita + 1800 * dt);
     else this.velocita = Math.max(desiderata, this.velocita - 2600 * dt);
@@ -942,24 +1261,33 @@ class Mondo3D implements World3D {
       if (n.position.x > 48) n.position.x = -48;
     }
 
-    // Pico: corsa, salto, inciampo
+    // Pico: corsia, corsa, salto, scivolata, inciampo
+    const targetX = CORSIE[this.corsiaAttuale];
+    this.pico.position.x += (targetX - this.pico.position.x) * Math.min(1, dt * 10);
+
+    let saltoY = 0;
     if (this.saltoT >= 0) {
       this.saltoT += dt;
       const k = Math.min(1, this.saltoT / this.saltoDur);
-      this.pico.position.x = this.saltoX * Math.sin(k * Math.PI);
-      this.pico.position.y = Math.sin(k * Math.PI) * 0.95;
-      if (k >= 1) {
-        this.saltoT = -1;
-        this.pico.position.set(0, 0, 0);
-      }
-    } else {
-      this.pico.position.x *= 0.82;
-      this.pico.position.y = corsa ? Math.abs(Math.sin(this.tempo * 9)) * 0.07 : 0;
+      saltoY = Math.sin(k * Math.PI) * 0.95;
+      if (k >= 1) this.saltoT = -1;
     }
+    if (this.scivolataT > 0) this.scivolataT = Math.max(0, this.scivolataT - dt);
+    if (this.invulnT > 0) this.invulnT = Math.max(0, this.invulnT - dt);
+    const scivolata = this.scivolataT > 0;
+    const passoBase = corsa && this.saltoT < 0 && !scivolata;
+    this.pico.position.y = scivolata
+      ? 0
+      : saltoY + (passoBase ? Math.abs(Math.sin(this.tempo * 9)) * 0.07 : 0);
+    this.pico.scale.set(scivolata ? 1.18 : 1, scivolata ? 0.55 : 1, scivolata ? 1.18 : 1);
+
     if (this.inciampoT > 0) {
       this.inciampoT -= dt;
       this.pico.rotation.z = Math.sin(this.inciampoT * 60) * 0.12;
       this.matGiallo.color.set(0xffb3b3);
+    } else if (this.invulnT > 0) {
+      this.pico.rotation.z = corsa ? Math.sin(this.tempo * 9) * 0.03 : 0;
+      this.matGiallo.color.set(Math.floor(this.tempo * 16) % 2 === 0 ? 0xffffff : 0xffe08a);
     } else {
       this.pico.rotation.z = corsa ? Math.sin(this.tempo * 9) * 0.03 : 0;
       this.matGiallo.color.set(0xffe08a);
@@ -1013,6 +1341,25 @@ class Mondo3D implements World3D {
       if (c.scosso <= 0) c.gruppo.position.x = 0;
     }
 
+    // percorso: ostacoli e stelline scorrono con la pista e si possono
+    // superare/raccogliere solo mentre si corre (al varco tutto si ferma)
+    const inCorsa = corsa && !c?.arrived && !c?.uscita;
+    if (inCorsa) {
+      this.punteggio += spostamento * 2.5;
+      for (const s of this.raccoglibili) {
+        s.z += spostamento;
+        s.mesh.position.z = s.z;
+        s.mesh.rotation.y += dt * 3.2;
+        if (s.z > 3) s.mesh.visible = false;
+      }
+      for (const o of this.ostacoli) {
+        o.z += spostamento;
+        o.mesh.position.z = o.z;
+        if (o.z > 3) o.mesh.visible = false;
+      }
+      this.collisioniOstacoli();
+    }
+
     // stelline
     for (let i = this.stelle.length - 1; i >= 0; i--) {
       const s = this.stelle[i];
@@ -1041,8 +1388,32 @@ class Mondo3D implements World3D {
       pannelli: [],
       etichette: c ? c.etichette : [],
       errori: this.errori,
-      pick: (i: number) => this.scegli(i)
+      pick: (i: number) => this.scegli(i),
+      corsia: this.corsiaAttuale,
+      cuori: this.cuori,
+      stelle: this.stelleRaccolte,
+      punteggio: Math.round(this.punteggio),
+      combo: this.combo,
+      turbo: this.turbo,
+      boost: this.spinta > 0,
+      ostacoli: this.ostacoli.filter((o) => !o.colpito && o.mesh.visible).length,
+      raccoglibili: this.raccoglibili.filter((s) => !s.presa && s.mesh.visible).length,
+      inSalto: this.saltoT >= 0,
+      inScivolata: this.scivolataT > 0,
+      scivolataT: this.scivolataT,
+      vaiA: (i: number) => this.setCorsia(i),
+      salta: () => this.salta(),
+      scivola: () => this.scivola()
     };
+
+    aggiornaHudRunner({
+      cuori: this.cuori,
+      stelle: this.stelleRaccolte,
+      punteggio: this.punteggio,
+      combo: this.combo,
+      turbo: this.turbo,
+      boost: this.spinta > 0
+    });
 
     this.renderer.render(this.mondo, this.camera);
   };
@@ -1054,6 +1425,14 @@ class Mondo3D implements World3D {
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.distruggi);
     window.removeEventListener('resize', this.onResize);
     this.chiudiCancello();
+    this.svuotaPercorso();
+    this.geoStella.dispose();
+    this.matCono.dispose();
+    this.matBianco.dispose();
+    this.matSbarra.dispose();
+    this.matCesto.dispose();
+    this.matPozza.dispose();
+    this.matStella.dispose();
     this.mondo.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.geometry) m.geometry.dispose();

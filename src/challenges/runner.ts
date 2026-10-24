@@ -24,6 +24,8 @@ import { synth } from '../audio/synth';
 import type { Gate3D, World3D } from '../art/three-world';
 import { T } from '../art/palette';
 import { mostraRisposteRunner, type RisposteRunner } from '../ui/runner-answers';
+import { mostraHudRunner, nascondiHudRunner } from '../ui/runner-hud';
+import { mostraComandiRunner, nascondiComandi } from '../ui/runner-controls';
 import {
   MAX_ATTEMPTS,
   fitOptions,
@@ -177,6 +179,10 @@ export class RunnerChallenge implements Challenge {
   private gate3d: Gate3D | null = null;
   /** Risposte del Runner 3D: barra HTML in basso, sotto Pico. */
   private risposte3d: RisposteRunner | null = null;
+  /** Input di corsa (tastiera, swipe, bottoni) attivo solo in 3D. */
+  private inPausa = false;
+  private rispostaGiusta = false;
+  private pDown: { x: number; y: number } | null = null;
   /** Larghezza totale della fila di cartelli. */
   private totale = 0;
   /** Dove si ferma il centro del cancello. */
@@ -234,11 +240,18 @@ export class RunnerChallenge implements Challenge {
       const g = treD.openGate(labels);
       this.gate3d = g;
       // Le etichette stanno in basso, sotto Pico: non coprono il personaggio
-      // né il simbolo "?" del cancello. Si abilitano solo a varco fermo.
+      // né il simbolo "?" del cancello. Si mostrano solo a varco fermo.
       this.risposte3d = mostraRisposteRunner(labels, (i) => this.onPick(i));
+      // Stessa risposta anche allineando Pico alla porta e saltando: la barra
+      // in basso è una scorciatoia, non l'unico modo.
+      g.onPick((i) => this.onPick(i));
+      mostraHudRunner();
+      this.mostraComandi();
+      this.attivaInput3D();
       g.onArrive(() => {
         this.arrivato = true;
         this.risposte3d?.abilita();
+        nascondiComandi();
       });
     } else {
       this.creaCancello2D();
@@ -330,12 +343,95 @@ export class RunnerChallenge implements Challenge {
    * metri. Usare la velocità vera del mondo (non un timer) tiene sincronizzati
    * pista, cartelli e Pico: si fermano insieme.
    */
+  // ── Input di corsa (solo 3D) ───────────────────────────────────
+
+  private spostaCorsia = (delta: number): void => {
+    const w = this.world as World3D | null;
+    if (!w?.setCorsia) return;
+    w.setCorsia(w.corsia() + delta);
+  };
+
+  private salta3D = (): void => {
+    (this.world as World3D | null)?.salta?.();
+  };
+
+  private scivola3D = (): void => {
+    (this.world as World3D | null)?.scivola?.();
+  };
+
+  private mostraComandi = (): void => {
+    if (!this.gate3d) return;
+    mostraComandiRunner({
+      onCorsia: this.spostaCorsia,
+      onSalta: this.salta3D,
+      onScivola: this.scivola3D
+    });
+  };
+
+  private togliComandi = (): void => {
+    nascondiComandi();
+  };
+
+  private attivaInput3D(): void {
+    window.addEventListener('keydown', this.onTasto3D);
+    window.addEventListener('pointerdown', this.onPuntaGiu);
+    window.addEventListener('pointerup', this.onPuntaSu);
+  }
+
+  private onTasto3D = (e: KeyboardEvent): void => {
+    if (this.inPausa || !this.gate3d) return;
+    const k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') {
+      e.preventDefault();
+      this.spostaCorsia(-1);
+    } else if (k === 'ArrowRight' || k === 'd' || k === 'D') {
+      e.preventDefault();
+      this.spostaCorsia(1);
+    } else if (k === ' ' || k === 'ArrowUp' || k === 'w' || k === 'W') {
+      e.preventDefault();
+      this.salta3D();
+    } else if (k === 'ArrowDown' || k === 's' || k === 'S') {
+      e.preventDefault();
+      this.scivola3D();
+    }
+  };
+
+  private onPuntaGiu = (e: PointerEvent): void => {
+    if (this.inPausa || !this.gate3d) return;
+    const t = e.target as HTMLElement | null;
+    if (t?.closest('button')) return;
+    this.pDown = { x: e.clientX, y: e.clientY };
+  };
+
+  private onPuntaSu = (e: PointerEvent): void => {
+    const partenza = this.pDown;
+    this.pDown = null;
+    if (!partenza || this.inPausa || !this.gate3d) return;
+    const dx = e.clientX - partenza.x;
+    const dy = e.clientY - partenza.y;
+    if (Math.abs(dx) < 36 && Math.abs(dy) < 36) return;
+    if (Math.abs(dx) > Math.abs(dy)) this.spostaCorsia(dx > 0 ? 1 : -1);
+    else if (dy < 0) this.salta3D();
+    else this.scivola3D();
+  };
+
   private nascondiRisposte = (): void => {
+    this.inPausa = true;
+    this.pDown = null;
     this.risposte3d?.nascondi();
+    this.togliComandi();
+    // La scheda di pausa sta sopra al mondo: l'HUD non deve restare a galla.
+    nascondiHudRunner();
   };
 
   private mostraRisposte = (): void => {
-    this.risposte3d?.mostra();
+    this.inPausa = false;
+    if (this.gate3d) mostraHudRunner();
+    if (this.arrivato && !this.rispostaGiusta && !this.revealed) {
+      this.risposte3d?.mostra();
+    } else {
+      this.mostraComandi();
+    }
   };
 
   private aggiorna = (_time: number, deltaMs: number): void => {
@@ -369,6 +465,7 @@ export class RunnerChallenge implements Challenge {
     const tre = this.gate3d;
 
     this.locked = true;
+    this.rispostaGiusta = correct;
     synth.play('click');
     const wx = this.gate && sign ? this.gate.x + sign.root.x : 0;
     const wy = this.gate && sign ? this.gate.y + sign.root.y + sign.h / 2 + 24 : 0;
@@ -380,6 +477,10 @@ export class RunnerChallenge implements Challenge {
         tre.markCorrect(i);
         this.risposte3d?.segna(i, 'giusto');
         this.risposte3d?.disabilita();
+        this.schedule(() => {
+          this.risposte3d?.nascondi();
+          this.mostraComandi();
+        }, 650);
       } else if (sign) {
         sign.setKind('correct');
         this.signs.forEach((s, j) => {
@@ -516,6 +617,11 @@ export class RunnerChallenge implements Challenge {
     this.scene.events.off(Phaser.Scenes.Events.PAUSE, this.nascondiRisposte);
     this.scene.events.off(Phaser.Scenes.Events.RESUME, this.mostraRisposte);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.pulizia);
+    window.removeEventListener('keydown', this.onTasto3D);
+    window.removeEventListener('pointerdown', this.onPuntaGiu);
+    window.removeEventListener('pointerup', this.onPuntaSu);
+    nascondiHudRunner();
+    this.togliComandi();
     this.timers.forEach((t) => t.remove(false));
     this.timers = [];
     this.tweens.forEach((t) => t.remove());
@@ -535,6 +641,10 @@ export class RunnerChallenge implements Challenge {
       this.gate3d.reveal(giusta);
       this.risposte3d?.segna(giusta, 'giusto');
       this.risposte3d?.disabilita();
+      this.schedule(() => {
+        this.risposte3d?.nascondi();
+        this.mostraComandi();
+      }, 900);
       return;
     }
     this.signs.forEach((s, i) => {
@@ -549,6 +659,7 @@ export class RunnerChallenge implements Challenge {
     this.timers = [];
     this.gate3d?.lock();
     this.risposte3d?.disabilita();
+    this.togliComandi();
     this.signs.forEach((s) => s.setEnabled(false));
   }
 
@@ -560,6 +671,8 @@ export class RunnerChallenge implements Challenge {
     this.gate3d = null;
     this.risposte3d?.dispose();
     this.risposte3d = null;
+    nascondiHudRunner();
+    this.togliComandi();
     this.signs.forEach((s) => s.dispose());
     this.signs = [];
     this.gate?.destroy();

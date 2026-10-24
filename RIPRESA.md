@@ -184,28 +184,45 @@ Sta in `sic.settings.graphics` (default `2d`), normalizzata in
   Il canvas 3D copre tutto lo schermo (anche i telefoni più larghi di 16:9);
   Phaser resta sopra, trasparente, e continua a gestire input, testi e prove.
 
-In **Runner 3D** la domanda è un cancello Three.js: le **porte** sono
-riferimenti visivi colorati e trasparenti, senza etichette, basse abbastanza da
-lasciare visibili Pico, la sua antenna e il badge "?". Le **risposte** stanno
-in una barra HTML in basso, fuori dal canvas e sotto il personaggio
-(`src/ui/runner-answers.ts`): si abilitano solo quando il cancello è fermo, si
-nascondono in pausa e non coprono il simbolo della domanda. Si risponde in due
-modi equivalenti: toccando il bottone in basso, oppure allineando Pico alla
-porta e saltando. La risposta giusta illumina la porta di verde, fa saltare
-Pico e parte un burst di stelline; quella sbagliata la fa tremare e si riprova;
-dopo 3 errori la porta giusta si apre da sola. In **Quiz 3D** i bottoni
-restano l'interfaccia Phaser: il 3D è il mondo, non un modo diverso di
-rispondere. Riordino e abbinamento restano 2D e fermano il mondo.
+In **Runner 3D** la corsa è un vero runner a corsie:
+
+- **quattro corsie** (`CORSIE = [-3.3, -1.1, 1.1, 3.3]`), Pico parte nella
+  seconda da sinistra. Si cambia corsia con ←/→ (o A/D), con lo swipe
+  orizzontale o con i bottoni **SX / DX** in basso a sinistra;
+- **salto** con Spazio/↑ (o W), swipe verso l'alto o bottone **Salta**: supera i
+  coni bassi; **scivolata** con ↓ (o S), swipe verso il basso o bottone **Giù**:
+  passa sotto le sbarre alte;
+- **ostacoli** (coni, sbarre, cesti) tolgono un cuore e azzerano la serie; non
+  fermano mai la partita: con zero cuori si riprende con un cuore e una breve
+  frenata. **Stelline** danno punti e caricano il **turbo**; a barra piena Pico
+  accelera, sfonda gli ostacoli ed è invulnerabile per qualche secondo;
+- **HUD** in alto a destra (`src/ui/runner-hud.ts`): cuori, stelline, punti,
+  moltiplicatore di serie e barra del turbo. È HTML, quindi leggibile anche
+  quando il canvas è scalato;
+- **risposte** in una barra HTML in basso (`src/ui/runner-answers.ts`), sotto
+  Pico: compaiono solo a cancello fermo, si nascondono in pausa e non coprono
+  il badge "?". Si risponde toccando il bottone o allineando Pico alla porta e
+  saltando. La risposta giusta illumina la porta di verde, aumenta la serie,
+  ridà un cuore e fa ripartire la corsa; quella sbagliata fa tremare la porta e
+  si riprova; dopo 3 errori la porta giusta si apre da sola.
+
+Le **porte** del cancello sono riferimenti visivi colorati e trasparenti, senza
+etichette. In **Quiz 3D** i bottoni restano l'interfaccia Phaser: il 3D è il
+mondo, non un modo diverso di rispondere. Riordino e abbinamento restano 2D e
+fermano il mondo.
 
 Regole BES: con **alto contrasto** il 3D si spegne e si torna al 2D (fondo
 chiaro uniforme e testi neri); con **riduci i movimenti** il mondo resta fermo
 e il cancello si presenta subito; `noDecoration` toglie la scenografia.
 
-`tests/e2e/runner.spec.ts` verifica che in 3D il cancello arrivi, che le
-risposte siano nella metà bassa dello schermo e non davanti a Pico, che un
-tocco sbagliato venga registrato senza cambiare domanda, che quello giusto
-porti al cancello successivo, che il Quiz 3D mostri i bottoni e che l'alto
-contrasto spenga il canvas 3D.
+`tests/e2e/runner.spec.ts` verifica che in 3D, durante la corsa, si vedano HUD
+e comandi e non le risposte; che corsie, salto, scivolata, stelline e perdita di
+un cuore funzionino davvero; che al varco le risposte arrivino nella metà bassa
+dello schermo, senza coprire Pico; che un tocco sbagliato venga registrato senza
+cambiare domanda; che quello giusto (o il salto sulla porta allineata) porti al
+cancello successivo; che in verticale la domanda resti in alto e le risposte in
+basso; che il Quiz 3D mostri i bottoni e che l'alto contrasto spenga il canvas
+3D.
 
 ### Telefono e pubblicazione (24/10)
 
@@ -213,9 +230,10 @@ contrasto spenga il canvas 3D.
 - la barra **Pausa / Esci** e le risposte del Runner 3D sono HTML, con
   `env(safe-area-inset-*)` e bottoni da almeno 46 px reali;
 - in verticale il canvas Phaser 16:9 si aggancia in alto sotto la barra
-  (`body.con-3d`), così la domanda non finisce sopra il cancello; le risposte
-  restano in basso e l'avviso "Ruota il telefono" si nasconde quando sono
-  aperte;
+  (`body.con-3d`), così la domanda non finisce sopra il cancello; su telefono
+  l'HUD scende sotto la barra e il canvas con lui; le risposte restano in basso
+  e l'avviso "Ruota il telefono" si nasconde quando sono aperte o quando il 3D
+  si adatta già al verticale;
 - `index.html` usa `viewport-fit=cover` per i telefoni con notch;
 - verificato con iPhone 13 emulato in landscape **e** in verticale (tap Title →
   Subject → Game, cancello fermo, pausa, conferma uscita), senza errori

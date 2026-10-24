@@ -45,6 +45,8 @@ export class ChoiceChallenge implements Challenge {
   private hintText: Phaser.GameObjects.Text | null = null;
   private supportG: Phaser.GameObjects.Graphics | null = null;
   private supportTexts: Phaser.GameObjects.Text[] = [];
+  /** Icona della prova "riconosci l'immagine": va tolta a ogni cambio prova. */
+  private iconImage: Phaser.GameObjects.Image | null = null;
 
   constructor(scene: Phaser.Scene, round: ChoiceRound, cfg: EffectiveConfig, cb: ChallengeCallbacks) {
     this.scene = scene;
@@ -78,7 +80,7 @@ export class ChoiceChallenge implements Challenge {
     if (round.type === 'image') {
       const iconKey = `icon-${round.icon}`;
       if (scene.textures.exists(iconKey)) {
-        scene.add.image(512, 186, iconKey).setScale(2.0).setDepth(8);
+        this.iconImage = scene.add.image(512, 186, iconKey).setScale(2.0).setDepth(8);
       }
       optsTop = 286;
     }
@@ -263,6 +265,8 @@ export class ChoiceChallenge implements Challenge {
     this.btns.forEach((b) => b.dispose());
     this.btns = [];
     this.promptText.destroy();
+    if (this.iconImage) this.iconImage.destroy();
+    this.iconImage = null;
     if (this.hintText) this.hintText.destroy();
     if (this.supportG) this.supportG.destroy();
     this.supportTexts.forEach((t) => t.destroy());
