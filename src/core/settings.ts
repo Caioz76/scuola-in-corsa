@@ -19,4 +19,6 @@ export function loadSettings(): BesSettings {
 
 export function saveSettings(s: BesSettings): void {
   storage.set(K, s);
+  // Segnala subito ai sottosistemi (audio, UI) il cambio di profilo.
+  window.dispatchEvent(new CustomEvent('sic:settings'));
 }

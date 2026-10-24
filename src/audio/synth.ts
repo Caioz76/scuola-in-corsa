@@ -45,7 +45,29 @@ class SynthEngine {
 
   /** Da chiamare al primo click/tocco (politiche autoplay dei browser). */
   unlock(): void {
-    this.ensure();
+    // Con l'audio tutto spento (es. profilo Sordità) non serve un AudioContext.
+    if (!this.sfxOn && !this.musicOn) return;
+    const ctx = this.ensure();
+    if (!ctx || !this.musicOn) return;
+    // `resume()` è asincrono: la musica parte solo a contesto davvero attivo.
+    if (ctx.state === 'running') this.startMusic();
+    else
+      void ctx
+        .resume()
+        .then(() => {
+          if (this.musicOn) this.startMusic();
+        })
+        .catch(() => {});
+  }
+
+  /** Contesto audio attivo (gli e2e verificano che il gesto lo sblocchi). */
+  get running(): boolean {
+    return this.ctx?.state === 'running';
+  }
+
+  /** Loop musicale in corso (timer attivo). */
+  get musicPlaying(): boolean {
+    return this.musicTimer !== null;
   }
 
   setSfx(on: boolean, vol: number): void {
@@ -57,9 +79,9 @@ class SynthEngine {
   setMusic(on: boolean, vol: number): void {
     this.musicOn = on;
     this.musicVol = vol;
-    if (this.musicGain) this.musicGain.gain.value = vol;
-    if (on) this.startMusic();
-    else this.stopMusic();
+    if (this.musicGain) this.musicGain.gain.value = on ? vol : 0;
+    if (!on) this.stopMusic();
+    else if (this.ctx?.state === 'running') this.startMusic();
   }
 
   private tone(
@@ -138,8 +160,10 @@ class SynthEngine {
 
   startMusic(): void {
     if (!this.musicOn) return;
-    const ctx = this.ensure();
-    if (!ctx || this.musicTimer !== null) return;
+    const ctx = this.ctx;
+    // Mai prima del gesto che sblocca l'audio: le note finirebbero in coda e
+    // partirebbero tutte insieme al resume.
+    if (!ctx || ctx.state !== 'running' || this.musicTimer !== null) return;
     this.musicStep = 0;
     this.nextNoteTime = ctx.currentTime + 0.15;
     this.musicTimer = window.setInterval(() => this.schedule(), 120);
@@ -150,6 +174,10 @@ class SynthEngine {
     const mg = this.musicGain;
     if (!ctx || !mg) return;
     const stepDur = 0.34;
+    // Se la scheda è stata in background il timer è stato rallentato: senza
+    // riallineamento si programmerebbero note nel passato (e Web Audio le
+    // rifiuta). Ripartiamo da adesso, senza raffiche.
+    if (this.nextNoteTime < ctx.currentTime) this.nextNoteTime = ctx.currentTime + 0.05;
     while (this.nextNoteTime < ctx.currentTime + 0.4) {
       const chord = this.chords[this.musicStep % this.chords.length];
       const t = this.nextNoteTime;
@@ -161,7 +189,8 @@ class SynthEngine {
       );
       // melodia: ogni passo dispari
       if (this.musicStep % 2 === 1) {
-        const mel = chord[(this.musicStep / 2) % 3];
+        // Passo dispari: indice intero (prima era 0.5, 1.5… → undefined → NaN).
+        const mel = chord[Math.floor(this.musicStep / 2) % 3];
         this.tone(ctx, mel * 2, t, 0.22, 'triangle', mg, 0.08);
       }
       this.musicStep++;

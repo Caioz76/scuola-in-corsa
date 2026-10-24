@@ -1,4 +1,4 @@
-# RIPRESA — stato al 23/10/2026, 23:25
+# RIPRESA — stato al 24/10/2026, 03:02
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -9,18 +9,19 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
 | `npm test` (vitest) | **32/32** |
-| `npx playwright test` | **9/9** |
+| `npx playwright test` | **11/11** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`) |
-| Una tappa intera | giocata dal test e2e in **13,5 s**, 6/6 |
+| Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
-| `window.__GIOCO__` | `{ scena, materia, scenaAttiva }` |
+| Audio | si sblocca al primo gesto; profilo Sordità = zero suoni e zero contesto |
+| `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
 Ultimo commit: **`1d4c4f5`** — “ui: il testo scala col bottone”.
 
 ## Com'è fatto il codice oggi
 
 ```
-src/main.ts             36 righe: creazione gioco + gancio di test
+src/main.ts             creazione gioco + gancio di test + avvio audio
 src/scenes/shared.ts    tipo Materia + get/set (nessun import circolare)
 src/scenes/boot.ts      texture UI + icone → Title
 src/scenes/title.ts     titolo, "Gioca" → Subject
@@ -28,9 +29,34 @@ src/scenes/subject.ts   4 materie → Game
 src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
 src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
 src/scenes/settings.ts  9 profili BES, salvataggio immediato
-src/core/settings.ts    loadSettings/saveSettings su localStorage
+src/core/settings.ts    loadSettings/saveSettings su localStorage (+ evento)
+src/audio/synth.ts      motore Web Audio procedurale (nessun asset)
+src/audio/apply.ts      regole BES → audio, unlock al primo gesto
 src/challenges/hit.ts   geometria pura delle aree cliccabili
 ```
+
+## Audio: cosa è cambiato (24/10)
+
+Prima `synth` era un motore spento: `unlock()`, `setSfx/setMusic` e
+`startMusic()` non venivano mai chiamati, quindi la musica non partiva e le
+regole BES (`soundCues`, `musicOff`, `visualInsteadOfAudio`) erano ignorate.
+
+Ora `src/audio/apply.ts` fa da ponte:
+
+- all'avvio legge le impostazioni, risolve il profilo e applica `cfg.sfx` /
+  `cfg.music`;
+- al **primo gesto vero** (`pointerdown`/`keydown`) chiama `synth.unlock()`;
+  la musica parte solo quando l'`AudioContext` è davvero `running`;
+- `saveSettings` emette `sic:settings`, così cambiare profilo spegne o
+  riaccende l'audio subito, senza ricaricare;
+- col profilo **Sordità** non viene nemmeno creato un `AudioContext`: non è
+  volume a zero, è audio assente. Il segnale visivo equivalente esiste già
+  (`flashCue` in `src/challenges/ui.ts`);
+- `__GIOCO__.audio` espone `{ sfx, music, running, musicPlaying }` per gli e2e.
+
+`tests/e2e/audio.spec.ts` verifica i due fatti: prima del tocco `running` è
+falso, dopo è vero e la musica suona; con Sordità resta tutto falso anche dopo
+il tocco.
 
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
@@ -67,8 +93,8 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 31 passed
-npx playwright test 2>&1 | tail -2           # → 8 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 32 passed
+npx playwright test 2>&1 | tail -2           # → 11 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`
