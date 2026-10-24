@@ -125,6 +125,56 @@ function hcColor(_c: string): string {
 
 export type BtnKind = 'normal' | 'correct' | 'wrong' | 'disabled';
 
+export type MobileItemState =
+  | 'normal'
+  | 'correct'
+  | 'wrong'
+  | 'disabled'
+  | 'selected'
+  | 'on'
+  | 'off';
+
+export interface MobileItem {
+  id: number;
+  kind: 'button' | 'chip' | 'toggle' | 'sign';
+  label: () => string;
+  state: () => MobileItemState;
+  enabled: () => boolean;
+  x: () => number;
+  y: () => number;
+  trigger: () => void;
+}
+
+const mobileRegistry = new WeakMap<Phaser.Scene, MobileItem[]>();
+let nextMobileId = 1;
+
+export function registerMobileItem(
+  scene: Phaser.Scene,
+  item: Omit<MobileItem, 'id'>
+): () => void {
+  let list = mobileRegistry.get(scene);
+  if (!list) {
+    list = [];
+    mobileRegistry.set(scene, list);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      mobileRegistry.set(scene, []);
+    });
+  }
+  const entry: MobileItem = { ...item, id: nextMobileId++ };
+  list.push(entry);
+  return () => {
+    const cur = mobileRegistry.get(scene);
+    if (!cur) return;
+    const idx = cur.indexOf(entry);
+    if (idx >= 0) cur.splice(idx, 1);
+  };
+}
+
+export function getMobileItems(scene: Phaser.Scene | null | undefined): MobileItem[] {
+  if (!scene) return [];
+  return (mobileRegistry.get(scene) ?? []).slice();
+}
+
 export interface Btn {
   root: Phaser.GameObjects.Container;
   text: Phaser.GameObjects.Text;
@@ -187,6 +237,22 @@ export function makeButton(
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
+  let currentKind: BtnKind = 'normal';
+  const tapCallbacks: Array<() => void> = [];
+  sprite.on('pointerup', () => {
+    if (enabled) tapCallbacks.forEach((fn) => fn());
+  });
+  const unregister = registerMobileItem(scene, {
+    kind: 'button',
+    label: () => text.text,
+    state: () => ( !enabled ? 'disabled' : currentKind),
+    enabled: () => enabled && root.active && root.visible,
+    x: () => root.x,
+    y: () => root.y,
+    trigger: () => {
+      if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
+    }
+  });
   return {
     root,
     text,
@@ -196,6 +262,7 @@ export function makeButton(
       fitTextToBox(text, boxW, boxH, 10);
     },
     setKind(kKind: BtnKind): void {
+      currentKind = kKind;
       if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
       if (kKind === 'disabled') text.setStyle({ color: T.faint });
       else text.setStyle({ color: T.body });
@@ -206,11 +273,10 @@ export function makeButton(
       else sprite.disableInteractive();
     },
     onTap(cb: () => void): void {
-      sprite.on('pointerup', () => {
-        if (enabled) cb();
-      });
+      tapCallbacks.push(cb);
     },
     dispose(): void {
+      unregister();
       sprite.removeAllListeners();
       root.destroy();
     }
@@ -281,12 +347,36 @@ export function makeChip(
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
+  let chipState: MobileItemState = 'normal';
+  const tapCallbacks: Array<() => void> = [];
+  sprite.on('pointerup', () => {
+    if (enabled) tapCallbacks.forEach((fn) => fn());
+  });
+  const unregister = registerMobileItem(scene, {
+    kind: 'chip',
+    label: () => text.text,
+    state: () => chipState,
+    enabled: () => enabled && root.active && root.visible,
+    x: () => root.x,
+    y: () => root.y,
+    trigger: () => {
+      if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
+    }
+  });
   return {
     root,
     text,
     setTint(t: number | null): void {
-      if (t === null) sprite.clearTint();
-      else sprite.setTint(t);
+      if (t === null) {
+        chipState = 'normal';
+        sprite.clearTint();
+      } else {
+        if (t === TINT.selected) chipState = 'selected';
+        else if (t === TINT.correct) chipState = 'correct';
+        else if (t === TINT.wrong) chipState = 'wrong';
+        else if (t === TINT.dim) chipState = 'disabled';
+        sprite.setTint(t);
+      }
     },
     setSelected(b: boolean): void {
       this.setTint(b ? TINT.selected : null);
@@ -306,9 +396,7 @@ export function makeChip(
       else sprite.disableInteractive();
     },
     onTap(cb: () => void): void {
-      sprite.on('pointerup', () => {
-        if (enabled) cb();
-      });
+      tapCallbacks.push(cb);
     },
     onDragStart(cb: (p: Phaser.Input.Pointer) => void): void {
       sprite.on('pointerdown', (p: Phaser.Input.Pointer) => {
@@ -316,6 +404,7 @@ export function makeChip(
       });
     },
     dispose(): void {
+      unregister();
       sprite.removeAllListeners();
       root.destroy();
     }
@@ -448,6 +537,17 @@ export function makeToggle(
   const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
   zona.setDepth(12);
   zona.on('pointerup', onTap);
+  registerMobileItem(scene, {
+    kind: 'toggle',
+    label: () => label,
+    state: () => (on ? 'on' : 'off'),
+    enabled: () => zona.active,
+    x: () => x,
+    y: () => y,
+    trigger: () => {
+      if (zona.active) onTap();
+    }
+  });
 }
 
 /**

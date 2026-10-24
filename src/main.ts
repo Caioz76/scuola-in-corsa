@@ -15,6 +15,7 @@ import { synth } from './audio/synth';
 import { stato3D, type Stato3D } from './art/three-world';
 import { getActiveRounds } from './content/packs';
 import type { Round } from './content/types';
+import { initMobilePortrait } from './ui/mobile-portrait';
 
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
@@ -34,6 +35,8 @@ const game = new Phaser.Game({
   },
   scene: [BootScene, TitleScene, SubjectScene, LevelsScene, GameScene, ResultsScene, SettingsScene, PauseScene, ProgressScene]
 });
+
+initMobilePortrait(game);
 
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────
 // Espone la scena attiva SENZA spingere stato (nessun evento, nessun costo

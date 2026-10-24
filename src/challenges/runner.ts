@@ -34,6 +34,7 @@ import {
   fontSpec,
   makeButton,
   makeText,
+  registerMobileItem,
   showBanner,
   testoSemplice,
   type Btn,
@@ -128,11 +129,35 @@ function makeSign(
   root.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
+  let currentKind: Kind = 'normal';
+  const tapCallbacks: Array<() => void> = [];
+  root.on('pointerup', () => {
+    if (enabled) tapCallbacks.forEach((fn) => fn());
+  });
+  const unregister = registerMobileItem(scene, {
+    kind: 'sign',
+    label: () => label,
+    state: () =>
+      currentKind === 'correct'
+        ? 'correct'
+        : currentKind === 'wrong'
+          ? 'wrong'
+          : currentKind === 'dim' || !enabled
+            ? 'disabled'
+            : 'normal',
+    enabled: () => enabled && root.active,
+    x: () => lx,
+    y: () => GATE_Y,
+    trigger: () => {
+      if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
+    }
+  });
   return {
     root,
     w,
     h,
     setKind(k: Kind): void {
+      currentKind = k;
       draw(k);
       root.setAlpha(k === 'dim' ? 0.55 : 1);
       text.setStyle({
@@ -153,11 +178,10 @@ function makeSign(
       else root.disableInteractive();
     },
     onTap(cb: () => void): void {
-      root.on('pointerup', () => {
-        if (enabled) cb();
-      });
+      tapCallbacks.push(cb);
     },
     dispose(): void {
+      unregister();
       root.removeAllListeners();
       root.destroy();
     }

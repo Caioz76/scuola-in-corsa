@@ -268,4 +268,41 @@ test.describe('Impostazioni BES', () => {
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
     await verificaNessunaSovrapposizione('Game');
   });
+
+  test('interfaccia mobile verticale (portrait 390×844): #mobile-deck si adatta e permette di giocare', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto('/');
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    // L'avviso "ruota il telefono" deve essere nascosto e #mobile-deck visibile
+    await expect(page.locator('#ruota')).toBeHidden();
+    const deck = page.locator('#mobile-deck');
+    await expect(deck).toBeVisible();
+
+    // Dal pannello mobile tocchiamo "Impostazioni", scegliamo una classe e torniamo al titolo
+    await deck.getByRole('button', { name: 'Impostazioni' }).click();
+    await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
+
+    await deck.getByRole('button', { name: '1ª M' }).click();
+    await deck.getByRole('button', { name: 'Torna al titolo' }).click();
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    // Avviamo la partita da #mobile-deck in verticale
+    await deck.getByRole('button', { name: 'Gioca' }).click();
+    await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
+
+    await deck.getByRole('button', { name: /Matematica/ }).click();
+    await expect.poll(async () => (await stato(page)).scena).toBe('Game');
+
+    // Verifichiamo che i bottoni di risposta nel pannello mobile siano grandi e cliccabili
+    const btnRisposta = deck.locator('.m-btn-answer').first();
+    await expect(btnRisposta).toBeVisible();
+    const box = await btnRisposta.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(48);
+  });
 });
