@@ -1,0 +1,85 @@
+{
+  "packId": "sto-10-12-l3",
+  "version": "1",
+  "title": "Storia — terza tappa",
+  "subject": "storia",
+  "ageRange": "10-12",
+  "difficulty": 3,
+  "levels": [
+    {
+      "id": "sto-10-12-l3",
+      "title": "Terza tappa: Medioevo e Rinascimento",
+      "difficulty": 3,
+      "rounds": [
+        {
+          "id": "sto-l3-1",
+          "type": "quiz",
+          "prompt": "Che cos'era un feudo nel Medioevo?",
+          "hint": "Il signore concedeva terre in cambio di fedeltà e servizio.",
+          "explanation": "Il feudo era la terra concessa dal signore al vassallo, che in cambio gli giurava fedeltà.",
+          "options": [
+            { "label": "Una terra concessa in cambio di fedeltà", "correct": true },
+            { "label": "Una nave da guerra", "correct": false },
+            { "label": "Una moneta d'oro", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l3-2",
+          "type": "quiz",
+          "prompt": "Chi era Carlo Magno?",
+          "hint": "Fu incoronato imperatore nell'800.",
+          "explanation": "Carlo Magno era il re dei Franchi; nell'800 fu incoronato imperatore dal Papa.",
+          "options": [
+            { "label": "Il re dei Franchi incoronato imperatore", "correct": true },
+            { "label": "Un imperatore romano del I secolo", "correct": false },
+            { "label": "Un pirata del Mediterraneo", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l3-3",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Metti in ordine questi eventi, dal più antico al più recente.",
+          "hint": "La fine dell'Impero romano d'Occidente viene prima del Medioevo.",
+          "explanation": "476: fine dell'Impero d'Occidente; 800: incoronazione di Carlo Magno; 1492: scoperta dell'America.",
+          "items": ["Fine dell'Impero d'Occidente", "Incoronazione di Carlo Magno", "Scoperta dell'America"]
+        },
+        {
+          "id": "sto-l3-4",
+          "type": "quiz",
+          "prompt": "Che cos'era la peste nera?",
+          "hint": "Nel Trecento colpì l'Europa e fece moltissime vittime.",
+          "explanation": "La peste nera fu una grave epidemia che nel XIV secolo uccise gran parte della popolazione europea.",
+          "options": [
+            { "label": "Una grave epidemia del Trecento", "correct": true },
+            { "label": "Una guerra tra Francia e Inghilterra", "correct": false },
+            { "label": "Un tipo di nave mercantile", "correct": false }
+          ]
+        },
+        {
+          "id": "sto-l3-5",
+          "type": "dragdrop",
+          "mode": "match",
+          "prompt": "Abbina ogni opera o invenzione al suo autore.",
+          "hint": "Gutenberg lavorava con i caratteri mobili.",
+          "explanation": "Gutenberg inventò la stampa a caratteri mobili, Colombo scoprì l'America, Leonardo dipinse l'Ultima Cena.",
+          "leftItems": ["Stampa a caratteri mobili", "Scoperta dell'America", "Ultima Cena"],
+          "rightItems": ["Leonardo da Vinci", "Gutenberg", "Colombo"],
+          "pairs": [[0, 1], [1, 2], [2, 0]]
+        },
+        {
+          "id": "sto-l3-6",
+          "type": "quiz",
+          "prompt": "Che cosa metteva al centro l'umanesimo?",
+          "hint": "Riprendeva lo studio dei testi antichi e la fiducia nell'uomo.",
+          "explanation": "L'umanesimo metteva al centro l'uomo, la sua capacità di ragionare e di creare.",
+          "options": [
+            { "label": "L'uomo e la sua capacità di creare", "correct": true },
+            { "label": "Solo la guerra", "correct": false },
+            { "label": "Solo il commercio", "correct": false }
+          ]
+        }
+      ]
+    }
+  ]
+}

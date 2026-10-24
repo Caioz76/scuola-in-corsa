@@ -8,7 +8,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **37/37** |
+| `npm test` (vitest) | **39/39** |
 | `npx playwright test` | **15/15** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
@@ -21,7 +21,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Regole una per una | 16 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit: **`8a09903`** — “BES: pausa, contatore e ritmo applicati”.
+Ultimo commit di codice: **`99ad593`** — “BES: regole una per una”.
 
 ## Com'è fatto il codice oggi
 
@@ -146,6 +146,21 @@ falsa (vedi tabella sopra).
 toccabile (non solo il testo). `tests/e2e/override.spec.ts` accende "Pausa quando
 serve" senza profilo e verifica che il bottone "Pausa" compaia davvero in gioco.
 
+## Bozze di contenuto in attesa di revisione umana
+
+In `content/drafts/` ci sono 8 pacchetti validati ma **non ancora in gioco**
+(6 prove ciascuno): `mat-7-9-l2` e `ita-8-10-l2` sono già stati approvati e
+integrati; restano da leggere:
+
+- `sci-8-10-l2` — viventi e ambiente (mammiferi, radici, catena alimentare, ciclo dell'acqua, farfalla)
+- `sto-10-12-l2` — Grecia e Roma (democrazia ateniese, forme di governo, terme, date)
+- `mat-7-9-l3` — moltiplicare e dividere (tabelline, divisioni, problemi, ordine)
+- `ita-8-10-l3` — significati e tempi (sinonimi, contrari, passato, ordine alfabetico)
+- `sci-8-10-l3` — materia, energia, pianeta (particelle, rinnovabili, stati, pianeti, semina)
+- `sto-10-12-l3` — Medioevo e Rinascimento (feudo, Carlo Magno, peste, umanesimo)
+
+Nessuno entra in `src/content/packs.ts` senza il via dell'umano.
+
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
 1. **Aree cliccabili in coordinate sbagliate** — Phaser normalizza il punto
@@ -181,7 +196,7 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 37 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 39 passed
 npx playwright test 2>&1 | tail -2           # → 15 passed
 ```
 

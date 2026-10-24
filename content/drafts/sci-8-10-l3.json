@@ -1,0 +1,84 @@
+{
+  "packId": "sci-8-10-l3",
+  "version": "1",
+  "title": "Scienze — terza tappa",
+  "subject": "scienze",
+  "ageRange": "8-10",
+  "difficulty": 3,
+  "levels": [
+    {
+      "id": "sci-8-10-l3",
+      "title": "Terza tappa: materia, energia, pianeta",
+      "difficulty": 3,
+      "rounds": [
+        {
+          "id": "sci-l3-1",
+          "type": "quiz",
+          "prompt": "Di che cosa è fatta la materia?",
+          "hint": "Anche un granello di sale è fatto di parti piccolissime.",
+          "explanation": "Tutta la materia è fatta di particelle piccolissime, invisibili a occhio nudo.",
+          "options": [
+            { "label": "Di particelle piccolissime", "correct": true },
+            { "label": "Solo di acqua", "correct": false },
+            { "label": "Solo di aria", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l3-2",
+          "type": "quiz",
+          "prompt": "Quale di queste è una fonte di energia rinnovabile?",
+          "hint": "Si rinnova da sola e non finisce.",
+          "explanation": "Il Sole è una fonte rinnovabile: la sua energia non si esaurisce come carbone o petrolio.",
+          "options": [
+            { "label": "Il Sole", "correct": true },
+            { "label": "Il carbone", "correct": false },
+            { "label": "Il petrolio", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l3-3",
+          "type": "image",
+          "icon": "montagna",
+          "prompt": "Quale ambiente vedi nell'immagine?",
+          "hint": "È un rilievo molto alto, spesso con la neve in cima.",
+          "explanation": "L'immagine mostra una montagna: un rilievo alto con pendii e vette.",
+          "options": [
+            { "label": "La montagna", "correct": true },
+            { "label": "Il deserto", "correct": false },
+            { "label": "Il mare", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l3-4",
+          "type": "quiz",
+          "prompt": "Quali sono i tre stati della materia?",
+          "hint": "Pensa al ghiaccio, all'acqua e al vapore.",
+          "explanation": "La materia può essere solida, liquida o gassosa: è il caso dell'acqua.",
+          "options": [
+            { "label": "Solido, liquido, gassoso", "correct": true },
+            { "label": "Caldo, freddo, tiepido", "correct": false },
+            { "label": "Grande, medio, piccolo", "correct": false }
+          ]
+        },
+        {
+          "id": "sci-l3-5",
+          "type": "dragdrop",
+          "mode": "sort",
+          "prompt": "Metti in ordine i pianeti dal più vicino al più lontano dal Sole.",
+          "hint": "La Terra è il terzo pianeta.",
+          "explanation": "L'ordine è Mercurio, Terra, Giove, Saturno.",
+          "sortItems": ["Mercurio", "Terra", "Giove", "Saturno"]
+        },
+        {
+          "id": "sci-l3-6",
+          "type": "sequence",
+          "direction": "tap",
+          "prompt": "Tocca le tappe della semina nell'ordine giusto.",
+          "hint": "Prima si prepara la terra, per ultimo si raccoglie.",
+          "explanation": "Si prepara il terreno, si semina, si annaffia e infine si raccoglie.",
+          "items": ["Prepara il terreno", "Semina", "Annaffia", "Raccogli"]
+        }
+      ]
+    }
+  ]
+}
