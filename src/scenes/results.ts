@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { makeText, makeButton } from '../challenges/ui';
+import { drawWiiChannelFrame, makeText, makeButton } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { setStars, pushResult } from '../core/progress';
@@ -71,6 +71,7 @@ export class ResultsScene extends Phaser.Scene {
     // Traguardo: Pico esulta, la pista è tutta accesa.
     const world = addWorld(this, themeFor(pack?.subject), cfg, { pico: 'cheer', track: true, speed: 28 });
     world.setProgress(total, total);
+    drawWiiChannelFrame(this, cfg, { x: 152, y: 36, w: 720, h: 318, headerH: 82 });
 
     if (pack && idx >= 0) {
       makeText(this, 512, 322, pack.levels[idx].title, cfg, {

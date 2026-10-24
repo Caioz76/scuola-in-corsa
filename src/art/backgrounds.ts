@@ -22,11 +22,11 @@ interface Theme {
 }
 
 const THEMES: Record<ThemeKey, Theme> = {
-  scuola:     { farTop: '#f4fbff', farBottom: '#c8e9ff', sun: '#ffe8a3', hill1: '#c8edb8', hill2: '#9fdd94' },
-  matematica: { farTop: '#f2faff', farBottom: '#c8e9ff', sun: '#ffe8a3', hill1: '#c8edb8', hill2: '#9fdd94' },
-  italiano:   { farTop: '#fffaf2', farBottom: '#ffe6c9', sun: '#ffd7a0', hill1: '#f8d8bd', hill2: '#efb894' },
-  scienze:    { farTop: '#f3fffa', farBottom: '#d2f4e3', sun: '#ffefb0', hill1: '#b9eccd', hill2: '#8fdcae' },
-  storia:     { farTop: '#fffaf0', farBottom: '#f3e3c8', sun: '#ffe3a3', hill1: '#e8d4b4', hill2: '#d3b992' }
+  scuola:     { farTop: '#bae6ff', farBottom: '#eef9ff', sun: '#ffe885', hill1: '#95e68a', hill2: '#6ad162' },
+  matematica: { farTop: '#bae6ff', farBottom: '#eef9ff', sun: '#ffe885', hill1: '#95e68a', hill2: '#6ad162' },
+  italiano:   { farTop: '#ffecd2', farBottom: '#fffaf0', sun: '#ffd485', hill1: '#f5cfa8', hill2: '#e6ae82' },
+  scienze:    { farTop: '#c4f5e2', farBottom: '#f2fff9', sun: '#ffeb99', hill1: '#9ce8bc', hill2: '#6fd49b' },
+  storia:     { farTop: '#faebd4', farBottom: '#fffcf5', sun: '#ffe08c', hill1: '#e6cfa8', hill2: '#cfb284' }
 };
 
 function cloud(ctx: Ctx, x: number, y: number, s: number): void {
@@ -247,19 +247,102 @@ function schoolBuilding(ctx: Ctx, x: number, y: number, s: number): void {
   ctx.restore();
 }
 
+function wuhuLighthouse(ctx: Ctx, x: number, y: number, s: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+
+  // Promontorio roccioso/erboso di Wuhu Island
+  ctx.fillStyle = '#7cd973';
+  ctx.beginPath();
+  ctx.ellipse(0, 38, 62, 18, 0, Math.PI, 0);
+  ctx.fill();
+
+  // Torre del faro (bianca con fasce rosse stile Wuhu Island)
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(-14, 24);
+  ctx.lineTo(-10, -48);
+  ctx.lineTo(10, -48);
+  ctx.lineTo(14, 24);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,120,184,0.28)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Fasce rosse del faro
+  ctx.fillStyle = '#ef5b4c';
+  ctx.fillRect(-11.5, -26, 23, 12);
+  ctx.fillRect(-13, 0, 26, 12);
+
+  // Lanterna vetrata e cupola rossa
+  ctx.fillStyle = '#bfeaff';
+  ctx.fillRect(-8, -58, 16, 10);
+  ctx.fillStyle = '#e04838';
+  ctx.beginPath();
+  ctx.arc(0, -58, 11, Math.PI, 0);
+  ctx.fill();
+  ctx.strokeStyle = '#e04838';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(0, -69);
+  ctx.lineTo(0, -78);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function wiiStadiumArch(ctx: Ctx, x: number, y: number, s: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+
+  // Grande arco bianco aerodinamico dello Stadio Wii Sports sullo sfondo
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.arc(0, 44, 108, Math.PI * 1.12, Math.PI * 1.88);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#38b6ff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(0, 44, 98, Math.PI * 1.14, Math.PI * 1.86);
+  ctx.stroke();
+
+  // Tiranti obliqui dello stadio
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+  ctx.lineWidth = 2;
+  for (const dx of [-70, -35, 0, 35, 70]) {
+    ctx.beginPath();
+    ctx.moveTo(dx, 30);
+    ctx.lineTo(dx * 0.85, -38 + Math.abs(dx) * 0.25);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
 function hills(ctx: Ctx, t: Theme, s: ThemeKey): void {
-  hillBand(ctx, t.hill1, t.hill2, 'rgba(255,255,255,0.48)', 410, 110, 6, 0);
+  // Grande arco dello stadio Wii Sports e faro di Wuhu Island dietro la prima collina
+  wiiStadiumArch(ctx, 520, 326, 0.95);
+  wiiStadiumArch(ctx, 1544, 326, 0.95);
+  wuhuLighthouse(ctx, 880, 292, 0.85);
+  wuhuLighthouse(ctx, 1904, 292, 0.85);
+
+  hillBand(ctx, t.hill1, t.hill2, 'rgba(255,255,255,0.58)', 410, 110, 6, 0);
 
   if (s === 'scuola') {
     schoolBuilding(ctx, 210, 350, 0.92);
     schoolBuilding(ctx, 1234, 350, 0.92);
   }
 
-  hillBand(ctx, t.hill2, t.hill1, 'rgba(255,255,255,0.38)', 480, 80, 9, 0);
+  hillBand(ctx, t.hill2, t.hill1, 'rgba(255,255,255,0.45)', 480, 80, 9, 0);
 
   // Alberelli morbidi lungo le colline per dare profondità al parallasse
-  const treeFoliage = s === 'italiano' ? '#e89973' : s === 'storia' ? '#bfa37a' : '#68c770';
-  const treeLight = s === 'italiano' ? '#ffd0b0' : s === 'storia' ? '#e5d1b0' : '#a9edab';
+  const treeFoliage = s === 'italiano' ? '#e89973' : s === 'storia' ? '#bfa37a' : '#4ecf58';
+  const treeLight = s === 'italiano' ? '#ffd0b0' : s === 'storia' ? '#e5d1b0' : '#98f59e';
   const positions: [number, number, number][] = [
     [96, 442, 0.85],
     [340, 418, 1.0],

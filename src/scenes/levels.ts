@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { makeButton, makeText } from '../challenges/ui';
+import { drawWiiChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
@@ -34,6 +34,7 @@ export class LevelsScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
 
     addWorld(this, 'scuola', cfg, { speed: 24 });
+    drawWiiChannelFrame(this, cfg, { x: 24, y: 14, w: 976, h: 468, headerH: 88 });
 
     makeText(this, 512, 46, 'Tutte le tappe', cfg, {
       size: 30,

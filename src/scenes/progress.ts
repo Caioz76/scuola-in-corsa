@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { makeButton, makeText } from '../challenges/ui';
+import { drawWiiChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
@@ -22,6 +22,7 @@ export class ProgressScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
 
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
+    drawWiiChannelFrame(this, cfg, { x: 28, y: 12, w: 968, h: 468, headerH: 76 });
 
     makeText(this, 512, 38, 'Progressi', cfg, {
       size: 30,

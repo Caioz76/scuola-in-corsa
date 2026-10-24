@@ -104,17 +104,23 @@ function makeSign(
   const draw = (kind: Kind): void => {
     card.clear();
     const bordo =
-      kind === 'correct' ? 0x3aa564 : kind === 'wrong' ? 0xe05a5a : kind === 'dim' ? 0xc9d3e0 : 0x5fade3;
+      kind === 'correct' ? 0x22b55b : kind === 'wrong' ? 0xe04848 : kind === 'dim' ? 0xc9d3e0 : 0x00a2e8;
     const corpo =
-      kind === 'correct' ? 0xdff6e7 : kind === 'wrong' ? 0xffe1e1 : 0xffffff;
-    // ombra morbida
-    card.fillStyle(0x3b4a5a, 0.16);
-    card.fillRoundedRect(-w / 2 + 4, -h / 2 + 6, w, h, 18);
-    // scheda
+      kind === 'correct' ? 0xe6fff0 : kind === 'wrong' ? 0xffe6e6 : 0xffffff;
+    // ombra morbida stile Wii Sports
+    card.fillStyle(0x005b8f, 0.16);
+    card.fillRoundedRect(-w / 2 + 3, -h / 2 + 6, w, h, 20);
+    // scheda porcellana Wii
     card.fillStyle(corpo, 0.98);
-    card.fillRoundedRect(-w / 2, -h / 2, w, h, 18);
-    card.lineStyle(4, bordo, 1);
-    card.strokeRoundedRect(-w / 2, -h / 2, w, h, 18);
+    card.fillRoundedRect(-w / 2, -h / 2, w, h, 20);
+    // riflesso superiore glossy
+    card.fillStyle(kind === 'normal' ? 0xeaf7ff : 0xffffff, 0.72);
+    card.fillRoundedRect(-w / 2 + 6, -h / 2 + 5, w - 12, Math.round(h * 0.36), 14);
+    // doppia ghiera Wii (Azzurro Wii esterno + bianco interno)
+    card.lineStyle(3.5, bordo, 1);
+    card.strokeRoundedRect(-w / 2, -h / 2, w, h, 20);
+    card.lineStyle(1.5, 0xffffff, 0.95);
+    card.strokeRoundedRect(-w / 2 + 3, -h / 2 + 3, w - 6, h - 6, 17);
   };
   draw('normal');
 
@@ -332,24 +338,32 @@ export class RunnerChallenge implements Challenge {
     const fondo = 120;
 
     const struttura = scene.add.graphics();
-    // pali (dietro ai cartelli)
-    struttura.fillStyle(0x8a99ad, 0.95);
-    struttura.fillRoundedRect(-half - 22, crossY, 10, fondo - crossY, 5);
-    struttura.fillRoundedRect(half + 12, crossY, 10, fondo - crossY, 5);
-    struttura.fillStyle(0x3b4a5a, 0.12);
-    struttura.fillEllipse(-half - 17, fondo + 3, 32, 9);
-    struttura.fillEllipse(half + 17, fondo + 3, 32, 9);
-    // traversa gialla con "?" al centro: si vede da lontano che è una domanda
-    struttura.fillStyle(0x3b4a5a, 0.14);
-    struttura.fillRoundedRect(-half - 30, crossY + 4, 2 * (half + 30), 16, 8);
-    struttura.fillStyle(0xffd93d, 1);
-    struttura.fillRoundedRect(-half - 30, crossY - 4, 2 * (half + 30), 16, 8);
-    struttura.lineStyle(3, 0xd9a91e, 1);
-    struttura.strokeRoundedRect(-half - 30, crossY - 4, 2 * (half + 30), 16, 8);
+    // pali da stadio Wii Sports (bianco porcellana con bande Azzurro Wii)
+    struttura.fillStyle(0x005b8f, 0.15);
+    struttura.fillEllipse(-half - 17, fondo + 3, 34, 10);
+    struttura.fillEllipse(half + 17, fondo + 3, 34, 10);
+    struttura.fillStyle(0xffffff, 0.98);
+    struttura.fillRoundedRect(-half - 23, crossY, 12, fondo - crossY, 6);
+    struttura.fillRoundedRect(half + 11, crossY, 12, fondo - crossY, 6);
+    struttura.lineStyle(2, 0x00a2e8, 0.85);
+    struttura.strokeRoundedRect(-half - 23, crossY, 12, fondo - crossY, 6);
+    struttura.strokeRoundedRect(half + 11, crossY, 12, fondo - crossY, 6);
+    // traversa superiore stile portale Wii Sports (bianco + Azzurro Wii + oro)
+    struttura.fillStyle(0x005b8f, 0.16);
+    struttura.fillRoundedRect(-half - 30, crossY + 5, 2 * (half + 30), 18, 9);
+    struttura.fillStyle(0x00a2e8, 1);
+    struttura.fillRoundedRect(-half - 30, crossY - 5, 2 * (half + 30), 18, 9);
+    struttura.fillStyle(0x6cd4ff, 0.65);
+    struttura.fillRoundedRect(-half - 24, crossY - 3, 2 * (half + 24), 7, 4);
+    struttura.lineStyle(2.5, 0xffffff, 0.95);
+    struttura.strokeRoundedRect(-half - 30, crossY - 5, 2 * (half + 30), 18, 9);
+    // medaglione centrale "?" stile Wii Sports
     struttura.fillStyle(0xffffff, 1);
-    struttura.fillCircle(0, crossY + 4, 21);
-    struttura.lineStyle(4, 0x5fade3, 1);
-    struttura.strokeCircle(0, crossY + 4, 21);
+    struttura.fillCircle(0, crossY + 4, 22);
+    struttura.lineStyle(4, 0x00a2e8, 1);
+    struttura.strokeCircle(0, crossY + 4, 22);
+    struttura.lineStyle(2, 0xffd93d, 0.95);
+    struttura.strokeCircle(0, crossY + 4, 17);
 
     const badge = scene.add
       .text(0, crossY + 4, '?', {

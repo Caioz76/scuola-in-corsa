@@ -4,7 +4,7 @@ import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks, defaultLevelForYear, selectRoundsForGame } from '../content/packs';
 import type { Round } from '../content/types';
 import type { RoundOutcome } from '../core/state';
-import { showBanner, makeText } from '../challenges/ui';
+import { drawWiiChannelFrame, showBanner, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld, themeFor } from '../art/world';
@@ -69,7 +69,10 @@ export class GameScene extends Phaser.Scene {
         });
     world.setProgress(0, rounds.length);
 
-    // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
+    // Barra superiore e quadro domanda in stile Wii Sports (solo in 2D con decorazioni attive)
+    if (!treD) {
+      drawWiiChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 30, depth: -10 });
+    }
     const contatore = makeText(this, treD && runner ? 700 : 888, 20, '', cfg, {
       size: 14,
       color: '#1f8a4c',

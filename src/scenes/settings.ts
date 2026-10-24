@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { makeButton, makeText, makeToggle } from '../challenges/ui';
+import { drawWiiChannelFrame, makeButton, makeText, makeToggle } from '../challenges/ui';
 import {
   ANNI_SCOLASTICI,
   ANNO_BY_ID,
@@ -56,6 +56,7 @@ export class SettingsScene extends Phaser.Scene {
     const w = this.scale.gameSize.width;
 
     addWorld(this, 'scuola', cfg, { pico: false, speed: 20 });
+    drawWiiChannelFrame(this, cfg, { x: 24, y: 8, w: 976, h: 536, headerH: 86 });
 
     if (pagina === 'regole') {
       this.creaRegole(cfg, w);

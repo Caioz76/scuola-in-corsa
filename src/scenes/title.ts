@@ -21,55 +21,74 @@ export class TitleScene extends Phaser.Scene {
     const scenografia = cfg.decoration && !cfg.highContrast;
     const animato = scenografia && cfg.motion !== 'off';
 
-    // ── Pannello centrale "Hero" e badge decorativi ──
+    // ── Pannello centrale "Hero" in stile Nintendo Wii Sports ──
     const card = this.add.graphics().setDepth(2);
     if (scenografia) {
-      // Ombra morbida stratificata stile Wii
-      card.fillStyle(0x2b4c6f, 0.12);
-      card.fillRoundedRect(w / 2 - 314, 96, 628, 404, 32);
-      card.fillStyle(0x2b4c6f, 0.07);
-      card.fillRoundedRect(w / 2 - 308, 92, 616, 404, 30);
+      // Ombra morbida stratificata stile console Wii
+      card.fillStyle(0x005b8f, 0.15);
+      card.fillRoundedRect(w / 2 - 318, 92, 636, 412, 34);
+      card.fillStyle(0x005b8f, 0.08);
+      card.fillRoundedRect(w / 2 - 312, 88, 624, 410, 32);
 
-      // Corpo principale avorio/bianco semitrasparente
-      card.fillStyle(0xffffff, 0.84);
-      card.fillRoundedRect(w / 2 - 306, 88, 612, 398, 28);
+      // Corpo principale bianco porcellana Wii
+      card.fillStyle(0xffffff, 0.9);
+      card.fillRoundedRect(w / 2 - 308, 84, 616, 404, 30);
 
-      // Fascia luminosa superiore (effetto glossy)
-      card.fillStyle(0xeaf6ff, 0.72);
-      card.fillRoundedRect(w / 2 - 294, 98, 588, 118, 22);
-      card.fillStyle(0xffffff, 0.65);
-      card.fillRoundedRect(w / 2 - 282, 102, 564, 36, 16);
+      // Scanline orizzontali tipiche del menu Nintendo Wii
+      card.fillStyle(0x00a2e8, 0.038);
+      for (let sy = 98; sy < 476; sy += 6) {
+        card.fillRect(w / 2 - 294, sy, 588, 2);
+      }
 
-      // Doppia cornice luminosa
-      card.lineStyle(3, 0x8fd0ff, 0.65);
-      card.strokeRoundedRect(w / 2 - 306, 88, 612, 398, 28);
-      card.lineStyle(1.5, 0xffffff, 0.95);
-      card.strokeRoundedRect(w / 2 - 301, 93, 602, 388, 25);
+      // Fascia luminosa superiore (effetto glossy Wii Sports)
+      card.fillStyle(0xe6f5ff, 0.88);
+      card.fillRoundedRect(w / 2 - 296, 94, 592, 122, 24);
+      card.fillStyle(0xffffff, 0.78);
+      card.fillRoundedRect(w / 2 - 284, 98, 568, 42, 18);
 
-      // Pillola informativa sotto il sottotitolo
-      card.fillStyle(0xeaf4ff, 0.95);
+      // Swoosh sportivi diagonali Azzurro Wii (#00a2e8) e Arancio Sport (#ff9f1c)
+      card.fillStyle(0x00a2e8, 0.22);
+      card.fillTriangle(w / 2 - 294, 96, w / 2 - 196, 96, w / 2 - 294, 168);
+      card.fillStyle(0xff9f1c, 0.24);
+      card.fillTriangle(w / 2 + 294, 96, w / 2 + 196, 96, w / 2 + 294, 168);
+
+      // Filetto divisorio Azzurro Wii sotto il titolo
+      card.lineStyle(2.5, 0x00a2e8, 0.55);
+      card.lineBetween(w / 2 - 240, 216, w / 2 + 240, 216);
+
+      // Doppia cornice luminosa Azzurro Wii (#00a2e8) + bianco speculare
+      card.lineStyle(3.5, 0x00a2e8, 0.85);
+      card.strokeRoundedRect(w / 2 - 308, 84, 616, 404, 30);
+      card.lineStyle(2, 0xffffff, 0.98);
+      card.strokeRoundedRect(w / 2 - 303, 89, 606, 394, 27);
+
+      // Pillola informativa stile canale Wii sotto il sottotitolo
+      card.fillStyle(0xe8f6ff, 0.98);
       card.fillRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
-      card.lineStyle(1.5, 0x93d2f7, 0.85);
+      card.lineStyle(2, 0x00a2e8, 0.85);
       card.strokeRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
 
-      // Badge delle 4 materie ai lati della card
+      // Badge delle 4 materie ai lati della card (medaglioni lucidi Wii Sports)
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
-        { icon: 'icon-abaco', x: 116, y: 184, ring: 0x66b8f2, bg: 0xeaf6ff },
-        { icon: 'icon-pergamena', x: 908, y: 184, ring: 0xffa45c, bg: 0xfff5eb },
-        { icon: 'icon-sole', x: 102, y: 324, ring: 0x6fcf8f, bg: 0xebfaef },
-        { icon: 'icon-corona', x: 922, y: 324, ring: 0xb3a0f5, bg: 0xf3f0ff }
+        { icon: 'icon-abaco', x: 116, y: 184, ring: 0x00a2e8, bg: 0xe6f6ff },
+        { icon: 'icon-pergamena', x: 908, y: 184, ring: 0xff9f1c, bg: 0xfff5e6 },
+        { icon: 'icon-sole', x: 102, y: 324, ring: 0x26c266, bg: 0xe8faef },
+        { icon: 'icon-corona', x: 922, y: 324, ring: 0x7d68d8, bg: 0xf2eeff }
       ];
 
       badges.forEach((b, idx) => {
         const g = this.add.graphics().setDepth(3);
-        g.fillStyle(0x3b4a5a, 0.14);
-        g.fillCircle(b.x, b.y + 4, 38);
-        g.fillStyle(0xffffff, 0.95);
-        g.fillCircle(b.x, b.y, 37);
-        g.fillStyle(b.bg, 0.9);
-        g.fillCircle(b.x, b.y, 31);
-        g.lineStyle(2.5, b.ring, 0.85);
-        g.strokeCircle(b.x, b.y, 35);
+        g.fillStyle(0x005b8f, 0.16);
+        g.fillCircle(b.x, b.y + 4, 40);
+        g.fillStyle(0xffffff, 0.98);
+        g.fillCircle(b.x, b.y, 38);
+        g.fillStyle(b.bg, 0.92);
+        g.fillCircle(b.x, b.y, 32);
+        g.lineStyle(3, b.ring, 0.92);
+        g.strokeCircle(b.x, b.y, 36);
+        // Riflesso superiore a mezzaluna
+        g.fillStyle(0xffffff, 0.65);
+        g.fillEllipse(b.x, b.y - 16, 36, 14);
 
         const ic = this.add.image(b.x, b.y, b.icon).setScale(0.52).setDepth(4);
         if (animato) {

@@ -1,5 +1,6 @@
 /* Layout della pagina: il gioco occupa tutto lo schermo, senza scroll.
-   Su telefono si gioca in orizzontale; in verticale un avviso invita a girare. */
+   Estetica Nintendo Wii Menu / Wii Sports: superfici bianco-porcellana,
+   sottili scanline orizzontali celesti, capsule glossy speculari e bordi Azzurro Wii (#00a2e8). */
 
 html,
 body {
@@ -7,7 +8,16 @@ body {
   padding: 0;
   height: 100%;
   overflow: hidden;
-  background: #eaf6ff;
+  background-color: #eaf6ff;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 162, 232, 0.035) 0px,
+      rgba(0, 162, 232, 0.035) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    radial-gradient(circle at 50% 0%, #ffffff 0%, #eaf6ff 62%, #d6eeff 100%);
   overscroll-behavior: none;
 }
 
@@ -50,10 +60,12 @@ body {
   transform: translateX(-50%);
   padding: 10px 18px;
   border-radius: 999px;
-  background: #ffffff;
-  color: #2f3b4c;
-  border: 2px solid #c9d3e0;
-  box-shadow: 0 4px 12px rgba(59, 74, 90, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  color: #1b3650;
+  border: 2.5px solid #00a2e8;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 5px 14px rgba(0, 130, 200, 0.18);
   font: 600 15px/1.2 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
   pointer-events: none;
   z-index: 10;
@@ -96,7 +108,7 @@ body {
   }
 }
 
-/* Barra di navigazione della partita (pausa / esci).
+/* Barra di navigazione della partita (pausa / esci) in stile capsule Wii Menu.
    Fuori dal canvas: resta grande e leggibile anche quando il gioco è scalato.
    Non copre le risposte: sta in alto a sinistra, dentro la safe area. */
 #nav-gioco {
@@ -116,33 +128,41 @@ body {
   justify-content: center;
   gap: 8px;
   min-height: 46px;
-  padding: 0 16px 0 13px;
-  border: 2px solid #c9d3e0;
+  padding: 0 18px 0 14px;
+  border: 2.5px solid #00a2e8;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #2f3b4c;
-  box-shadow: 0 4px 14px rgba(59, 74, 90, 0.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  color: #1b3650;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 5px 14px rgba(0, 130, 200, 0.18);
   font: 700 16px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background 120ms ease;
 }
 
 #nav-gioco .nav-bottone:hover {
-  background: #ffffff;
-  box-shadow: 0 6px 18px rgba(59, 74, 90, 0.22);
+  border-color: #24b8ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 48%, #e6f4ff 52%, #f2faff 100%);
+  box-shadow:
+    inset 0 2px 2px #ffffff,
+    0 0 12px rgba(0, 162, 232, 0.35),
+    0 6px 18px rgba(0, 130, 200, 0.24);
 }
 
 #nav-gioco .nav-bottone:active {
   transform: translateY(1px) scale(0.98);
-  box-shadow: 0 2px 8px rgba(59, 74, 90, 0.2);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 100, 160, 0.2),
+    0 2px 8px rgba(0, 130, 200, 0.2);
 }
 
 #nav-gioco .nav-bottone:focus-visible {
-  outline: 3px solid #5fade3;
+  outline: 3px solid #00a2e8;
   outline-offset: 2px;
 }
 
@@ -150,7 +170,7 @@ body {
   display: inline-flex;
   width: 20px;
   height: 20px;
-  color: #1d6fb8;
+  color: #0082c4;
 }
 
 #nav-gioco .nav-icona svg {
@@ -163,7 +183,7 @@ body {
   white-space: nowrap;
 }
 
-/* HUD del Runner 3D: cuori, stelline, punti, combo e turbo.
+/* HUD del Runner 3D: cuori, stelline, punti, combo e turbo in stile badge Wii Sports.
    Sta in alto a destra, non intercetta i tocchi: è solo informazione. */
 #hud-runner {
   position: fixed;
@@ -178,38 +198,41 @@ body {
   max-width: min(46vw, 330px);
   pointer-events: none;
   font: 800 15px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
-  color: #2f3b4c;
+  color: #1b3650;
 }
 
 #hud-runner > span {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 10px;
-  border: 2px solid #c9d3e0;
+  padding: 6px 11px;
+  border: 2px solid #00a2e8;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 3px 10px rgba(59, 74, 90, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 4px 12px rgba(0, 130, 200, 0.16);
   white-space: nowrap;
 }
 
 #hud-runner .hud-cuori {
-  border-color: #ff9eaa;
+  border-color: #ff6b8b;
   letter-spacing: 1px;
 }
 
 #hud-runner .hud-stelle {
-  border-color: #ffd646;
+  border-color: #f5b400;
 }
 
 #hud-runner .hud-punti {
-  border-color: #8fd3ff;
+  border-color: #00a2e8;
 }
 
 #hud-runner .hud-combo {
-  border-color: #ff9f1c;
-  background: #ff9f1c;
+  border-color: #e67e00;
+  background: linear-gradient(180deg, #ffb833 0%, #ff9500 52%, #e67e00 100%);
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(120, 60, 0, 0.35);
 }
 
 #hud-runner .hud-combo[hidden] {
@@ -218,10 +241,10 @@ body {
 
 #hud-runner .hud-turbo {
   flex-basis: 100%;
-  height: 7px;
+  height: 8px;
   padding: 0;
-  border: 1px solid #c5d9ed;
-  background: #e6eef8;
+  border: 1.5px solid #00a2e8;
+  background: #dff0ff;
   overflow: hidden;
 }
 
@@ -229,13 +252,13 @@ body {
   display: block;
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #ffd166, #ff9f1c, #ff6b6b);
+  background: linear-gradient(90deg, #4fd0ff, #00a2e8, #ffd166, #ff6b6b);
   transition: width 160ms ease-out;
 }
 
 #hud-runner.boost .hud-turbo {
   border-color: #ff7b00;
-  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 123, 0, 0.25);
 }
 
 /* Comandi touch del Runner 3D: in basso ai due lati, sopra la safe area. */
@@ -267,21 +290,28 @@ body {
   gap: 2px;
   min-width: 56px;
   min-height: 56px;
-  padding: 5px 10px;
-  border: 2px solid #c9d3e0;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #2f3b4c;
-  box-shadow: 0 4px 14px rgba(59, 74, 90, 0.18);
+  padding: 5px 12px;
+  border: 2.5px solid #00a2e8;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  color: #1b3650;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 5px 14px rgba(0, 130, 200, 0.18);
   font: 700 11px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms ease, background 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 #comandi-runner .comando-runner:hover {
-  background: #ffffff;
+  border-color: #24b8ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 48%, #e6f4ff 52%, #f2faff 100%);
+  box-shadow:
+    inset 0 2px 2px #ffffff,
+    0 0 10px rgba(0, 162, 232, 0.32),
+    0 6px 16px rgba(0, 130, 200, 0.22);
 }
 
 #comandi-runner .comando-runner:active {
@@ -289,13 +319,14 @@ body {
 }
 
 #comandi-runner .comando-runner:focus-visible {
-  outline: 3px solid #1d6fb8;
+  outline: 3px solid #00a2e8;
   outline-offset: 2px;
 }
 
 #comandi-runner .comando-icona {
   font-size: 18px;
   line-height: 1;
+  color: #0082c4;
 }
 
 @media (max-width: 560px) {
@@ -316,11 +347,11 @@ body {
   #comandi-runner .comando-runner {
     min-width: 52px;
     min-height: 52px;
-    border-radius: 16px;
+    border-radius: 999px;
   }
 }
 
-/* Risposte del Runner 3D: barra in basso, sotto Pico.
+/* Risposte del Runner 3D: capsule glossy Wii Sports in basso, sotto Pico.
    Fuori dal canvas per restare leggibile e toccabile su telefono. */
 #risposte-runner {
   position: fixed;
@@ -338,22 +369,29 @@ body {
 #risposte-runner .risposta-runner {
   pointer-events: auto;
   min-height: 58px;
-  padding: 8px 14px;
-  border: 3px solid #5fade3;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.96);
-  color: #2f3b4c;
-  box-shadow: 0 5px 16px rgba(59, 74, 90, 0.2);
+  padding: 8px 16px;
+  border: 2.5px solid #00a2e8;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  color: #1b3650;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 5px 14px rgba(0, 130, 200, 0.18);
   font: 700 clamp(18px, 2.6vw, 26px) / 1.15 'Arial Rounded MT Bold', 'Trebuchet MS',
     'Segoe UI', Verdana, sans-serif;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
 
 #risposte-runner .risposta-runner:hover:not(:disabled) {
-  background: #ffffff;
+  border-color: #24b8ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 48%, #e6f4ff 52%, #f2faff 100%);
+  box-shadow:
+    inset 0 2px 2px #ffffff,
+    0 0 14px rgba(0, 162, 232, 0.35),
+    0 7px 18px rgba(0, 130, 200, 0.24);
   transform: translateY(-1px);
 }
 
@@ -362,7 +400,7 @@ body {
 }
 
 #risposte-runner .risposta-runner:focus-visible {
-  outline: 3px solid #1d6fb8;
+  outline: 3px solid #00a2e8;
   outline-offset: 2px;
 }
 
@@ -372,13 +410,18 @@ body {
 }
 
 #risposte-runner .risposta-runner.giusto {
-  border-color: #3aa564;
-  background: #dff6e7;
+  border-color: #22b55b;
+  background: linear-gradient(180deg, #f0fff5 0%, #b8f5cf 100%);
+  color: #145c30;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 0 14px rgba(34, 181, 91, 0.35);
 }
 
 #risposte-runner .risposta-runner.sbagliato {
-  border-color: #e05a5a;
-  background: #ffe1e1;
+  border-color: #e04545;
+  background: linear-gradient(180deg, #fff2f2 0%, #ffc4c4 100%);
+  color: #8f1d1d;
   animation: risposta-scuoti 280ms ease;
 }
 
@@ -408,7 +451,7 @@ body {
 
   #risposte-runner .risposta-runner {
     min-height: 56px;
-    border-radius: 16px;
+    border-radius: 999px;
   }
 
   #risposte-runner .risposta-runner:last-child:nth-child(odd) {
@@ -429,7 +472,8 @@ body {
   }
 }
 
-/* ── Pannello Touch Responsive per Display Verticale (#mobile-deck) ── */
+/* ── Pannello Touch Responsive per Display Verticale (#mobile-deck) ──
+   Ispirato alla plancia canali Nintendo Wii / Wii Sports Resort. */
 #mobile-deck {
   display: none;
   position: fixed;
@@ -438,10 +482,21 @@ body {
   top: calc(env(safe-area-inset-top, 0px) + 58px + 56.25vw);
   bottom: 0;
   z-index: 32;
-  padding: 10px 12px calc(env(safe-area-inset-bottom, 0px) + 14px);
-  background: linear-gradient(180deg, rgba(234, 246, 255, 0.92) 0%, #d8eeff 100%);
-  border-top: 2px solid #93d2f7;
-  box-shadow: 0 -6px 20px rgba(29, 111, 184, 0.12);
+  padding: 12px 12px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  background-color: #e8f5ff;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 162, 232, 0.035) 0px,
+      rgba(0, 162, 232, 0.035) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    linear-gradient(180deg, rgba(242, 250, 255, 0.96) 0%, #d4ecff 100%);
+  border-top: 3px solid #00a2e8;
+  box-shadow:
+    inset 0 2px 0 #ffffff,
+    0 -8px 24px rgba(0, 130, 200, 0.16);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -465,11 +520,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid #b8dcf5;
-  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%);
+  border: 2.5px solid #82cdf5;
+  border-radius: 24px;
   padding: 14px;
-  box-shadow: 0 6px 18px rgba(43, 76, 111, 0.1);
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 8px 22px rgba(0, 115, 180, 0.12);
 }
 
 #mobile-deck.bes-hc .m-card {
@@ -481,16 +538,17 @@ body {
 #mobile-deck .m-header {
   font-size: calc(20px * var(--m-font-scale, 1));
   font-weight: 800;
-  color: #1d6fb8;
+  color: #0077b8;
   text-align: center;
   line-height: 1.2;
+  text-shadow: 0 1px 0 #ffffff;
 }
 
 #mobile-deck .m-sub {
   margin: 0;
   font-size: calc(14px * var(--m-font-scale, 1));
   font-weight: 700;
-  color: #496178;
+  color: #3b5975;
   text-align: center;
   line-height: 1.3;
 }
@@ -498,20 +556,21 @@ body {
 #mobile-deck .m-group-title {
   font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 800;
-  color: #2f3b4c;
+  color: #1b3650;
   margin-top: 2px;
 }
 
 #mobile-deck .m-pill {
-  background: #eaf4ff;
-  border: 1.5px solid #93d2f7;
+  background: linear-gradient(180deg, #ffffff 0%, #e6f5ff 100%);
+  border: 2px solid #00a2e8;
   border-radius: 999px;
   padding: 7px 14px;
   font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 700;
-  color: #1d6fb8;
+  color: #0072b2;
   text-align: center;
   line-height: 1.25;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
 #mobile-deck .m-prompt-box {
@@ -519,29 +578,33 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: #f2f9ff;
-  border: 2px solid #8fd0ff;
-  border-radius: 16px;
-  padding: 10px 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #ebf7ff 100%);
+  border: 2.5px solid #00a2e8;
+  border-radius: 20px;
+  padding: 11px 14px;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 4px 12px rgba(0, 130, 200, 0.1);
 }
 
 #mobile-deck .m-prompt-text {
   flex: 1;
   font-size: calc(17px * var(--m-font-scale, 1));
   font-weight: 800;
-  color: #2f3b4c;
+  color: #1b3650;
   line-height: 1.28;
 }
 
 #mobile-deck .m-hint-box {
-  background: #fff7e8;
-  border: 1.5px solid #f7c66f;
-  border-radius: 12px;
-  padding: 7px 11px;
+  background: linear-gradient(180deg, #fffdf5 0%, #ffefc2 100%);
+  border: 2px solid #f0a818;
+  border-radius: 16px;
+  padding: 8px 12px;
   font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 700;
-  color: #b85d0b;
+  color: #9e4d00;
   line-height: 1.25;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
 #mobile-deck .m-stack {
@@ -576,20 +639,30 @@ body {
   justify-content: center;
   gap: 3px;
   min-height: 52px;
-  padding: 9px 12px;
-  border: 2.5px solid #5fade3;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
-  color: #2f3b4c;
+  padding: 9px 14px;
+  border: 2.5px solid #00a2e8;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 48%, #dceeff 52%, #eaf6ff 100%);
+  color: #1b3650;
   font-family: inherit;
   font-size: calc(16px * var(--m-font-scale, 1));
   font-weight: 800;
   line-height: 1.2;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(43, 76, 111, 0.12);
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 5px 14px rgba(0, 130, 200, 0.18);
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform 100ms ease, background 120ms ease, border-color 120ms ease;
+  transition: transform 100ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+#mobile-deck .m-btn:hover:not(:disabled) {
+  border-color: #24b8ff;
+  box-shadow:
+    inset 0 2px 2px #ffffff,
+    0 0 12px rgba(0, 162, 232, 0.3),
+    0 6px 16px rgba(0, 130, 200, 0.22);
 }
 
 #mobile-deck .m-btn:active:not(:disabled) {
@@ -599,25 +672,30 @@ body {
 #mobile-deck .m-btn-hero {
   min-height: 58px;
   font-size: calc(20px * var(--m-font-scale, 1));
-  background: linear-gradient(180deg, #3da0f5 0%, #1d6fb8 100%);
+  background: linear-gradient(180deg, #4fd0ff 0%, #00a2e8 50%, #0082c4 100%);
   color: #ffffff;
-  border-color: #155794;
+  border-color: #006ba3;
+  text-shadow: 0 1px 2px rgba(0, 65, 110, 0.45);
+  box-shadow:
+    inset 0 2px 1px rgba(255, 255, 255, 0.65),
+    0 6px 18px rgba(0, 130, 200, 0.32);
 }
 
 #mobile-deck .m-btn-secondary {
-  background: #f5f9fc;
-  border-color: #b7c9db;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f7fc 48%, #e1ecf7 52%, #edf4fb 100%);
+  border-color: #7ab8df;
 }
 
 #mobile-deck .m-btn-compact {
   min-height: 44px;
-  padding: 6px 8px;
+  padding: 6px 10px;
   font-size: calc(13px * var(--m-font-scale, 1));
-  border-radius: 13px;
+  border-radius: 999px;
 }
 
 #mobile-deck .m-btn-subject {
   min-height: 68px;
+  border-radius: 20px;
 }
 
 #mobile-deck .m-subj-title {
@@ -630,22 +708,25 @@ body {
 }
 
 #mobile-deck .m-btn.m-state-correct {
-  background: #dff6e7;
-  border-color: #3aa564;
-  color: #1e7040;
+  background: linear-gradient(180deg, #f0fff5 0%, #b8f5cf 100%);
+  border-color: #22b55b;
+  color: #145c30;
+  box-shadow:
+    inset 0 2px 1px #ffffff,
+    0 0 12px rgba(34, 181, 91, 0.3);
 }
 
 #mobile-deck .m-btn.m-state-wrong {
-  background: #ffe1e1;
-  border-color: #e05a5a;
-  color: #a82828;
+  background: linear-gradient(180deg, #fff2f2 0%, #ffc4c4 100%);
+  border-color: #e04545;
+  color: #8f1d1d;
   animation: risposta-scuoti 260ms ease;
 }
 
 #mobile-deck .m-btn.m-state-selected {
-  background: #fff3b8;
+  background: linear-gradient(180deg, #fffdf0 0%, #ffe680 100%);
   border-color: #e0a800;
-  color: #2f3b4c;
+  color: #1b3650;
 }
 
 #mobile-deck .m-btn.m-state-disabled,
@@ -659,7 +740,7 @@ body {
   flex-direction: column;
   gap: 5px;
   padding-bottom: 6px;
-  border-bottom: 1px dashed #d3e5f5;
+  border-bottom: 1px dashed #99d2f2;
 }
 
 #mobile-deck .m-toggle-list {
@@ -674,34 +755,35 @@ body {
   justify-content: space-between;
   gap: 10px;
   min-height: 44px;
-  padding: 8px 12px;
-  border-radius: 13px;
-  border: 2px solid #c9d3e0;
-  background: #ffffff;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid #7ab8df;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
   font-family: inherit;
   font-size: calc(14px * var(--m-font-scale, 1));
   font-weight: 700;
-  color: #2f3b4c;
+  color: #1b3650;
   text-align: left;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 #ffffff;
 }
 
 #mobile-deck .m-toggle-row.is-on {
-  background: #dff6e7;
-  border-color: #3aa564;
+  background: linear-gradient(180deg, #f0fff5 0%, #b8f5cf 100%);
+  border-color: #22b55b;
 }
 
 #mobile-deck .m-toggle-badge {
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
-  background: #eef3f8;
-  color: #5f7186;
+  background: #e3effa;
+  color: #496682;
 }
 
 #mobile-deck .m-toggle-row.is-on .m-toggle-badge {
-  background: #3aa564;
+  background: #22b55b;
   color: #ffffff;
 }
 
@@ -716,13 +798,13 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 11px;
-  background: #f5faff;
-  border: 1px solid #d5e8f8;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef8ff 100%);
+  border: 1.5px solid #93d2f7;
   font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 700;
-  color: #2f3b4c;
+  color: #1b3650;
 }
 
 #mobile-deck .m-prog-stars {
@@ -741,17 +823,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed #90b4d4;
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.65);
+  border: 2px dashed #5cb8e6;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
   font-weight: 800;
-  color: #5f7186;
+  color: #3b5975;
 }
 
 #mobile-deck .m-copy {
   margin-top: 2px;
   font-size: 11px;
-  color: #5f7186;
+  color: #496682;
   text-align: center;
 }
 
