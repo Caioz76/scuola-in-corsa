@@ -86,6 +86,71 @@ const MAT: Pack = {
           explanation: '2 + 3 = 5, 9 − 2 = 7, 4 × 2 = 8.'
         }
       ]
+    },
+    {
+      id: 'mat-7-9-l2',
+      title: 'Seconda tappa: contare, sommare, ordinare',
+      difficulty: 2,
+      rounds: [
+        {
+          id: 'mat-l2-1', type: 'quiz',
+          prompt: 'Quanto fa 8 + 7?',
+          options: [
+            { label: '15', correct: true },
+            { label: '14', correct: false },
+            { label: '16', correct: false }
+          ],
+          hint: 'Parti da 8, arriva prima a 10 aggiungendo 2 e poi aggiungi il resto.',
+          explanation: '8 più 2 fa 10, e aggiungendo altri 5 si arriva a 15.'
+        },
+        {
+          id: 'mat-l2-2', type: 'quiz',
+          prompt: 'Quanto fa 17 - 5?',
+          options: [
+            { label: '11', correct: false },
+            { label: '12', correct: true },
+            { label: '13', correct: false }
+          ],
+          hint: 'Togli 5 unità alle 7 unità lasciando la decina intatta.',
+          explanation: '7 meno 5 fa 2, quindi 17 meno 5 fa 12.'
+        },
+        {
+          id: 'mat-l2-3', type: 'quiz',
+          prompt: 'Quale numero viene dopo nella sequenza 20, 30, 40, ...?',
+          options: [
+            { label: '45', correct: false },
+            { label: '50', correct: true },
+            { label: '60', correct: false }
+          ],
+          hint: 'Ogni passo aggiunge una decina.',
+          explanation: 'Contando di 10 in 10, dopo il 40 viene il 50.'
+        },
+        {
+          id: 'mat-l2-4', type: 'quiz',
+          prompt: 'Luca ha 9 biglie rosse e ne riceve altre 5 blu: quante biglie ha in tutto?',
+          options: [
+            { label: '14', correct: true },
+            { label: '13', correct: false },
+            { label: '15', correct: false }
+          ],
+          hint: 'Unisci le biglie rosse e quelle blu facendo una somma.',
+          explanation: 'Sommando 9 biglie rosse e 5 biglie blu si ottengono 14 biglie in tutto.'
+        },
+        {
+          id: 'mat-l2-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti questi quattro numeri in ordine dal più piccolo al più grande.',
+          sortItems: ['4', '9', '14', '19'],
+          hint: 'Guarda prima le decine e inizia dal numero più piccolo.',
+          explanation: "L'ordine crescente corretto parte da 4 e sale fino a 19."
+        },
+        {
+          id: 'mat-l2-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca i tre passi del conteggio di 5 in 5 nell\'ordine giusto.',
+          items: ['5', '10', '15'],
+          hint: 'Parti dal numero più piccolo e aggiungi sempre 5 a ogni passo.',
+          explanation: 'Contando di 5 in 5 in ordine crescente troviamo 5, 10 e 15.'
+        }
+      ]
     }
   ]
 };
@@ -166,6 +231,71 @@ const ITA: Pack = {
           items: ['Sveglio', 'Colazione', 'Scuola', 'Merenda', 'Sonno'],
           hint: 'Prima ci si sveglia, poi si fa colazione.',
           explanation: 'L\'ordine è: sveglio, colazione, scuola, merenda, sonno.'
+        }
+      ]
+    },
+    {
+      id: 'ita-8-10-l2',
+      title: 'Seconda tappa: parole, frasi, ordine',
+      difficulty: 2,
+      rounds: [
+        {
+          id: 'ita-l2-1', type: 'quiz',
+          prompt: 'Quale parola ha lo stesso significato di «veloce»?',
+          options: [
+            { label: 'rapido', correct: true },
+            { label: 'lento', correct: false },
+            { label: 'pesante', correct: false }
+          ],
+          hint: 'Pensa a come corre una lepre rispetto a una tartaruga.',
+          explanation: '«Rapido» è un sinonimo di «veloce», perché indica qualcuno o qualcosa che si muove in fretta.'
+        },
+        {
+          id: 'ita-l2-2', type: 'quiz',
+          prompt: 'Quale articolo determinativo è corretto davanti alla parola «zaino»?',
+          options: [
+            { label: 'lo', correct: true },
+            { label: 'il', correct: false },
+            { label: 'la', correct: false }
+          ],
+          hint: 'Davanti alle parole maschili che iniziano per z non si usa «il».',
+          explanation: 'Si scrive «lo zaino» perché davanti ai nomi maschili singolari che iniziano con la lettera z si usa l\'articolo «lo».'
+        },
+        {
+          id: 'ita-l2-3', type: 'quiz',
+          prompt: 'Quale di queste frasi è scritta in modo corretto con maiuscola e punto?',
+          options: [
+            { label: 'Il cane corre nel prato.', correct: true },
+            { label: 'il cane corre nel prato', correct: false },
+            { label: 'il cane. corre nel prato', correct: false }
+          ],
+          hint: 'Controlla come inizia la prima parola e quale segno c\'è alla fine della frase.',
+          explanation: 'Ogni frase inizia sempre con la lettera maiuscola e termina con il punto fermo.'
+        },
+        {
+          id: 'ita-l2-4', type: 'quiz',
+          prompt: 'Quale parola completa in modo adatto la frase «Quando piove apro ... per non bagnarmi»?',
+          options: [
+            { label: "l'ombrello", correct: true },
+            { label: "l'orologio", correct: false },
+            { label: "l'armadio", correct: false }
+          ],
+          hint: 'È un oggetto che si tiene aperto sopra la testa quando cade la pioggia.',
+          explanation: "L'ombrello è l'oggetto che serve per ripararsi dalla pioggia e restare asciutti."
+        },
+        {
+          id: 'ita-l2-5', type: 'dragdrop', mode: 'sort',
+          prompt: 'Metti queste quattro parole in ordine alfabetico.',
+          sortItems: ['albero', 'fiore', 'mare', 'sole'],
+          hint: "Osserva la prima lettera di ogni parola e segui l'ordine dell'alfabeto dalla A alla Z.",
+          explanation: "L'ordine alfabetico segue le iniziali: A di albero, F di fiore, M di mare, S di sole."
+        },
+        {
+          id: 'ita-l2-6', type: 'sequence', direction: 'tap',
+          prompt: 'Tocca le tre parole nell\'ordine giusto per formare una frase di senso compiuto.',
+          items: ['Il', 'bambino', 'sorride'],
+          hint: "Parti dall'articolo con la lettera maiuscola, poi scegli il nome e infine l'azione.",
+          explanation: 'In italiano l\'articolo «Il» precede il nome «bambino», seguito dal verbo «sorride».'
         }
       ]
     }

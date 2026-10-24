@@ -39,7 +39,7 @@
           "id": "mat-l2-3",
           "type": "quiz",
           "prompt": "Quale numero viene dopo nella sequenza 20, 30, 40, ...?",
-          "hint": "Ogni passo aggiunge una decina in più rispetto al numero precedente.",
+          "hint": "Ogni passo aggiunge una decina.",
           "explanation": "Contando di 10 in 10, dopo il 40 viene il 50.",
           "options": [
             { "label": "45", "correct": false },
@@ -64,7 +64,7 @@
           "type": "dragdrop",
           "mode": "sort",
           "prompt": "Metti questi quattro numeri in ordine dal più piccolo al più grande.",
-          "hint": "Guarda prima le decine e inizia dal numero più piccolo a una cifra.",
+          "hint": "Guarda prima le decine e inizia dal numero più piccolo.",
           "explanation": "L'ordine crescente corretto parte da 4 e sale fino a 19.",
           "sortItems": ["4", "9", "14", "19"]
         },

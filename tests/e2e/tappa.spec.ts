@@ -208,8 +208,26 @@ test.describe('Tappa completa', () => {
     const p = JSON.parse(salvato!) as Record<string, Record<string, number>>;
     expect(p['mat-7-9'][livello.id]).toBe(3);
 
+    // ── La seconda tappa si raggiunge dai risultati
+    expect(finale.map((t) => t.text)).toContain('Tappa successiva');
+    expect(await toccaTesto(page, 'Tappa successiva')).toBe(true);
+    await expect.poll(async () => (await stato(page)).scena).toBe('Game');
+
+    const secondoPrompt = await page.evaluate(async () => {
+      const percorso = '/src/content/packs.ts';
+      const m = (await import(/* @vite-ignore */ percorso)) as {
+        allPacks: () => Array<{
+          subject: string;
+          levels: Array<{ rounds: Array<{ prompt: string }> }>;
+        }>;
+      };
+      const pack = m.allPacks().find((x) => x.subject === 'matematica');
+      return pack!.levels[1].rounds[0].prompt;
+    });
+    expect((await testi(page)).map((t) => t.text)).toContain(secondoPrompt);
+
     // ── Le stelle sopravvivono al ritorno alla scelta materia
-    await tocco(page, 512, 490); // "Torna al titolo"
+    await page.goto('/');
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
     await tocco(page, 512, 358); // "Gioca"
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');

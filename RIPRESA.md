@@ -1,4 +1,4 @@
-# RIPRESA — stato al 24/10/2026, 03:02
+# RIPRESA — stato al 24/10/2026, 03:35
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -14,9 +14,11 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
 | Audio | si sblocca al primo gesto; profilo Sordità = zero suoni e zero contesto |
+| Contenuti in gioco | 4 materie; **matematica e italiano con 2 tappe** (12 esercizi revisionati) |
+| Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit: **`1d4c4f5`** — “ui: il testo scala col bottone”.
+Ultimo commit: **`46ebd69`** — “contenuti: seconda tappa di matematica e italiano”.
 
 ## Com'è fatto il codice oggi
 
@@ -57,6 +59,23 @@ Ora `src/audio/apply.ts` fa da ponte:
 `tests/e2e/audio.spec.ts` verifica i due fatti: prima del tocco `running` è
 falso, dopo è vero e la musica suona; con Sordità resta tutto falso anche dopo
 il tocco.
+
+## Seconda tappa: contenuti approvati e raggiungibili (24/10)
+
+I due piloti (matematica 7-9 e italiano 8-10, 6 prove ciascuno) sono stati
+revisionati dall'umano e sono ora **dentro** `src/content/packs.ts` come
+`mat-7-9-l2` e `ita-8-10-l2`. Due suggerimenti sono stati corretti prima
+dell'ingresso: «ogni passo aggiunge una decina» e «inizia dal numero più
+piccolo».
+
+Per raggiungerli non serve una schermata in più: `Results` mostra **Tappa
+successiva** quando esiste il livello seguente. La tappa scelta vive in
+`src/scenes/shared.ts` (`getLevel/setLevel`), `GameScene` la usa e ricade sulla
+prima se non è valida (es. cambio materia). L'e2e gioca la tappa 1, tocca
+«Tappa successiva» e verifica che compaia la prima domanda della tappa 2.
+
+Le bozze restano in `content/drafts/` come traccia della revisione; il test
+`tests/content-drafts.test.ts` continua a validarle.
 
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 

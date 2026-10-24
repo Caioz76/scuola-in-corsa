@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { type Materia, setMateria } from './shared';
+import { type Materia, setMateria, setLevel } from './shared';
 import { makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
@@ -34,6 +34,7 @@ export class SubjectScene extends Phaser.Scene {
       const b = makeButton(this, cfg, v.x, v.y, v.label, { depth: 10 });
       b.onTap(() => {
         setMateria(v.id);
+        setLevel(null);
         this.scene.start('Game');
       });
       const pack = allPacks().find((p) => p.subject === v.id);

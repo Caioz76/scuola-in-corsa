@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { getMateria } from './shared';
+import { getMateria, getLevel, setLevel } from './shared';
 import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks } from '../content/packs';
 import type { Round } from '../content/types';
@@ -15,7 +15,7 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     const cfg = resolveConfig(loadSettings());
     const pack = allPacks().find((p) => p.subject === getMateria());
-    const level = pack?.levels[0];
+    const level = pack?.levels.find((l) => l.id === getLevel()) ?? pack?.levels[0];
 
     if (!pack || !level || level.rounds.length === 0) {
       const banner = showBanner(this, cfg, 'Nessuna prova disponibile', "Torna al titolo e scegli un'altra materia.", 'bad');
