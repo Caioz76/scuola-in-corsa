@@ -15,6 +15,9 @@ export default defineConfig({
     target: 'es2020'
   },
   server: {
+    // 127.0.0.1 esplicito: "localhost" può finire su ::1 (IPv6) e i test
+    // Playwright, che controllano 127.0.0.1, non vedrebbero il server.
+    host: '127.0.0.1',
     port: 5173
   }
 });

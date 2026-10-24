@@ -1,0 +1,54 @@
+/* Layout della pagina: il gioco occupa tutto lo schermo, senza scroll.
+   Su telefono si gioca in orizzontale; in verticale un avviso invita a girare. */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #eaf6ff;
+  overscroll-behavior: none;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+/* Il canvas viene centrato da Phaser (Scale.FIT + CENTER_BOTH). */
+#game {
+  position: fixed;
+  inset: 0;
+}
+
+#game canvas {
+  display: block;
+  touch-action: none;
+}
+
+/* Avviso di rotazione: solo in verticale, non intercetta i tocchi. */
+#ruota {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2f3b4c;
+  border: 2px solid #c9d3e0;
+  box-shadow: 0 4px 12px rgba(59, 74, 90, 0.16);
+  font: 600 15px/1.2 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@media (orientation: portrait) {
+  #ruota {
+    display: block;
+  }
+}
