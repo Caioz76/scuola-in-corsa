@@ -35,18 +35,18 @@ export class LevelsScene extends Phaser.Scene {
     makeText(this, 512, 50, 'Tutte le tappe', cfg, {
       size: 32,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
     makeText(this, 512, 90, 'Scegli direttamente la tappa da giocare.', cfg, {
       size: 15,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     MATERIE.forEach((m, row) => {
       const y = 150 + row * 92;
       const pack = allPacks().find((p) => p.subject === m.id);
-      makeText(this, 210, y, m.label, cfg, { size: 20, bold: true, color: '#ffffff' });
+      makeText(this, 210, y, m.label, cfg, { size: 20, bold: true, color: '#2f3b4c' });
 
       pack?.levels.forEach((livello, i) => {
         const x = i === 0 ? 495 : 785;

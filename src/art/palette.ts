@@ -1,66 +1,88 @@
 /**
- * Palette "Flash 8/AS3": colori saturi, bordi scuri, gloss.
+ * Palette "giorno di scuola": chiara, morbida, arrotondata.
+ *
+ * Ispirazione: la sensazione delle console di casa Nintendo (Wii) — superfici
+ * bianche, colori pastello, ombre leggere, niente contorni neri pesanti.
+ * È solo un riferimento di atmosfera: forme, colori e personaggi sono nostri.
+ *
  * Tutto il gioco disegna con questi valori → cambio look in un punto solo.
  */
 
 export const C = {
   // base
-  bg: '#1a1c2c',
-  ink: '#20222f', // outline scuri Flash
+  bg: '#eaf6ff',
+  ink: '#3b4a5a', // contorno morbido, mai nero pieno
   white: '#ffffff',
-  paper: '#fff8e7',
+  paper: '#fffdf7',
 
   // Pico (robot giallo)
-  pico: '#ffd93d',
-  picoDark: '#e8b71e',
-  picoLight: '#ffe98a',
-  picoEye: '#1a1c2c',
-  picoCheek: '#ff8fab',
+  pico: '#ffe08a',
+  picoDark: '#c9a94a',
+  picoLight: '#fff3c4',
+  picoEye: '#2f3b4c',
+  picoCheek: '#ff9db0',
 
-  // primari saturi
-  sky: '#7ec8f2',
+  // primari pastello
+  sky: '#8fd0ff',
   skyDeep: '#4aa8e8',
-  grass: '#7ed957',
-  grassDeep: '#4caf50',
-  orange: '#ff9f43',
-  orangeDeep: '#e07b1f',
-  red: '#ff5d5d',
-  redDeep: '#d64242',
-  green: '#58d68d',
-  greenDeep: '#35b06f',
-  blue: '#4dabf7',
+  grass: '#8fe08a',
+  grassDeep: '#5cc45c',
+  orange: '#ffa45c',
+  orangeDeep: '#c96a12',
+  red: '#ff8080',
+  redDeep: '#d95a5a',
+  green: '#6fcf8f',
+  greenDeep: '#3aa564',
+  blue: '#66b8f2',
   blueDeep: '#2b7fd4',
-  purple: '#b197fc',
-  purpleDeep: '#8465d8',
-  pink: '#f78fb3',
+  purple: '#b3a0f5',
+  purpleDeep: '#7d68d8',
+  pink: '#ffa8c8',
   pinkDeep: '#d9648f',
 
   // feedback
-  ok: '#58d68d',
-  okDeep: '#2f9e5d',
-  bad: '#ff8787',
-  badDeep: '#d64242',
+  ok: '#2f9e5d',
+  okDeep: '#24804a',
+  bad: '#e05a5a',
+  badDeep: '#b83c3c',
 
   // neutri
-  gray: '#cfd6e4',
-  grayDeep: '#9aa5bd',
-  panel: '#2b3050',
-  panelDeep: '#1f2340'
+  gray: '#eef2f7',
+  grayDeep: '#c9d3e0',
+  panel: '#ffffff',
+  panelDeep: '#e8f1fa'
 } as const;
 
 /** Tema in alto contrasto (regola BES `highContrast`). */
 export const C_HC = {
   ...C,
-  sky: '#3aa0e8',
-  grass: '#43c93a',
-  paper: '#ffffff',
   ink: '#000000',
+  paper: '#ffffff',
+  panel: '#ffffff',
+  panelDeep: '#ffffff',
   gray: '#f2f2f2',
-  panel: '#000000',
-  panelDeep: '#000000'
+  grayDeep: '#000000'
 } as const;
 
 export type Palette = typeof C;
 
 /** Converte un colore CSS ('#rrggbb') nel numero atteso da Phaser Graphics. */
 export const hexNum = (h: string): number => parseInt(h.slice(1), 16);
+
+/** Colori del testo (ruoli, non valori sparsi nelle scene). */
+export const T = {
+  /** testo principale su fondo chiaro */
+  body: '#2f3b4c',
+  /** sottotitoli e testi secondari */
+  sub: '#5f7186',
+  /** testi molto tenui (disattivati) */
+  faint: '#8a99ad',
+  /** titoli di schermata */
+  title: '#1d6fb8',
+  /** conferme e progressi */
+  ok: '#1f8a4c',
+  /** avvisi e suggerimenti */
+  warn: '#c96a12',
+  /** stelle guadagnate (leggibili su chiaro) */
+  gold: '#d99a00'
+} as const;

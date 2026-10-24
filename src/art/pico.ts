@@ -17,7 +17,7 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   const u = S / 96;
   ctx.save();
   // ombra (non ruota con il corpo)
-  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fillStyle = 'rgba(59,74,90,0.14)';
   ctx.beginPath(); ctx.ellipse(48*u, 91*u, 26*u, 4.5*u, 0, 0, 7); ctx.fill();
 
   ctx.translate(48*u, 54*u);
@@ -55,8 +55,8 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.fillStyle = 'rgba(255,255,255,0.30)';
   ctx.beginPath(); ctx.roundRect(25*u, 24*u, 46*u, 13*u, 7*u); ctx.fill();
 
-  // visiera
-  ctx.fillStyle = C.picoLight;
+  // visiera (azzurra, come uno schermo pulito)
+  ctx.fillStyle = '#bfe6ff';
   ctx.beginPath(); ctx.roundRect(28*u, 32*u, 40*u, 27*u, 10*u); ctx.fill();
 
   // occhi

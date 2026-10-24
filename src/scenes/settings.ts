@@ -58,18 +58,18 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 46, 'Impostazioni', cfg, {
       size: 32,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
     makeText(this, w / 2, 92, 'Scegli un profilo: le regole si applicano subito a tutto il gioco.', cfg, {
       size: 15,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
     makeText(this, w / 2, 124, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
       size: 15,
-      color: scelto ? '#8fe3b0' : '#5a6484',
+      color: scelto ? '#1f8a4c' : '#8a99ad',
       wrap: 820
     });
 
@@ -114,12 +114,12 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 46, 'Regole una per una', cfg, {
       size: 30,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
     makeText(this, w / 2, 86, 'Tocca una regola per accenderla o spegnerla. Il profilo scelto resta.', cfg, {
       size: 14,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     const voci = REGOLE_UI.map((id) => RULE_BY_ID.get(id)).filter(

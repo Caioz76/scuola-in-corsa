@@ -1,4 +1,4 @@
-# RIPRESA — stato al 24/10/2026, 03:35
+# RIPRESA — stato al 24/10/2026, 03:55
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -121,10 +121,11 @@ Settings:
   in Boot): cielo, sole, colline e simboli della materia;
 - **Pico**, il robot giallo (`src/art/pico.ts`), corre in basso a sinistra con le
   ruote che girano;
-- **pista** con un segmento per prova e la bandiera del traguardo: rispondendo
-  giusto Pico salta, il mondo accelera e il segmento si accende; dopo tre errori
-  Pico inciampa ma la corsa prosegue;
-- un **velo scuro** sopra la scenografia tiene leggibili i testi chiari.
+- **pista** con un cerchio per prova e la bandiera del traguardo: rispondendo
+  giusto Pico salta, il mondo accelera e lui **avanza al checkpoint successivo**
+  (a fine tappa arriva alla bandiera); dopo tre errori inciampa ma la corsa
+  prosegue;
+- un **velo bianco** sopra la scenografia tiene leggibili i testi scuri.
 
 Regole BES collegate: `noDecoration` toglie la scenografia (resta la pista),
 `reduceMotion` ferma lo scorrimento. `tests/e2e/mondo.spec.ts` verifica che il
@@ -133,6 +134,31 @@ spengano ciò che devono.
 
 La domanda resta un quiz: la corsa è il contesto, non un platformer. Se si vuole
 un gioco d'azione vero (saltare ostacoli), è un'altra scelta di prodotto.
+
+### Stile grafico: ispirazione Wii, non copia (24/10)
+
+Richiesta: «uno stile ispirato alla Nintendo Wii, cogli solo ispirazione».
+Il risultato è un tema chiaro e morbido, disegnato da zero:
+
+- **palette** (`src/art/palette.ts`): fondo `#eaf6ff`, superfici bianche, pastelli;
+  i ruoli del testo stanno in `T` (titolo blu, corpo ardesia, tenui grigio);
+- **bottoni e pannelli** (`src/art/textures.ts`): niente contorni neri, bordo in
+  una tinta più scura del corpo, ombra morbida staccata, riflesso ampio;
+- **sfondi** (`src/art/backgrounds.ts`): cieli pastello con sole e colline, più un
+  tema neutro `scuola` per titolo, materia e impostazioni;
+- **Pico** (`src/art/pico.ts`): visiera azzurra e ombra morbida;
+- **font** (`src/challenges/ui.ts`): Arial Rounded → Trebuchet → Segoe UI, con
+  ricaduta su Verdana; il profilo dislessia mantiene Comic Sans;
+- **pausa** (`src/scenes/pause.ts`): scheda bianca sopra un velo quasi pieno, così
+  il quiz dietro non sembra più cliccabile;
+- **alto contrasto**: ora tutto il testo diventa nero pieno e la scenografia si
+  spegne, invece di lasciare testi chiari su fondo chiaro.
+
+Difetti di layout trovati guardando gli screenshot e corretti: il bottone
+"Rileggi" usciva dallo schermo a destra, la bandiera finiva sotto i bottoni dei
+risultati, i bottoni della pausa si sovrapponevano alle opzioni del quiz, il
+feedback "Giusto!" copriva le opzioni e Pico (ora compare sopra i bottoni nelle
+prove a scelta, in basso nelle altre).
 
 ### Stato reale delle regole BES (aggiornato 24/10)
 

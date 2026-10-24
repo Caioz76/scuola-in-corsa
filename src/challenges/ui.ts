@@ -8,6 +8,7 @@
  */
 import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
+import { T } from '../art/palette';
 import type { Option } from '../content/types';
 import { hitRect } from './hit';
 
@@ -40,7 +41,7 @@ export interface FontSpec {
 export function fontSpec(cfg: EffectiveConfig): FontSpec {
   return cfg.font === 'dyslexia'
     ? { family: '"Comic Sans MS", Verdana, sans-serif', spacing: 2 }
-    : { family: 'Verdana, sans-serif', spacing: 0 };
+    : { family: '"Arial Rounded MT Bold", "Trebuchet MS", "Segoe UI", Verdana, sans-serif', spacing: 0 };
 }
 
 export interface TextOpts {
@@ -65,7 +66,7 @@ export function makeText(
 ): Phaser.GameObjects.Text {
   const spec = fontSpec(cfg);
   const size = Math.round((o.size ?? 22) * cfg.fontScale);
-  const colore = cfg.highContrast ? hcColor(o.color ?? '#20222f') : (o.color ?? '#20222f');
+  const colore = cfg.highContrast ? hcColor(o.color ?? T.body) : (o.color ?? T.body);
   const t = scene.add.text(x, y, str, {
     fontFamily: spec.family,
     fontSize: `${size}px`,
@@ -78,17 +79,20 @@ export function makeText(
   }).setOrigin(0.5);
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.outline) t.setShadow(0, 0, '#ffffff', Math.max(2, Math.round(size * 0.09)), true, false);
-  // Alto contrasto: bordo nero attorno al testo, così resta leggibile anche
-  // sopra i bottoni colorati.
-  if (cfg.highContrast) t.setStroke('#000000', Math.max(2, Math.round(size * 0.07)));
+  // Alto contrasto: nero pieno, senza ombre decorative.
+  if (cfg.highContrast) {
+    t.setColor('#000000');
+    t.setShadow(0, 0, 'transparent', 0);
+  }
   return t;
 }
 
-/** Colori tenui → bianco puro quando è attivo l'alto contrasto. */
-const HC_TENUI = new Set(['#b8c4e0', '#5a6484', '#8b93ad', '#cfd6e4', '#20222f', '#e8ecf7']);
-
-function hcColor(c: string): string {
-  return HC_TENUI.has(c.toLowerCase()) ? '#ffffff' : c;
+/**
+ * Alto contrasto: ogni testo diventa nero pieno su fondo chiaro.
+ * Non si conservano i colori decorativi: leggibilità prima di tutto.
+ */
+function hcColor(_c: string): string {
+  return '#000000';
 }
 
 export type BtnKind = 'normal' | 'correct' | 'wrong' | 'disabled';
@@ -134,7 +138,7 @@ export function makeButton(
     fontFamily: spec.family,
     fontSize: `${Math.round(24 * cfg.fontScale * k)}px`,
     fontStyle: 'bold',
-    color: '#14213a',
+    color: T.body,
     align: 'center',
     wordWrap: { width: (BTN_W - 44) * k, useAdvancedWrap: true },
     letterSpacing: spec.spacing
@@ -155,8 +159,8 @@ export function makeButton(
     },
     setKind(k: BtnKind): void {
       if (scene.textures.exists(KIND_TEX[k])) sprite.setTexture(KIND_TEX[k]);
-      if (k === 'disabled') text.setStyle({ color: '#5a6484' });
-      else text.setStyle({ color: '#14213a' });
+      if (k === 'disabled') text.setStyle({ color: T.faint });
+      else text.setStyle({ color: T.body });
     },
     setEnabled(b: boolean): void {
       enabled = b;
@@ -219,7 +223,7 @@ export function makeChip(
     fontFamily: spec.family,
     fontSize: `${Math.round((o.size ?? 22) * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: '#20222f',
+    color: T.body,
     align: 'center',
     wordWrap: { width: w - 40, useAdvancedWrap: true },
     letterSpacing: spec.spacing
@@ -291,7 +295,7 @@ export function makeSlot(
     fontFamily: spec.family,
     fontSize: `${Math.round(20 * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: '#5a6484',
+    color: '#5f7186',
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
   const root = scene.add.container(x, y, [sprite, num]);
@@ -369,16 +373,16 @@ export function makeToggle(
   const h = 36;
   const spec = fontSpec(cfg);
   const g = scene.add.graphics().setDepth(10);
-  g.fillStyle(on ? 0x1f4d36 : 0x242a44, 0.95);
-  g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 8);
-  g.lineStyle(2, on ? 0x58d68d : 0x3a4160, 1);
-  g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 8);
+  g.fillStyle(on ? 0xdff6e7 : 0xffffff, 0.96);
+  g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 10);
+  g.lineStyle(2, on ? 0x3aa564 : 0xc9d3e0, 1);
+  g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 10);
 
   scene.add
     .text(x - w / 2 + 12, y, label, {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: cfg.highContrast ? '#ffffff' : '#e8ecf7'
+      color: cfg.highContrast ? '#000000' : T.body
     })
     .setOrigin(0, 0.5)
     .setDepth(11);
@@ -386,7 +390,7 @@ export function makeToggle(
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: on ? '#8fe3b0' : cfg.highContrast ? '#ffffff' : '#8b93ad',
+      color: on ? T.ok : cfg.highContrast ? '#000000' : T.faint,
       fontStyle: 'bold'
     })
     .setOrigin(1, 0.5)
@@ -406,25 +410,31 @@ export function showBanner(
   cfg: EffectiveConfig,
   text: string,
   sub: string | null,
-  kind: 'ok' | 'bad'
+  kind: 'ok' | 'bad',
+  at?: { x?: number; y?: number }
 ): { dispose(): void } {
-  const w = 720;
-  const h = sub ? 138 : 96;
-  const cx = 512;
-  const cy = 468;
+  // `at` permette di spostare il feedback dove non copre il contenuto:
+  // nelle prove a opzioni va sopra i bottoni, nelle altre in basso.
+  const w = 660;
+  const h = sub ? 132 : 92;
+  const cx = at?.x ?? 512;
+  const cy = at?.y ?? 468;
   const spec = fontSpec(cfg);
   const g = scene.add.graphics().setDepth(300);
-  g.fillStyle(0x20222f, 0.93);
-  g.fillRoundedRect(cx - w / 2, cy - h / 2, w, h, 18);
-  g.lineStyle(3, kind === 'ok' ? 0x58d68d : 0xff5d5d, 1);
-  g.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 18);
+  // scheda bianca con ombra morbida e bordo colorato
+  g.fillStyle(0x3b4a5a, 0.16);
+  g.fillRoundedRect(cx - w / 2 + 4, cy - h / 2 + 6, w, h, 20);
+  g.fillStyle(0xffffff, 0.97);
+  g.fillRoundedRect(cx - w / 2, cy - h / 2, w, h, 20);
+  g.lineStyle(4, kind === 'ok' ? 0x3aa564 : 0xe05a5a, 1);
+  g.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 20);
 
   const t1 = scene.add
     .text(cx, sub ? cy - 27 : cy, text, {
       fontFamily: spec.family,
       fontSize: `${Math.round(27 * cfg.fontScale)}px`,
       fontStyle: 'bold',
-      color: '#ffffff',
+      color: cfg.highContrast ? '#000000' : T.body,
       align: 'center',
       wordWrap: { width: w - 64, useAdvancedWrap: true },
       letterSpacing: spec.spacing
@@ -438,7 +448,7 @@ export function showBanner(
       .text(cx, cy + 32, sub, {
         fontFamily: spec.family,
         fontSize: `${Math.round(18 * cfg.fontScale)}px`,
-        color: '#cdd6f0',
+        color: cfg.highContrast ? '#000000' : T.sub,
         align: 'center',
         wordWrap: { width: w - 64, useAdvancedWrap: true },
         letterSpacing: spec.spacing

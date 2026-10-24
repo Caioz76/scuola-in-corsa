@@ -26,12 +26,12 @@ export class ProgressScene extends Phaser.Scene {
     makeText(this, 512, 46, 'Progressi', cfg, {
       size: 32,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
     makeText(this, 512, 84, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
       size: 14,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     const righe = allPacks().flatMap((pack) =>
@@ -45,18 +45,18 @@ export class ProgressScene extends Phaser.Scene {
     let totale = 0;
     for (const r of righe) {
       totale += r.stelle;
-      makeText(this, 300, y, r.titolo, cfg, { size: 14, align: 'left', wrap: 520, color: '#e8ecf7' });
+      makeText(this, 300, y, r.titolo, cfg, { size: 14, align: 'left', wrap: 520, color: '#2f3b4c' });
       makeText(this, 800, y, `★ ${r.stelle} / 3`, cfg, {
         size: 15,
         bold: r.stelle > 0,
-        color: r.stelle === 3 ? '#ffd93d' : r.stelle > 0 ? '#8fe3b0' : '#b8c4e0'
+        color: r.stelle === 3 ? '#d99a00' : r.stelle > 0 ? '#1f8a4c' : '#8a99ad'
       });
       y += 28;
     }
 
     makeText(this, 512, y + 10, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
       size: 15,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     const storia = loadHistory();
@@ -65,7 +65,7 @@ export class ProgressScene extends Phaser.Scene {
       const data = new Date(ultima.finishedAt).toLocaleDateString('it-IT');
       makeText(this, 512, y + 34, `Ultima partita: ${ultima.correct}/${ultima.total} — ${data}`, cfg, {
         size: 14,
-        color: '#8fe3b0'
+        color: '#1f8a4c'
       });
     }
 

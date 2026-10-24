@@ -20,12 +20,12 @@ export class TitleScene extends Phaser.Scene {
     makeText(this, w / 2, h / 2 - 110, GAME_NAME, cfg, {
       size: 48,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
     makeText(this, w / 2, h / 2 - 40, 'Scegli la materia e corri!', cfg, {
       size: 20,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', { depth: 10 });

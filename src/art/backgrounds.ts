@@ -22,11 +22,11 @@ interface Theme {
 }
 
 const THEMES: Record<ThemeKey, Theme> = {
-  scuola:     { farTop: '#bfe6ff', farBottom: '#7ec8f2', sun: '#ffd93d', hill1: '#9fe0b0', hill2: '#58d68d' },
-  matematica: { farTop: '#c9ecff', farBottom: '#7ec8f2', sun: '#ffd93d', hill1: '#a8e6b4', hill2: '#58d68d' },
-  italiano:   { farTop: '#ffedd2', farBottom: '#ffd9a0', sun: '#ff9f43', hill1: '#f2b58a', hill2: '#e8926f' },
-  scienze:    { farTop: '#d9f9e9', farBottom: '#9fe8c5', sun: '#ffe98a', hill1: '#7ad9a8', hill2: '#35b06f' },
-  storia:     { farTop: '#f7e8cf', farBottom: '#e8c9a0', sun: '#ffcf5d', hill1: '#d2ab7c', hill2: '#b58a5c' }
+  scuola:     { farTop: '#f4fbff', farBottom: '#c8e9ff', sun: '#ffe8a3', hill1: '#c8edb8', hill2: '#9fdd94' },
+  matematica: { farTop: '#f2faff', farBottom: '#c8e9ff', sun: '#ffe8a3', hill1: '#c8edb8', hill2: '#9fdd94' },
+  italiano:   { farTop: '#fffaf2', farBottom: '#ffe6c9', sun: '#ffd7a0', hill1: '#f8d8bd', hill2: '#efb894' },
+  scienze:    { farTop: '#f3fffa', farBottom: '#d2f4e3', sun: '#ffefb0', hill1: '#b9eccd', hill2: '#8fdcae' },
+  storia:     { farTop: '#fffaf0', farBottom: '#f3e3c8', sun: '#ffe3a3', hill1: '#e8d4b4', hill2: '#d3b992' }
 };
 
 function cloud(ctx: Ctx, x: number, y: number, s: number): void {
@@ -44,13 +44,13 @@ function sky(ctx: Ctx, t: Theme): void {
   g.addColorStop(1, t.farBottom);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
-  // sole
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.beginPath(); ctx.arc(1720, 118, 88, 0, 7); ctx.fill();
+  // sole morbido, con alone
+  ctx.fillStyle = 'rgba(70,120,160,0.20)';
+  ctx.beginPath(); ctx.arc(1720, 118, 92, 0, 7); ctx.fill();
   ctx.fillStyle = t.sun;
-  ctx.beginPath(); ctx.arc(1720, 118, 62, 0, 7); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
-  ctx.beginPath(); ctx.arc(1700, 98, 16, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(1720, 118, 60, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(70,120,160,0.28)';
+  ctx.beginPath(); ctx.arc(1700, 98, 15, 0, 7); ctx.fill();
   // nuvole
   cloud(ctx, 300, 110, 1);
   cloud(ctx, 900, 82, 0.8);
@@ -79,7 +79,7 @@ function hills(ctx: Ctx, t: Theme): void {
 // ── Decorazioni a tema (alpha bassa, "acquaforte" sullo sfondo) ─────────
 
 function symbol(ctx: Ctx, ch: string, x: number, y: number, size: number): void {
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillStyle = 'rgba(70,120,160,0.20)';
   ctx.font = `bold ${size}px Verdana, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -87,16 +87,16 @@ function symbol(ctx: Ctx, ch: string, x: number, y: number, size: number): void 
 }
 
 function atom(ctx: Ctx, x: number, y: number, r: number): void {
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.strokeStyle = 'rgba(70,120,160,0.20)';
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.42, 0.5, 0, 7); ctx.stroke();
   ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.42, -0.5, 0, 7); ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillStyle = 'rgba(70,120,160,0.28)';
   ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill();
 }
 
 function leaf(ctx: Ctx, x: number, y: number, s: number): void {
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = 'rgba(70,120,160,0.18)';
   ctx.save(); ctx.translate(x, y); ctx.rotate(-0.5);
   ctx.beginPath();
   ctx.moveTo(0, 0);
@@ -107,7 +107,7 @@ function leaf(ctx: Ctx, x: number, y: number, s: number): void {
 }
 
 function flask(ctx: Ctx, x: number, y: number, s: number): void {
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.strokeStyle = 'rgba(70,120,160,0.20)';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(x - 6 * s, y - 16 * s);
@@ -120,7 +120,7 @@ function flask(ctx: Ctx, x: number, y: number, s: number): void {
 }
 
 function column(ctx: Ctx, x: number, y: number, s: number): void {
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = 'rgba(70,120,160,0.18)';
   ctx.fillRect(x - 16 * s, y - 22 * s, 32 * s, 5 * s);          // capitello
   ctx.fillRect(x - 12 * s, y - 17 * s, 24 * s, 30 * s);        // fusto
   ctx.fillRect(x - 16 * s, y + 13 * s, 32 * s, 5 * s);         // base
@@ -129,7 +129,7 @@ function column(ctx: Ctx, x: number, y: number, s: number): void {
 }
 
 function arch(ctx: Ctx, x: number, y: number, s: number): void {
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.strokeStyle = 'rgba(70,120,160,0.18)';
   ctx.lineWidth = 5 * s;
   ctx.beginPath();
   ctx.moveTo(x - 20 * s, y + 20 * s);
@@ -140,7 +140,7 @@ function arch(ctx: Ctx, x: number, y: number, s: number): void {
 }
 
 function book(ctx: Ctx, x: number, y: number, s: number): void {
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = 'rgba(70,120,160,0.18)';
   ctx.beginPath();
   ctx.moveTo(x, y - 12 * s);
   ctx.quadraticCurveTo(x - 14 * s, y - 16 * s, x - 24 * s, y - 10 * s);

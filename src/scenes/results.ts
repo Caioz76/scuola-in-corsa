@@ -27,13 +27,13 @@ export class ResultsScene extends Phaser.Scene {
     makeText(this, 512, 90, 'Tappa completata!', cfg, {
       size: 40,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
 
     makeText(this, 512, 170, `${correct} su ${total}`, cfg, {
       size: 28,
-      color: '#ffffff'
+      color: '#2f3b4c'
     });
 
     const stelle =
@@ -70,7 +70,7 @@ export class ResultsScene extends Phaser.Scene {
     world.setProgress(total, total);
 
     if (pack && idx >= 0) {
-      makeText(this, 512, 322, pack.levels[idx].title, cfg, { size: 15, color: '#b8c4e0' });
+      makeText(this, 512, 322, pack.levels[idx].title, cfg, { size: 15, color: '#5f7186' });
     }
 
     const xs = [512 - 130, 512, 512 + 130];

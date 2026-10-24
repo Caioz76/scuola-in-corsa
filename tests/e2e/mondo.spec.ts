@@ -13,6 +13,7 @@ import { expect, test } from '@playwright/test';
 
 interface Mondo {
   pico: string | null;
+  picoX: number | null;
   picoY: number | null;
   sfondi: string[];
   terreno: number;
@@ -31,18 +32,20 @@ async function mondo(page: import('@playwright/test').Page): Promise<Mondo> {
       __GIOCO__?: { scenaAttiva?: { children: { list: unknown[] } } | null };
     }).__GIOCO__;
     const s = g?.scenaAttiva;
-    const out: Mondo = { pico: null, picoY: null, sfondi: [], terreno: 0 };
+    const out: Mondo = { pico: null, picoX: null, picoY: null, sfondi: [], terreno: 0 };
     for (const o of s?.children.list ?? []) {
       const n = o as {
         type?: string;
         name?: string;
         texture?: { key?: string };
         tilePositionX?: number;
+        x?: number;
         y?: number;
       };
       const key = n.texture?.key ?? '';
       if (n.type === 'Image' && n.name === 'pico') {
         out.pico = key;
+        out.picoX = n.x ?? null;
         out.picoY = n.y ?? null;
       }
       if (n.type === 'TileSprite') {
@@ -164,4 +167,10 @@ test('risposta giusta: Pico salta (il mondo reagisce alla prova)', async ({ page
   const dopo = await mondo(page);
   expect(dopo.pico, 'durante lo scatto Pico salta').toBe('pico-jump');
   expect(dopo.picoY!).toBeLessThan(prima.picoY!);
+
+  // Il salto non basta: la corsa deve avanzare. Dopo il primo checkpoint
+  // Pico si è spostato lungo la pista, verso il traguardo.
+  await page.waitForTimeout(700);
+  const avanzato = await mondo(page);
+  expect(avanzato.picoX!, 'Pico deve avanzare al checkpoint').toBeGreaterThan(prima.picoX! + 80);
 });

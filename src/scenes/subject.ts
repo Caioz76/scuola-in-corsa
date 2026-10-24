@@ -22,7 +22,7 @@ export class SubjectScene extends Phaser.Scene {
     makeText(this, w / 2, 90, 'Scegli la materia', cfg, {
       size: 38,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
 
@@ -51,7 +51,7 @@ export class SubjectScene extends Phaser.Scene {
         makeText(this, v.x, v.y + 62, `★ ${stelle} / 3`, cfg, {
           size: 18,
           bold: stelle > 0,
-          color: stelle > 0 ? '#ffd93d' : '#b8c4e0'
+          color: stelle > 0 ? '#d99a00' : '#8a99ad'
         });
       }
     }

@@ -14,26 +14,40 @@ function lgrad(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, stops: 
   return g;
 }
 
-/** Bottone glossy: bordo scuro, corpo in gradiente, riflesso in alto. */
+/**
+ * Bottone chiaro e arrotondato: ombra morbida, corpo pastello, riflesso alto.
+ * Niente contorno nero: il bordo è una versione più scura del colore stesso.
+ */
 function button(ctx: Ctx, w: number, h: number, base: string, dark: string, light: string): void {
+  // ombra morbida staccata dal corpo
+  ctx.fillStyle = 'rgba(59,74,90,0.16)';
+  ctx.beginPath(); ctx.roundRect(4, 8, w - 8, h - 10, h / 2.1); ctx.fill();
+  // corpo
   ctx.fillStyle = dark;
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 4, h / 2.1); ctx.fill();
-  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 4, [[0, light], [0.55, base], [1, base]]);
-  ctx.beginPath(); ctx.roundRect(6, 6, w - 12, h - 12, h / 2.5); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.34)';
-  ctx.beginPath(); ctx.roundRect(12, 10, w - 24, h * 0.32, h / 3); ctx.fill();
-  ctx.fillStyle = 'rgba(0,0,0,0.14)';
-  ctx.beginPath(); ctx.roundRect(12, h - 15, w - 24, 7, 3.5); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, h / 2.1); ctx.fill();
+  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 8, [[0, light], [0.45, base], [1, base]]);
+  ctx.beginPath(); ctx.roundRect(5, 5, w - 10, h - 16, h / 2.6); ctx.fill();
+  // riflesso alto, ampio e morbido
+  ctx.fillStyle = 'rgba(255,255,255,0.44)';
+  ctx.beginPath(); ctx.roundRect(14, 9, w - 28, h * 0.30, h / 4); ctx.fill();
+  // riga di luce sul bordo superiore
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.beginPath(); ctx.roundRect(18, 7, w - 36, 4, 2); ctx.fill();
 }
 
 /** Pannello scuro con bordo, header e fondo in gradiente. */
 function panel(ctx: Ctx, w: number, h: number): void {
-  ctx.fillStyle = C.ink;
-  ctx.beginPath(); ctx.roundRect(3, 3, w - 6, h - 6, 20); ctx.fill();
-  ctx.fillStyle = lgrad(ctx, 0, 4, 0, h, [[0, '#3a4170'], [1, C.panel]]);
-  ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 15); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
-  ctx.beginPath(); ctx.roundRect(16, 14, w - 32, 36, 11); ctx.fill();
+  // ombra morbida
+  ctx.fillStyle = 'rgba(59,74,90,0.16)';
+  ctx.beginPath(); ctx.roundRect(6, 10, w - 12, h - 12, 24); ctx.fill();
+  // carta bianca
+  ctx.fillStyle = C.panel;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 22); ctx.fill();
+  // fascia d'intestazione azzurra
+  ctx.fillStyle = '#eaf4ff';
+  ctx.beginPath(); ctx.roundRect(12, 12, w - 24, 44, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(59,74,90,0.10)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 22); ctx.stroke();
 }
 
 function star(ctx: Ctx, s: number): void {
@@ -106,24 +120,22 @@ function flag(ctx: Ctx, w: number, h: number): void {
 
 /** Tile di terra tileabile (bordi piatto = si ripete senza cuciture). */
 function ground(ctx: Ctx, w: number, h: number): void {
-  // terra
-  ctx.fillStyle = lgrad(ctx, 0, 24, 0, h, [[0, '#a9743f'], [1, '#7c5128']]);
-  ctx.fillRect(0, 24, w, h - 24);
-  // chiazze terra
-  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  // prato chiaro
+  ctx.fillStyle = lgrad(ctx, 0, 20, 0, h, [[0, '#a8e39a'], [1, '#7ccf72']]);
+  ctx.fillRect(0, 20, w, h - 20);
+  // chiazze d'erba
+  ctx.fillStyle = 'rgba(60,120,60,0.12)';
   for (const [x, y, r] of [[18, 52, 5], [46, 70, 6], [80, 48, 4], [104, 76, 5], [64, 88, 4]] as const) {
     ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.7, 0, 0, 7); ctx.fill();
   }
-  // erba
-  ctx.fillStyle = C.grassDeep;
-  ctx.fillRect(0, 16, w, 12);
-  ctx.fillStyle = C.grass;
-  ctx.fillRect(0, 12, w, 8);
-  // bordino scuro in alto
-  ctx.fillStyle = C.ink;
+  // fascia di erba più alta
+  ctx.fillStyle = '#8fe08a';
+  ctx.fillRect(0, 12, w, 12);
+  // bordo chiaro, non nero
+  ctx.fillStyle = '#c9f0b8';
   ctx.fillRect(0, 10, w, 3);
   // ciuffi (posizioni interne, tileabili)
-  ctx.fillStyle = C.grass;
+  ctx.fillStyle = '#7ccf72';
   for (const x of [12, 34, 58, 82, 108]) {
     ctx.beginPath(); ctx.moveTo(x - 5, 12); ctx.lineTo(x, 4); ctx.lineTo(x + 5, 12); ctx.closePath(); ctx.fill();
   }
@@ -131,21 +143,23 @@ function ground(ctx: Ctx, w: number, h: number): void {
 
 /** Chip bianco (base per opzioni trascinabili, riordino, abbinamenti). */
 function card(ctx: Ctx, w: number, h: number): void {
-  ctx.fillStyle = 'rgba(32,34,47,0.30)';
-  ctx.beginPath(); ctx.roundRect(4, 5, w - 8, h - 10, 18); ctx.fill();
+  // ombra morbida
+  ctx.fillStyle = 'rgba(59,74,90,0.18)';
+  ctx.beginPath(); ctx.roundRect(4, 7, w - 8, h - 10, 18); ctx.fill();
+  // carta bianca
   ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 17); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 17); ctx.fill();
+  ctx.fillStyle = 'rgba(234,244,255,0.9)';
   ctx.beginPath(); ctx.roundRect(10, 6, w - 20, h * 0.28, 12); ctx.fill();
-  ctx.strokeStyle = 'rgba(32,34,47,0.35)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 17); ctx.stroke();
+  ctx.strokeStyle = 'rgba(59,74,90,0.16)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 17); ctx.stroke();
 }
 
 /** Slot vuoto (bordo tratteggiato) per le prove di riordino. */
 function slot(ctx: Ctx, w: number, h: number): void {
-  ctx.fillStyle = 'rgba(255,255,255,0.38)';
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 8, 16); ctx.fill();
-  ctx.strokeStyle = 'rgba(32,34,47,0.55)';
+  ctx.strokeStyle = 'rgba(59,74,90,0.35)';
   ctx.lineWidth = 3;
   ctx.setLineDash([10, 8]);
   ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 8, 16); ctx.stroke();
@@ -154,11 +168,13 @@ function slot(ctx: Ctx, w: number, h: number): void {
 
 /** Bottone tondo piccolo (HUD: pausa, audio). */
 function roundbtn(ctx: Ctx, s: number): void {
-  ctx.fillStyle = C.ink;
-  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 2, 0, 7); ctx.fill();
-  ctx.fillStyle = lgrad(ctx, 0, 2, 0, s - 2, [[0, C.gray], [1, C.grayDeep]]);
-  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 6, 0, 7); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillStyle = 'rgba(59,74,90,0.16)';
+  ctx.beginPath(); ctx.arc(s / 2, s / 2 + 2, s / 2 - 2, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 4, 0, 7); ctx.fill();
+  ctx.fillStyle = lgrad(ctx, 0, 4, 0, s - 4, [[0, '#ffffff'], [1, '#e8f1fa']]);
+  ctx.beginPath(); ctx.arc(s / 2, s / 2, s / 2 - 7, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.beginPath(); ctx.ellipse(s / 2, s * 0.30, s * 0.30, s * 0.15, 0, 0, 7); ctx.fill();
 }
 
@@ -171,10 +187,10 @@ export function ensureUI(scene: Phaser.Scene): void {
     draw(cv.getContext());
     cv.refresh();
   };
-  make('btn-green', 320, 84, (ctx) => button(ctx, 320, 84, C.green, C.greenDeep, '#b5f2cf'));
-  make('btn-blue', 320, 84, (ctx) => button(ctx, 320, 84, C.blue, C.blueDeep, '#a8d8ff'));
+  make('btn-green', 320, 84, (ctx) => button(ctx, 320, 84, '#8fdcab', '#57b87f', '#cdf7dd'));
+  make('btn-blue', 320, 84, (ctx) => button(ctx, 320, 84, '#93d2f7', '#5fade3', '#d2efff'));
   make('btn-orange', 320, 84, (ctx) => button(ctx, 320, 84, C.orange, C.orangeDeep, '#ffd9a8'));
-  make('btn-red', 320, 84, (ctx) => button(ctx, 320, 84, C.red, C.redDeep, '#ffb3b3'));
+  make('btn-red', 320, 84, (ctx) => button(ctx, 320, 84, '#f79a9a', '#d97b7b', '#ffd0d0'));
   make('btn-yellow', 320, 84, (ctx) => button(ctx, 320, 84, C.pico, C.picoDark, '#fff3b0'));
   make('btn-gray', 320, 84, (ctx) => button(ctx, 320, 84, C.gray, C.grayDeep, '#eef2fa'));
   make('panel', 700, 480, (ctx) => panel(ctx, 700, 480));

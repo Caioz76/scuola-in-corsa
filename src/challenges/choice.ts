@@ -56,7 +56,7 @@ export class ChoiceChallenge implements Challenge {
     this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#2f3b4c',
       wrap: 800,
       outline: true
     });
@@ -100,9 +100,9 @@ export class ChoiceChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      const rb = makeButton(scene, cfg, 950, 112, 'Rileggi', { scale: 0.62, depth: 12 });
+      const rb = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
       rb.onTap(() => {
-        const banner = showBanner(scene, cfg, round.prompt, null, 'ok');
+        const banner = showBanner(scene, cfg, round.prompt, null, 'ok', { y: 186 });
         scene.time.delayedCall(2200, () => banner.dispose());
       });
     }
@@ -111,7 +111,7 @@ export class ChoiceChallenge implements Challenge {
   /** Testo piccolo per il supporto (tracciato, smaltito in dispose). */
   private supportLabel(x: number, y: number, s: string, size = 13): void {
     const t = this.scene.add
-      .text(x, y, s, { fontFamily: 'Verdana, sans-serif', fontSize: `${size}px`, color: '#20222f' })
+      .text(x, y, s, { fontFamily: 'Verdana, sans-serif', fontSize: `${size}px`, color: '#2f3b4c' })
       .setOrigin(0.5)
       .setDepth(7);
     this.supportTexts.push(t);
@@ -209,7 +209,7 @@ export class ChoiceChallenge implements Challenge {
     const explain = this.cfg.showExplanationOnWrong && this.round.explanation;
     const delay = explain ? 2000 : 950;
     if (explain) {
-      const banner = showBanner(this.scene, this.cfg, 'Quasi! Guarda la spiegazione', this.round.explanation!, 'bad');
+      const banner = showBanner(this.scene, this.cfg, 'Quasi! Guarda la spiegazione', this.round.explanation!, 'bad', { y: 186 });
       this.schedule(() => banner.dispose(), delay - 250);
     }
     this.schedule(() => {

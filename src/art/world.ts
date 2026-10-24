@@ -47,7 +47,7 @@ export function addWorld(
   opts: WorldOpts = {}
 ): World {
   // La scenografia è "decorazione": chi ha chiesto una schermata pulita non la vede.
-  const scenografia = cfg.decoration;
+  const scenografia = cfg.decoration && !cfg.highContrast;
   // Con "riduci i movimenti" la scenografia c'è ma resta ferma.
   const animato = scenografia && cfg.motion !== 'off';
   // Con "riduci i movimenti" la velocità è zero anche se la scena ne chiede una.
@@ -69,8 +69,8 @@ export function addWorld(
       .setDepth(-30)
       .setName('bg-mid');
     oggetti.push(far, mid);
-    // Velo scuro: la scenografia si vede, ma i testi chiari restano leggibili.
-    const velo = scene.add.rectangle(0, 0, W, H, 0x101833, 0.42).setOrigin(0).setDepth(-25);
+    // Velo chiaro: la scenografia si vede, ma i testi scuri restano leggibili.
+    const velo = scene.add.rectangle(0, 0, W, H, 0xffffff, 0.34).setOrigin(0).setDepth(-25);
     oggetti.push(velo);
   }
 
@@ -115,26 +115,45 @@ export function addWorld(
   let fatti = 0;
   let totali = 0;
 
+  // La pista va dal primo checkpoint al traguardo: Pico la percorre davvero,
+  // prova dopo prova. Con "riduci i movimenti" si sposta senza animazione.
+  const PISTA_X0 = 196;
+  const PISTA_X1 = 860;
+  const PISTA_Y = 546;
+  const PARTENZA_X = 66;
+
+  const xCheckpoint = (i: number): number =>
+    totali > 1 ? PISTA_X0 + ((PISTA_X1 - PISTA_X0) * i) / (totali - 1) : PISTA_X1;
+
   const disegnaCheckpoint = (): void => {
     checkpoint.clear();
     if (!opts.track || totali <= 0) return;
-    const x0 = 196;
-    const x1 = 500;
-    const y = 546;
-    const passoX = (x1 - x0) / totali;
-    const largo = Math.max(8, passoX - 8);
+    // linea della pista, chiara: si vede anche sul prato
+    checkpoint.lineStyle(6, 0xffffff, 0.5);
+    checkpoint.lineBetween(PISTA_X0, PISTA_Y, PISTA_X1, PISTA_Y);
     for (let i = 0; i < totali; i++) {
       const acceso = i < fatti;
-      const x = x0 + passoX * i;
-      checkpoint.fillStyle(acceso ? 0x58d68d : 0x1b2138, acceso ? 1 : 0.85);
-      checkpoint.fillRoundedRect(x, y - 6, largo, 12, 6);
-      checkpoint.lineStyle(2, acceso ? 0x8fe3b0 : 0x6f7a99, 0.9);
-      checkpoint.strokeRoundedRect(x, y - 6, largo, 12, 6);
+      const x = xCheckpoint(i);
+      checkpoint.fillStyle(acceso ? 0x3aa564 : 0xffffff, acceso ? 1 : 0.95);
+      checkpoint.fillCircle(x, PISTA_Y, 9);
+      checkpoint.lineStyle(2, acceso ? 0x24804a : 0x8a99ad, 0.95);
+      checkpoint.strokeCircle(x, PISTA_Y, 9);
     }
     if (!bandiera) {
-      bandiera = scene.add.image(566, 508, 'flag').setScale(0.52).setDepth(-13);
+      bandiera = scene.add.image(906, 512, 'flag').setScale(0.5).setDepth(-13);
       oggetti.push(bandiera);
     }
+  };
+
+  /** Porta Pico al checkpoint raggiunto (o alla partenza se non ha ancora corso). */
+  const portaPico = (compiuti: number): void => {
+    if (!pico) return;
+    const target = compiuti <= 0 ? PARTENZA_X : xCheckpoint(Math.min(compiuti, totali) - 1);
+    if (!animato) {
+      pico.x = target;
+      return;
+    }
+    scene.tweens.add({ targets: pico, x: target, duration: 420, ease: 'Cubic.easeOut' });
   };
 
   disegnaCheckpoint();
@@ -168,6 +187,7 @@ export function addWorld(
       fatti = Math.max(0, Math.min(done, total));
       totali = total;
       disegnaCheckpoint();
+      portaPico(fatti);
     },
     dash(): void {
       spinta = 700;

@@ -18,17 +18,28 @@ export class PauseScene extends Phaser.Scene {
   create(): void {
     const cfg = resolveConfig(loadSettings());
 
-    this.add.rectangle(512, 288, 1024, 576, 0x0b0e18, 0.78);
+    // Velo quasi pieno: sotto resta il gioco, ma non sembra più cliccabile.
+    this.add.rectangle(512, 288, 1024, 576, 0xffffff, 0.9);
+
+    // Scheda bianca: separa la pausa dal quiz che resta dietro.
+    const card = this.add.graphics();
+    card.fillStyle(0x3b4a5a, 0.14);
+    card.fillRoundedRect(256, 118, 512, 396, 30);
+    card.fillStyle(0xffffff, 0.99);
+    card.fillRoundedRect(252, 110, 512, 396, 30);
+    card.lineStyle(2, 0xc9d3e0, 1);
+    card.strokeRoundedRect(252, 110, 512, 396, 30);
+
 
     makeText(this, 512, 180, 'Pausa', cfg, {
       size: 42,
       bold: true,
-      color: '#ffd93d',
+      color: '#1d6fb8',
       outline: true
     });
     makeText(this, 512, 232, 'Quando vuoi, si riprende da dove eri rimasto.', cfg, {
       size: 16,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     const continua = makeButton(this, cfg, 512, 336, 'Continua', { depth: 10 });

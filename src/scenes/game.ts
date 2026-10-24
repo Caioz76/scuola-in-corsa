@@ -30,7 +30,7 @@ export class GameScene extends Phaser.Scene {
 
     makeText(this, 512, 26, `${pack.title} — ${level.title}`, cfg, {
       size: 16,
-      color: '#b8c4e0'
+      color: '#5f7186'
     });
 
     // Il mondo: scenografia della materia, pista e Pico che corre.
@@ -39,7 +39,7 @@ export class GameScene extends Phaser.Scene {
     world.setProgress(0, level.rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
-    const contatore = makeText(this, 888, 26, '', cfg, { size: 14, color: '#8fe3b0' });
+    const contatore = makeText(this, 888, 26, '', cfg, { size: 14, color: '#1f8a4c' });
 
     // Pausa: utile a chi ha bisogno di fermarsi senza perdere il punto.
     if (cfg.pauseAllowed) {
@@ -79,6 +79,8 @@ export class GameScene extends Phaser.Scene {
         contatore.setText(`Prova ${index + 1} di ${level.rounds.length}`);
       }
       const round: Round = level.rounds[index];
+      // Le prove a opzioni hanno i bottoni in basso: il feedback va sopra.
+      const bannerY = round.type === 'quiz' || round.type === 'image' ? 186 : 468;
       let errori = 0;
       current = showChallenge(this, round, cfg, {
         onCorrect: () => {
@@ -87,7 +89,7 @@ export class GameScene extends Phaser.Scene {
           outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
           world.dash();
           world.setProgress(index, level.rounds.length);
-          const ok = showBanner(this, cfg, 'Giusto!', null, 'ok');
+          const ok = showBanner(this, cfg, 'Giusto!', null, 'ok', { y: bannerY });
           this.time.delayedCall(900 * ritmo, () => {
             ok.dispose();
             next();
@@ -100,7 +102,8 @@ export class GameScene extends Phaser.Scene {
             cfg,
             'Riprova',
             attempts >= 2 ? 'Guarda bene le opzioni.' : null,
-            'bad'
+            'bad',
+            { y: bannerY }
           );
           this.time.delayedCall(900 * ritmo, () => no.dispose());
           // 3 errori: la prova rivela la risposta, poi si prosegue (mai bloccarsi)

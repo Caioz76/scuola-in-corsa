@@ -95,7 +95,7 @@ export class OrderChallenge implements Challenge {
     this.promptText = makeText(scene, 512, 64, round.prompt, cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#2f3b4c',
       wrap: 800,
       outline: true
     });
@@ -111,7 +111,7 @@ export class OrderChallenge implements Challenge {
         ? `Trascina (o tocca) gli elementi negli slot, dall'1 al ${this.n}`
         : `Tocca gli elementi nell'ordine giusto, dall'1 al ${this.n}`,
       cfg,
-      { size: 15, color: '#5a6484', wrap: 760 }
+      { size: 15, color: '#5f7186', wrap: 760 }
     );
 
     // ── Slot numerati ──
@@ -140,7 +140,7 @@ export class OrderChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 946, 112, 'Rileggi', { scale: 0.62, depth: 12 });
+      this.reBtn = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
       this.reBtn.onTap(() => {
         if (this.locked) return;
         synth.play('click');
