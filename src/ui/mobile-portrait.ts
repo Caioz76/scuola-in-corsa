@@ -1,27 +1,86 @@
 /**
- * Adattamento nativo per display verticali (smartphone in portrait).
+ * Interfaccia unificata per display verticali (smartphone in portrait).
  *
  * Su schermi orizzontali (desktop, tablet, telefono ruotato) questo modulo
- * resta invisibile e lascia lavorare il canvas 16:9 di Phaser così com'è.
+ * resta inattivo e lascia lavorare il canvas 16:9 di Phaser così com'è.
  *
  * Su display verticali (`window.innerHeight > window.innerWidth`):
- *  - il mondo animato di Phaser (Pico, pista, scenografia, icone, supporti)
- *    occupa il palco superiore dello schermo;
- *  - la metà inferiore dello schermo è occupata da `#mobile-deck`, un pannello
- *    touch responsive che espone i comandi della scena attiva (Titolo, Materie,
- *    Tappe, Impostazioni BES/Classi/Regole, Progressi, Pausa, Risultati e
- *    tutte le prove: Quiz, Immagini, Runner 2D, Abbinamenti e Riordino) con
- *    pulsanti grandi, leggibili e adatti al pollice.
+ *  - NON divide lo schermo in due e NON duplica i menu: nasconde i testi,
+ *    i pannelli e i bottoni duplicati dentro il canvas Phaser, lasciando nel
+ *    canvas Phaser SOLO il mondo animato a fondo schermo (cielo, Wuhu Island,
+ *    pista d'atletica, checkpoint e Pico che corre/salta);
+ *  - mostra UN UNICO menu / quiz in stile Nintendo Wii Sports a tutto schermo
+ *    (`#mobile-deck`), con il titolo, le domande, le icone e i pulsanti grandi
+ *    perfettamente impaginati per lo schermo verticale.
  */
 import type Phaser from 'phaser';
 import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
+import { GAME_NAME } from '../core/constants';
 
 interface TextEntry {
   text: string;
   x: number;
   y: number;
+}
+
+const origAlphaMap = new WeakMap<object, number>();
+
+/**
+ * In modalità verticale nasconde gli elementi UI di Phaser (testi, bottoni,
+ * cornici) così non compaiono due volte (sopra nel canvas e sotto in HTML),
+ * lasciando visibili nel canvas SOLO lo sfondo, la pista e Pico (`depth <= -13`).
+ */
+function sincronizzaVisibilitaCanvas(
+  scene: Phaser.Scene | null,
+  nascondiUiPhaser: boolean
+): void {
+  if (!scene) return;
+  for (const obj of scene.children.list) {
+    const o = obj as unknown as {
+      depth?: number;
+      name?: string;
+      alpha?: number;
+      setAlpha?: (a: number) => void;
+    };
+    if (typeof o.setAlpha !== 'function' || typeof o.alpha !== 'number') continue;
+    const depth = o.depth ?? 0;
+    // Manteniamo visibili: cielo, colline, pista, bordo, polvere, Pico, checkpoint, bandiera
+    const isMondo = depth <= -13;
+    if (isMondo) continue;
+
+    if (nascondiUiPhaser) {
+      if (!origAlphaMap.has(o) && o.alpha > 0.01) {
+        origAlphaMap.set(o, o.alpha);
+      }
+      if (o.alpha > 0.002) {
+        o.setAlpha(0.001);
+      }
+    } else if (origAlphaMap.has(o)) {
+      o.setAlpha(origAlphaMap.get(o)!);
+      origAlphaMap.delete(o);
+    }
+  }
+}
+
+/** Estrae l'eventuale icona della prova "riconosci l'immagine" come data URL. */
+function estraiIconaProva(scene: Phaser.Scene | null): string | null {
+  if (!scene) return null;
+  for (const obj of scene.children.list) {
+    const n = obj as {
+      type?: string;
+      texture?: { key?: string; getSourceImage?: () => HTMLCanvasElement | HTMLImageElement };
+    };
+    const key = n.texture?.key ?? '';
+    if (n.type === 'Image' && key.startsWith('icon-')) {
+      const src = n.texture?.getSourceImage?.();
+      if (src && 'toDataURL' in src && typeof src.toDataURL === 'function') {
+        return src.toDataURL();
+      }
+    }
+  }
+  return null;
 }
 
 function raccogliTesti(scene: Phaser.Scene | null): TextEntry[] {
@@ -34,12 +93,10 @@ function raccogliTesti(scene: Phaser.Scene | null): TextEntry[] {
       x?: number;
       y?: number;
       visible?: boolean;
-      alpha?: number;
       parentContainer?: unknown;
       list?: unknown[];
     };
-    if (!n || n.visible === false || (typeof n.alpha === 'number' && n.alpha <= 0.05)) return;
-    // Ignora i testi che sono già dentro un Container (bottoni/chip/slot)
+    if (!n || n.visible === false) return;
     if (n.type === 'Text' && n.text && !n.parentContainer) {
       const t = String(n.text).trim();
       if (t) out.push({ text: t, x: n.x ?? 0, y: n.y ?? 0 });
@@ -70,7 +127,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
   const deck = document.createElement('div');
   deck.id = 'mobile-deck';
   deck.setAttribute('role', 'region');
-  deck.setAttribute('aria-label', 'Pannello comandi mobile');
+  deck.setAttribute('aria-label', 'Interfaccia mobile verticale');
   document.body.appendChild(deck);
 
   let ultimaChiave = '';
@@ -81,7 +138,13 @@ export function initMobilePortrait(game: Phaser.Game): void {
     const verticale = vh > vw;
     document.body.classList.toggle('verticale', verticale);
 
+    const attive = game.scene.getScenes(true);
+    const scena = attive[attive.length - 1] ?? null;
+    const key = scena?.scene.key ?? 'Boot';
+    document.body.dataset.scena = key;
+
     if (!verticale) {
+      sincronizzaVisibilitaCanvas(scena, false);
       if (deck.style.display !== 'none') {
         deck.style.display = 'none';
         ultimaChiave = '';
@@ -89,25 +152,23 @@ export function initMobilePortrait(game: Phaser.Game): void {
       return;
     }
 
-    const attive = game.scene.getScenes(true);
-    const scena = attive[attive.length - 1] ?? null;
-    const key = scena?.scene.key ?? 'Boot';
-
     const impostazioni = loadSettings();
-    // Nel Runner 3D attivo durante la partita ci sono già #comandi-runner e #risposte-runner
+    // Nel Runner 3D attivo durante la partita lavorano il canvas 3D + #comandi-runner + #risposte-runner
     const inRunner3D =
       document.body.classList.contains('con-3d') &&
       impostazioni.mode === 'runner' &&
       key === 'Game';
     if (inRunner3D || key === 'Boot') {
+      sincronizzaVisibilitaCanvas(scena, false);
       deck.style.display = 'none';
       ultimaChiave = `hidden:${key}:${inRunner3D}`;
       return;
     }
 
+    // Nascondiamo i menu/testi duplicati dal canvas Phaser, lasciando solo il mondo e Pico!
+    sincronizzaVisibilitaCanvas(scena, true);
     deck.style.display = 'flex';
 
-    // Applica regole BES (font dislessia, scala testo, alto contrasto) al pannello HTML
     const cfg = resolveConfig(impostazioni);
     deck.classList.toggle('bes-dislessia', cfg.font === 'dyslexia');
     deck.classList.toggle('bes-hc', cfg.highContrast);
@@ -115,6 +176,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
 
     const items = getMobileItems(scena);
     const testi = raccogliTesti(scena);
+    const iconaUrl = key === 'Game' ? estraiIconaProva(scena) : null;
 
     const firmaItems = items
       .map(
@@ -123,7 +185,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
       )
       .join('|');
     const firmaTesti = testi.map((t) => `${t.text}@${Math.round(t.y)}`).join('|');
-    const chiaveAttuale = `${key}::${cfg.font}::${cfg.highContrast}::${cfg.fontScale}::${firmaItems}::${firmaTesti}`;
+    const chiaveAttuale = `${key}::${cfg.font}::${cfg.highContrast}::${cfg.fontScale}::${Boolean(iconaUrl)}::${firmaItems}::${firmaTesti}`;
 
     if (chiaveAttuale === ultimaChiave) return;
     ultimaChiave = chiaveAttuale;
@@ -134,7 +196,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     if (key === 'Title') {
       renderTitle(deck, items, testi);
     } else if (key === 'Subject') {
-      renderSubject(deck, items, testi);
+      renderSubject(deck, items, testi, scena);
     } else if (key === 'Levels') {
       renderLevels(deck, items, testi);
     } else if (key === 'Settings') {
@@ -142,7 +204,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     } else if (key === 'Progress') {
       renderProgress(deck, items, testi);
     } else if (key === 'Game') {
-      renderGame(deck, items, testi);
+      renderGame(deck, items, testi, iconaUrl);
     } else if (key === 'Pause' || key === 'Results') {
       renderModalScene(deck, items, testi);
     }
@@ -152,21 +214,25 @@ export function initMobilePortrait(game: Phaser.Game): void {
 
   window.addEventListener('resize', aggiorna);
   window.addEventListener('orientationchange', aggiorna);
-  window.setInterval(aggiorna, 120);
+  window.setInterval(aggiorna, 100);
   aggiorna();
 }
 
 function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]): void {
   const card = document.createElement('div');
-  card.className = 'm-card';
+  card.className = 'm-card m-card-title';
 
-  const info = testi.find((t) => t.text.startsWith('Classe:'));
-  if (info) {
-    const pill = document.createElement('div');
-    pill.className = 'm-pill';
-    pill.textContent = info.text;
-    card.appendChild(pill);
-  }
+  // Badge superiore stile Wii Sports
+  const badgeTop = document.createElement('div');
+  badgeTop.className = 'm-wii-tag';
+  badgeTop.textContent = '★ WII SPORTS EDU EDITION ★';
+  card.appendChild(badgeTop);
+
+  // Titolo principale unico (non duplicato)
+  const titleEl = document.createElement('h1');
+  titleEl.className = 'm-game-title';
+  titleEl.textContent = GAME_NAME;
+  card.appendChild(titleEl);
 
   const sub = testi.find((t) => t.text.includes('Scegli la materia'));
   if (sub) {
@@ -174,6 +240,24 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
     p.className = 'm-sub';
     p.textContent = sub.text;
     card.appendChild(p);
+  }
+
+  // Icone decorative delle 4 materie in fila
+  const iconsRow = document.createElement('div');
+  iconsRow.className = 'm-sport-badges';
+  iconsRow.innerHTML =
+    '<span class="m-sport-dot" title="Matematica">📐</span>' +
+    '<span class="m-sport-dot" title="Italiano">📖</span>' +
+    '<span class="m-sport-dot" title="Scienze">🔬</span>' +
+    '<span class="m-sport-dot" title="Storia">🏛️</span>';
+  card.appendChild(iconsRow);
+
+  const info = testi.find((t) => t.text.startsWith('Classe:'));
+  if (info) {
+    const pill = document.createElement('div');
+    pill.className = 'm-pill';
+    pill.textContent = info.text;
+    card.appendChild(pill);
   }
 
   const gioca = items.find((i) => i.label() === 'Gioca');
@@ -197,7 +281,12 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
   deck.appendChild(card);
 }
 
-function renderSubject(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]): void {
+function renderSubject(
+  deck: HTMLElement,
+  items: MobileItem[],
+  testi: TextEntry[],
+  scena: Phaser.Scene | null
+): void {
   const card = document.createElement('div');
   card.className = 'm-card';
 
@@ -236,10 +325,22 @@ function renderSubject(deck: HTMLElement, items: MobileItem[], testi: TextEntry[
   });
   card.appendChild(grid);
 
+  const bottomRow = document.createElement('div');
+  bottomRow.className = 'm-grid-2';
   const tappe = items.find((i) => i.label() === 'Tutte le tappe');
   if (tappe) {
-    card.appendChild(creaBtnDom(tappe, 'm-btn-secondary'));
+    bottomRow.appendChild(creaBtnDom(tappe, 'm-btn-secondary'));
   }
+  const homeBtn = document.createElement('button');
+  homeBtn.type = 'button';
+  homeBtn.className = 'm-btn m-btn-secondary';
+  homeBtn.textContent = 'Torna al titolo';
+  homeBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    scena?.scene.start('Title');
+  });
+  bottomRow.appendChild(homeBtn);
+  card.appendChild(bottomRow);
 
   deck.appendChild(card);
 }
@@ -290,7 +391,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   const toggles = items.filter((i) => i.kind === 'toggle');
   const buttons = items.filter((i) => i.kind === 'button');
 
-  // Sottopagina Regole una per una (22 toggle)
   if (toggles.length > 5) {
     const h = document.createElement('div');
     h.className = 'm-header';
@@ -321,7 +421,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     return;
   }
 
-  // Sottopagina Anno scolastico e difficoltà
   if (toggles.length === 1) {
     const h = document.createElement('div');
     h.className = 'm-header';
@@ -381,7 +480,11 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     return;
   }
 
-  // Pagina principale Impostazioni
+  const h = document.createElement('div');
+  h.className = 'm-header';
+  h.textContent = 'Impostazioni';
+  card.appendChild(h);
+
   const navTop = document.createElement('div');
   navTop.className = 'm-grid-3';
   ['Torna al titolo', 'Anno scolastico', 'Regole una per una'].forEach((lbl) => {
@@ -390,7 +493,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(navTop);
 
-  // Modalità e Grafica
   const modeRow = document.createElement('div');
   modeRow.className = 'm-grid-4';
   ['Quiz (bottoni)', 'Runner (cartelli)', '2D', '3D'].forEach((lbl) => {
@@ -399,7 +501,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(modeRow);
 
-  // Selezione rapida Classe (1ª P .. 3ª M)
   const classi = buttons.filter((b) => Math.abs(b.y() - 452) < 15);
   if (classi.length > 0) {
     const lbl = document.createElement('div');
@@ -412,7 +513,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     card.appendChild(cg);
   }
 
-  // Profili BES
   const profili = buttons.filter((b) => b.y() >= 210 && b.y() <= 415);
   const nessuno = buttons.find((b) => b.label() === 'Nessun profilo');
   if (profili.length > 0) {
@@ -487,9 +587,24 @@ function renderModalScene(deck: HTMLElement, items: MobileItem[], testi: TextEnt
   deck.appendChild(card);
 }
 
-function renderGame(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]): void {
+function renderGame(
+  deck: HTMLElement,
+  items: MobileItem[],
+  testi: TextEntry[],
+  iconaUrl: string | null
+): void {
   const card = document.createElement('div');
   card.className = 'm-card';
+
+  // Intestazione tappa + contatore
+  const headerTappa = testi.find((t) => Math.abs(t.y - 20) < 12 && t.x < 650);
+  const contatore = testi.find((t) => t.text.startsWith('Prova '));
+  if (headerTappa || contatore) {
+    const topMeta = document.createElement('div');
+    topMeta.className = 'm-pill';
+    topMeta.textContent = [headerTappa?.text, contatore?.text].filter(Boolean).join(' · ');
+    card.appendChild(topMeta);
+  }
 
   // Domanda (prompt) e indizio
   const prompt = testi.find((t) => Math.abs(t.y - 66) < 20);
@@ -509,6 +624,17 @@ function renderGame(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]):
       pBox.appendChild(creaBtnDom(rileggi, 'm-btn-compact m-btn-secondary'));
     }
     card.appendChild(pBox);
+  }
+
+  if (iconaUrl) {
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'm-icon-wrap';
+    const img = document.createElement('img');
+    img.src = iconaUrl;
+    img.alt = 'Immagine della domanda';
+    img.className = 'm-round-icon';
+    imgWrap.appendChild(img);
+    card.appendChild(imgWrap);
   }
 
   if (hint) {
@@ -547,7 +673,6 @@ function renderGame(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]):
     const destre = chips.filter((c) => Math.abs(c.x() - 748) < 25).sort((a, b) => a.y() - b.y());
 
     if (sinistre.length > 0 && destre.length === sinistre.length) {
-      // Abbinamento (MatchChallenge)
       const instr = document.createElement('div');
       instr.className = 'm-sub';
       instr.textContent = 'Tocca un elemento a sinistra e poi il suo compagno a destra:';
@@ -561,7 +686,6 @@ function renderGame(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]):
       }
       card.appendChild(matchGrid);
     } else {
-      // Riordino / Sequenza (OrderChallenge)
       const inSlot = chips.filter((c) => c.y() < 300).sort((a, b) => a.x() - b.x());
       const inPool = chips.filter((c) => c.y() >= 300).sort((a, b) => a.x() - b.x());
 

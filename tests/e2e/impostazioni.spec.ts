@@ -278,10 +278,27 @@ test.describe('Impostazioni BES', () => {
     await page.goto('/');
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
 
-    // L'avviso "ruota il telefono" deve essere nascosto e #mobile-deck visibile
+    // L'avviso "ruota il telefono" deve essere nascosto e #mobile-deck visibile a tutto schermo (non diviso a metà)
     await expect(page.locator('#ruota')).toBeHidden();
     const deck = page.locator('#mobile-deck');
     await expect(deck).toBeVisible();
+    const deckBox = await deck.boundingBox();
+    expect(deckBox).not.toBeNull();
+    expect(deckBox!.y).toBe(0);
+    expect(deckBox!.height).toBe(844);
+
+    // Verifica che la UI Phaser duplicata (depth > -13) sia nascosta (alpha <= 0.01) mentre il mondo animato resta visibile
+    const visibilitaCanvas = await page.evaluate(() => {
+      const g = (window as unknown as {
+        __GIOCO__?: { scenaAttiva?: { children: { list: Array<{ depth?: number; alpha?: number }> } } | null };
+      }).__GIOCO__;
+      const list = g?.scenaAttiva?.children.list ?? [];
+      const uiVisibili = list.filter((c) => (c.depth ?? 0) > -13 && (c.alpha ?? 1) > 0.05).length;
+      const mondoVisibili = list.filter((c) => (c.depth ?? 0) <= -13 && (c.alpha ?? 1) > 0.5).length;
+      return { uiVisibili, mondoVisibili };
+    });
+    expect(visibilitaCanvas.uiVisibili).toBe(0);
+    expect(visibilitaCanvas.mondoVisibili).toBeGreaterThan(0);
 
     // Dal pannello mobile tocchiamo "Impostazioni", scegliamo una classe e torniamo al titolo
     await deck.getByRole('button', { name: 'Impostazioni' }).click();
