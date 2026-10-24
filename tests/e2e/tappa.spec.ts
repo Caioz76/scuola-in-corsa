@@ -58,7 +58,7 @@ async function testi(page: import('@playwright/test').Page): Promise<Testo[]> {
 }
 
 async function tocco(page: import('@playwright/test').Page, x: number, y: number, attesa = 650) {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box, 'il canvas deve essere visibile').not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
   await page.waitForTimeout(attesa);
@@ -98,7 +98,7 @@ test.describe('Tappa completa', () => {
   test('si gioca una tappa intera e si arriva ai risultati con le stelle', async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     const iniziale = await stato(page);
     test.skip(iniziale.scena === null, 'Il motore non espone window.__GIOCO__.');

@@ -1,4 +1,4 @@
-# RIPRESA — stato al 24/10/2026, 04:20
+# RIPRESA — stato al 24/10/2026, 05:45
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -9,7 +9,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
 | `npm test` (vitest) | **39/39** |
-| `npx playwright test` | **26/26** |
+| `npx playwright test` | **30/30** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
@@ -20,11 +20,12 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
 | Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | Modalità di gioco | **Quiz** (bottoni) o **Runner** (cartelli sulla pista), scelta in Impostazioni |
+| Grafica | **2D** o **3D** (terza persona, Three.js), scelta separata dalla modalità |
 | Telefono | layout a tutto schermo senza scroll; in verticale invita a ruotare; provato su iPhone 13 emulato |
 | Pubblicazione | **https://caioz76.github.io/scuola-in-corsa/** — GitHub Pages, aggiornata a ogni push su `main` |
 | Progressi | dal titolo: stelle di ogni tappa e totale, senza rigiocare |
 | Mondo di gioco | scenografia parallax per materia, Pico che corre, pista con checkpoint |
-| `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
+| `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio, treD }` |
 
 Ultimo commit di codice: leggi `git log -1 --oneline` (un hash scritto a mano
 invecchia subito).
@@ -42,7 +43,8 @@ src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
 src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
 src/scenes/settings.ts  9 profili BES + 19 regole singole, salvataggio immediato
 src/scenes/progress.ts  stelle per tappa + ultima partita (solo per l'insegnante)
-src/art/world.ts        scenografia, Pico, pista e checkpoint (livello visivo)
+src/art/world.ts        scenografia, Pico, pista e checkpoint (livello visivo 2D)
+src/art/three-world.ts  mondo 3D in terza persona (Three.js) e cancello toccabile
 src/art/backgrounds.ts  cieli/colline delle materie (texture in Boot)
 src/art/pico.ts         frame di Pico (idle, corsa, salto, festa)
 src/core/settings.ts    loadSettings/saveSettings su localStorage (+ evento)
@@ -162,6 +164,36 @@ bottoni con i cartelli, il salto di Pico verso la risposta giusta,
 `fewerOptions` → 2 cartelli e che tre errori non blocchino la corsa.
 `tests/e2e/tappa.spec.ts` continua a giocare una tappa intera in modalità Quiz.
 
+### Grafica 2D e 3D, scelta separata (24/10)
+
+In **Impostazioni → Grafica: 2D / 3D** si sceglie come si vede il gioco. È una
+scelta indipendente da Quiz/Runner: si può giocare Quiz o Runner in entrambe.
+Sta in `sic.settings.graphics` (default `2d`), normalizzata in
+`src/core/settings.ts`.
+
+- **2D** — il side-scroller disegnato con Phaser (`src/art/world.ts`).
+- **3D** — un canvas Three.js sotto l'interfaccia (`src/art/three-world.ts`):
+  Pico di spalle, camera in terza persona che lo segue, pista con cordoli che
+  scorrono, prato a strisce, alberi, sassi, fiori, nuvole, sole con alone.
+  Il canvas 3D copre tutto lo schermo (anche i telefoni più larghi di 16:9);
+  Phaser resta sopra, trasparente, e continua a gestire input, testi e prove.
+
+In **Runner 3D** la domanda è un cancello Three.js con pannelli disegnati su
+canvas: arriva da davanti, frena e si ferma. I pannelli si toccano con un
+raycast sul canvas Phaser; la risposta giusta li illumina, Pico salta, parte
+un burst di stelline e il cancello esce di lato. In **Quiz 3D** i bottoni
+restano l'interfaccia Phaser: il 3D è il mondo, non un modo diverso di
+rispondere. Riordino e abbinamento restano 2D e fermano il mondo.
+
+Regole BES: con **alto contrasto** il 3D si spegne e si torna al 2D (fondo
+chiaro uniforme e testi neri); con **riduci i movimenti** il mondo resta fermo
+e il cancello si presenta subito; `noDecoration` toglie la scenografia.
+
+`tests/e2e/runner.spec.ts` verifica che in 3D il cancello arrivi, che un tocco
+sbagliato venga registrato senza cambiare domanda, che quello giusto porti al
+cancello successivo, che il Quiz 3D mostri i bottoni e che l'alto contrasto
+spenga il canvas 3D.
+
 ### Telefono e pubblicazione (24/10)
 
 - `src/style.css`: il gioco occupa tutto lo schermo, niente scroll né zoom;
@@ -178,9 +210,10 @@ build è un solo `index.html`, quindi funziona anche sotto `/<repo>/`.
 Il repository è **pubblico**: https://github.com/Caioz76/scuola-in-corsa
 Il gioco è online: **https://caioz76.github.io/scuola-in-corsa/**
 
-Ultimo deploy verificato (24/10): workflow verde in 30 s, sito raggiungibile,
-prova da iPhone 13 emulato in landscape (Impostazioni → Runner → partita con 4
-cartelli), nessun errore console.
+Ultimo deploy verificato (24/10): workflow verde, sito raggiungibile, prova da
+iPhone 13 emulato in landscape (Impostazioni → Runner → 3D → partita con 4
+cartelli), nessun errore console. Anche la build single-file è stata provata in
+3D: Three.js è dentro l'unico `index.html` (1,86 MB, 489 kB gzip).
 
 Per aggiornare il sito basta `git push origin main`. Se il workflow fallisce,
 GitHub non tocca l'ultima versione pubblicata.

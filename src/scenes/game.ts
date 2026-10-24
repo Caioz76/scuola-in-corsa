@@ -8,6 +8,7 @@ import { showBanner, makeText, makeButton } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld, themeFor } from '../art/world';
+import { add3DWorld } from '../art/three-world';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -37,12 +38,22 @@ export class GameScene extends Phaser.Scene {
 
     // Il mondo: scenografia della materia, pista e Pico che corre.
     // I checkpoint in basso sono le prove della tappa.
-    // In modalità Runner Pico non avanza da solo: salta lui verso i cartelli.
-    const world = addWorld(this, themeFor(pack.subject), cfg, {
-      track: true,
-      speed: 38,
-      advance: mode === 'quiz'
-    });
+    // In modalità Runner è un side-scroller: Pico corre di profilo, il mondo
+    // scorre e i cartelli arrivano da destra. In Quiz Pico avanza da solo.
+    // Con la grafica 3D il mondo è Three.js (terza persona); l'interfaccia
+    // delle prove resta Phaser, sopra.
+    const runner = mode === 'runner';
+    const treD = (impostazioni.graphics ?? '2d') === '3d' && !cfg.highContrast;
+    const world = treD
+      ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? 480 : 38)
+      : addWorld(this, themeFor(pack.subject), cfg, {
+          track: true,
+          speed: runner ? 480 : 38,
+          advance: !runner,
+          sidePico: runner,
+          picoX: runner ? 110 : 66,
+          props: runner
+        });
     world.setProgress(0, level.rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
@@ -86,15 +97,20 @@ export class GameScene extends Phaser.Scene {
         contatore.setText(`Prova ${index + 1} di ${level.rounds.length}`);
       }
       const round: Round = level.rounds[index];
+      const scelta = round.type === 'quiz' || round.type === 'image';
+      // In Runner il mondo si ferma per le prove che non sono una corsa
+      // (riordino, abbinamento): lì si tocca e si trascina, non si corre.
+      if (runner) world.setSpeed(scelta ? 480 : 0);
       // Le prove a opzioni hanno i bottoni in basso: il feedback va sopra.
-      const bannerY = round.type === 'quiz' || round.type === 'image' ? 186 : 468;
+      const bannerY = scelta ? 186 : 468;
       let errori = 0;
       current = showChallenge(this, round, cfg, {
         onCorrect: () => {
           correct += 1;
           index += 1;
           outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
-          world.dash();
+          if (runner) world.setSpeed(560);
+          else world.dash();
           world.setProgress(index, level.rounds.length);
           const ok = showBanner(this, cfg, 'Giusto!', null, 'ok', { y: bannerY });
           this.time.delayedCall(900 * ritmo, () => {

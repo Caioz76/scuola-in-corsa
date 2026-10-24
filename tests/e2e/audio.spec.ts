@@ -33,7 +33,7 @@ async function attendiTitolo(page: import('@playwright/test').Page) {
 }
 
 async function tocco(page: import('@playwright/test').Page) {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
 }

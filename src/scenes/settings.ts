@@ -55,7 +55,7 @@ export class SettingsScene extends Phaser.Scene {
       return;
     }
 
-    makeText(this, w / 2, 40, 'Impostazioni', cfg, {
+    makeText(this, w / 2, 34, 'Impostazioni', cfg, {
       size: 30,
       bold: true,
       color: '#1d6fb8',
@@ -63,11 +63,11 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
-    makeText(this, w / 2, 76, 'Scegli un profilo: le regole si applicano subito a tutto il gioco.', cfg, {
+    makeText(this, w / 2, 64, 'Scegli un profilo: le regole si applicano subito a tutto il gioco.', cfg, {
       size: 15,
       color: '#5f7186'
     });
-    makeText(this, w / 2, 106, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
+    makeText(this, w / 2, 90, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
       size: 15,
       color: scelto ? '#1f8a4c' : '#8a99ad',
       wrap: 820
@@ -75,7 +75,7 @@ export class SettingsScene extends Phaser.Scene {
 
     // ── Modalità di gioco (scelta di prodotto, non regola BES) ──
     const mode = impostazioni.mode ?? 'quiz';
-    makeText(this, 300, 148, 'Modalità:', cfg, {
+    makeText(this, 280, 126, 'Modalità:', cfg, {
       size: 15,
       bold: true,
       color: '#2f3b4c'
@@ -86,7 +86,7 @@ export class SettingsScene extends Phaser.Scene {
         ['runner', 'Runner (cartelli)', 664]
       ] as const
     ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 148, label, { scale: 0.55, depth: 10 });
+      const b = makeButton(this, cfg, x, 126, label, { scale: 0.5, depth: 10 });
       if (mode === id) b.setKind('correct');
       b.onTap(() => {
         if (mode === id) return;
@@ -95,9 +95,31 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
+    // ── Grafica (indipendente dalla modalità: Quiz e Runner in 2D o 3D) ──
+    const grafica = impostazioni.graphics ?? '2d';
+    makeText(this, 280, 168, 'Grafica:', cfg, {
+      size: 15,
+      bold: true,
+      color: '#2f3b4c'
+    });
+    (
+      [
+        ['2d', '2D', 448],
+        ['3d', '3D', 664]
+      ] as const
+    ).forEach(([id, label, x]) => {
+      const b = makeButton(this, cfg, x, 168, label, { scale: 0.5, depth: 10 });
+      if (grafica === id) b.setKind('correct');
+      b.onTap(() => {
+        if (grafica === id) return;
+        saveSettings({ ...impostazioni, graphics: id });
+        this.scene.restart();
+      });
+    });
+
     // Griglia 3×3: 9 profili, bottoni larghi abbastanza per le etichette lunghe.
     const xs = [200, 512, 824];
-    const ys = [218, 306, 394];
+    const ys = [232, 314, 396];
     BES_PROFILES.forEach((p, i) => {
       const b = makeButton(this, cfg, xs[i % 3], ys[Math.floor(i / 3)], p.label, {
         scale: 0.9,

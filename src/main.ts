@@ -12,6 +12,7 @@ import { ProgressScene } from './scenes/progress';
 import { getMateria } from './scenes/shared';
 import { initAudio } from './audio/apply';
 import { synth } from './audio/synth';
+import { stato3D, type Stato3D } from './art/three-world';
 
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
@@ -21,6 +22,9 @@ const game = new Phaser.Game({
   width: 1024,
   height: 576,
   parent: 'game',
+  // Trasparente: quando c'è il mondo 3D (canvas Three.js sotto), Phaser deve
+  // lasciar vedere il 3D. In 2D il fondo è coperto dalla scenografia o dal body.
+  transparent: true,
   backgroundColor: '#eaf6ff',
   scale: {
     mode: Phaser.Scale.FIT,
@@ -39,6 +43,7 @@ const g = window as unknown as {
     materia: string | null;
     scenaAttiva: Phaser.Scene | null;
     audio: { sfx: boolean; music: boolean; running: boolean; musicPlaying: boolean };
+    treD: Stato3D;
   };
 };
 
@@ -67,5 +72,10 @@ g.__GIOCO__ = {
       running: synth.running,
       musicPlaying: synth.musicPlaying
     };
+  },
+  // Stato del mondo 3D (se attivo): posizione del cancello, pannelli, arrivo.
+  // Come gli altri getter, legge il valore al momento della richiesta.
+  get treD(): Stato3D {
+    return stato3D();
   }
 };

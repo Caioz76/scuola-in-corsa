@@ -51,17 +51,26 @@ export interface EffectiveConfig {
  */
 export type GiocoMode = 'quiz' | 'runner';
 
+/**
+ * Come si vede il gioco: `2d` (disegno laterale) o `3d` (terza persona).
+ * È indipendente dalla modalità: si può giocare Quiz o Runner in entrambe.
+ */
+export type Grafica = '2d' | '3d';
+
 export interface BesSettings {
   profileId: string | null;
   overrides: Record<string, boolean>;
   /** Modalità scelta; se assente vale `quiz`. */
   mode?: GiocoMode;
+  /** Grafica scelta; se assente vale `2d`. */
+  graphics?: Grafica;
 }
 
 export const DEFAULT_SETTINGS: BesSettings = {
   profileId: null,
   overrides: {},
-  mode: 'quiz'
+  mode: 'quiz',
+  graphics: '2d'
 };
 
 export function resolveConfig(settings: BesSettings): EffectiveConfig {

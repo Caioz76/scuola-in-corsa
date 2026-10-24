@@ -37,7 +37,7 @@ const MAT: Pack = {
         },
         {
           id: 'mat-2', type: 'quiz',
-          prompt: 'Quale numero manca?  14, 15, __, 17',
+          prompt: 'Quale numero manca? 14, 15, __, 17',
           options: [
             { label: '16', correct: true },
             { label: '18', correct: false },
@@ -48,7 +48,7 @@ const MAT: Pack = {
         },
         {
           id: 'mat-3', type: 'quiz',
-          prompt: 'Marta ha 9 figurine e ne trova 4 in più. Quante figurine ha adesso?',
+          prompt: 'Marta ha 9 figurine e ne trova altre 4. Quante figurine ha adesso?',
           options: [
             { label: '13', correct: true },
             { label: '12', correct: false },
@@ -105,7 +105,7 @@ const MAT: Pack = {
         },
         {
           id: 'mat-l2-2', type: 'quiz',
-          prompt: 'Quanto fa 17 - 5?',
+          prompt: 'Quanto fa 17 − 5?',
           options: [
             { label: '11', correct: false },
             { label: '12', correct: true },
@@ -127,7 +127,7 @@ const MAT: Pack = {
         },
         {
           id: 'mat-l2-4', type: 'quiz',
-          prompt: 'Luca ha 9 biglie rosse e ne riceve altre 5 blu: quante biglie ha in tutto?',
+          prompt: 'Luca ha 9 biglie rosse e riceve 5 biglie blu. Quante biglie ha in tutto?',
           options: [
             { label: '14', correct: true },
             { label: '13', correct: false },
@@ -141,11 +141,11 @@ const MAT: Pack = {
           prompt: 'Metti questi quattro numeri in ordine dal più piccolo al più grande.',
           sortItems: ['4', '9', '14', '19'],
           hint: 'Guarda prima le decine e inizia dal numero più piccolo.',
-          explanation: "L'ordine crescente corretto parte da 4 e sale fino a 19."
+          explanation: "L'ordine è 4, 9, 14, 19."
         },
         {
           id: 'mat-l2-6', type: 'sequence', direction: 'tap',
-          prompt: 'Tocca i tre passi del conteggio di 5 in 5 nell\'ordine giusto.',
+          prompt: 'Tocca i numeri in ordine, contando di 5 in 5.',
           items: ['5', '10', '15'],
           hint: 'Parti dal numero più piccolo e aggiungi sempre 5 a ogni passo.',
           explanation: 'Contando di 5 in 5 in ordine crescente troviamo 5, 10 e 15.'
@@ -228,9 +228,9 @@ const ITA: Pack = {
         {
           id: 'ita-6', type: 'sequence', direction: 'tap',
           prompt: 'Metti in ordine le tappe della giornata, dalla mattina alla sera.',
-          items: ['Sveglio', 'Colazione', 'Scuola', 'Merenda', 'Sonno'],
+          items: ['Mi sveglio', 'Colazione', 'Scuola', 'Merenda', 'Dormo'],
           hint: 'Prima ci si sveglia, poi si fa colazione.',
-          explanation: 'L\'ordine è: sveglio, colazione, scuola, merenda, sonno.'
+          explanation: 'L\'ordine è: mi sveglio, colazione, scuola, merenda, dormo.'
         }
       ]
     },
@@ -274,7 +274,7 @@ const ITA: Pack = {
         },
         {
           id: 'ita-l2-4', type: 'quiz',
-          prompt: 'Quale parola completa in modo adatto la frase «Quando piove apro ... per non bagnarmi»?',
+          prompt: 'Quale parola completa la frase «Quando piove apro ... per non bagnarmi»?',
           options: [
             { label: "l'ombrello", correct: true },
             { label: "l'orologio", correct: false },
@@ -332,7 +332,7 @@ const SCI: Pack = {
           options: [
             { label: 'Il Sole', correct: true },
             { label: 'La Luna', correct: false },
-            { label: 'Una stella', correct: false }
+            { label: 'Marte', correct: false }
           ],
           hint: 'È una stella, la più vicina a noi.',
           explanation: 'Il Sole è la stella che riscalda la Terra.'
@@ -400,7 +400,7 @@ const STO: Pack = {
       rounds: [
         {
           id: 'sto-1', type: 'quiz',
-          prompt: 'In quale civiltà sono stati costruiti i Faraoni?',
+          prompt: 'In quale civiltà vivevano i faraoni?',
           options: [
             { label: 'Egitto', correct: true },
             { label: 'Grecia', correct: false },
@@ -430,17 +430,17 @@ const STO: Pack = {
         },
         {
           id: 'sto-4', type: 'sequence', direction: 'tap',
-          prompt: 'Metti in ordine: come arrivava la notizia nell\'antichità?',
-          items: ['Cade una moneta', 'Si scrive un messaggio', 'Un araldo lo porta', 'Si annuncia a voce'],
-          hint: 'Prima si deve sapere la notizia.',
-          explanation: "L'ordine è: cade la moneta (accade l'evento), si scrive, l'araldo lo porta, si annuncia."
+          prompt: 'Metti in ordine come veniva diffusa una notizia nell\'antichità.',
+          items: ['Accade un fatto', 'Si scrive il messaggio', 'L\'araldo parte', 'La notizia viene annunciata'],
+          hint: 'Prima accade il fatto, poi si scrive il messaggio.',
+          explanation: "L'ordine è: accade il fatto, si scrive il messaggio, l'araldo parte, la notizia viene annunciata."
         },
         {
           id: 'sto-5', type: 'dragdrop', mode: 'sort',
           prompt: 'Metti in ordine le tappe della costruzione di una città romana.',
-          sortItems: ['Si sceglie il luogo', 'Si costruiscono le mura', 'Si alzano le case', 'Si apre il foro'],
+          sortItems: ['Si sceglie il luogo', 'Si costruiscono le mura', 'Si alzano le case', 'Si costruisce il foro'],
           hint: 'Prima si sceglie dove costruire.',
-          explanation: "L'ordine è: luogo, mura, case, foro."
+          explanation: "L'ordine è: si sceglie il luogo, si costruiscono le mura, si alzano le case, si costruisce il foro."
         },
         {
           id: 'sto-6', type: 'quiz',

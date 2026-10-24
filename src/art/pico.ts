@@ -129,4 +129,111 @@ export function ensurePico(scene: Phaser.Scene): void {
   make('pico-cheer', { wheelAngle: 0, tilt: 0, armsUp: true, blink: false, mouth: 'open' });
   make('pico-blink', { wheelAngle: 0, tilt: 0, armsUp: false, blink: true, mouth: 'smile' });
   make('pico-think', { wheelAngle: 0, tilt: 0.05, armsUp: false, blink: false, mouth: 'o' });
+  ensurePicoSide(scene);
+}
+
+/** Pico di profilo, per la corsa: una ruota, visiera frontale e braccio. */
+interface SideOpts {
+  wheelAngle: number;
+  tilt: number;
+  arm: 'down' | 'forward' | 'back' | 'up';
+}
+
+function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): void {
+  const u = S / 96;
+  // ombra a terra (non si inclina con il corpo)
+  ctx.fillStyle = 'rgba(59,74,90,0.16)';
+  ctx.beginPath(); ctx.ellipse(50 * u, 91 * u, 28 * u, 4.5 * u, 0, 0, 7); ctx.fill();
+
+  // Si inclina sulla ruota, come chi spinge in avanti.
+  ctx.save();
+  ctx.translate(46 * u, 78 * u);
+  ctx.rotate(o.tilt);
+  ctx.translate(-46 * u, -78 * u);
+
+  // zaino (dietro al corpo)
+  ctx.fillStyle = C.blueDeep;
+  ctx.beginPath(); ctx.roundRect(9 * u, 38 * u, 15 * u, 24 * u, 5 * u); ctx.fill();
+  ctx.fillStyle = C.blue;
+  ctx.beginPath(); ctx.roundRect(11 * u, 40 * u, 10 * u, 19 * u, 4 * u); ctx.fill();
+
+  // ruota
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.arc(46 * u, 78 * u, 12 * u, 0, 7); ctx.fill();
+  ctx.fillStyle = C.gray;
+  ctx.beginPath(); ctx.arc(46 * u, 78 * u, 7.5 * u, 0, 7); ctx.fill();
+  ctx.strokeStyle = C.grayDeep;
+  ctx.lineWidth = 2.2 * u;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(46 * u + Math.cos(o.wheelAngle) * 6 * u, 78 * u + Math.sin(o.wheelAngle) * 6 * u);
+  ctx.lineTo(46 * u - Math.cos(o.wheelAngle) * 6 * u, 78 * u - Math.sin(o.wheelAngle) * 6 * u);
+  ctx.stroke();
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.arc(46 * u, 78 * u, 2 * u, 0, 7); ctx.fill();
+
+  // braccio (dietro o davanti al corpo, a seconda del passo)
+  const ang = o.arm === 'forward' ? 1.15 : o.arm === 'back' ? -1.05 : o.arm === 'up' ? -2.2 : 0.15;
+  ctx.save();
+  ctx.translate(66 * u, 50 * u);
+  ctx.rotate(ang);
+  ctx.fillStyle = C.picoDark;
+  ctx.beginPath(); ctx.roundRect(-4.5 * u, -2 * u, 9 * u, 21 * u, 4.5 * u); ctx.fill();
+  ctx.restore();
+
+  // corpo
+  ctx.fillStyle = C.ink;
+  ctx.beginPath(); ctx.roundRect(19 * u, 26 * u, 55 * u, 47 * u, 15 * u); ctx.fill();
+  ctx.fillStyle = C.pico;
+  ctx.beginPath(); ctx.roundRect(22 * u, 29 * u, 49 * u, 41 * u, 12 * u); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.32)';
+  ctx.beginPath(); ctx.roundRect(26 * u, 32 * u, 40 * u, 11 * u, 6 * u); ctx.fill();
+
+  // visiera frontale (guarda a destra)
+  ctx.fillStyle = '#bfe6ff';
+  ctx.beginPath(); ctx.roundRect(49 * u, 35 * u, 23 * u, 19 * u, 8 * u); ctx.fill();
+  // occhio
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(61 * u, 44 * u, 5.2 * u, 0, 7); ctx.fill();
+  ctx.fillStyle = C.picoEye;
+  ctx.beginPath(); ctx.arc(62.4 * u, 44.6 * u, 2.8 * u, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(61 * u, 42.6 * u, 1.1 * u, 0, 7); ctx.fill();
+
+  // bocca e guancia
+  ctx.strokeStyle = C.picoEye;
+  ctx.lineWidth = 2 * u;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(56 * u, 57 * u);
+  ctx.quadraticCurveTo(61 * u, 60 * u, 66 * u, 56 * u);
+  ctx.stroke();
+  ctx.fillStyle = C.picoCheek;
+  ctx.beginPath(); ctx.ellipse(52 * u, 55 * u, 2.6 * u, 1.8 * u, 0, 0, 7); ctx.fill();
+
+  // antenna
+  ctx.strokeStyle = C.picoDark;
+  ctx.lineWidth = 3 * u;
+  ctx.beginPath(); ctx.moveTo(38 * u, 26 * u); ctx.lineTo(35 * u, 14 * u); ctx.stroke();
+  ctx.fillStyle = C.orange;
+  ctx.beginPath(); ctx.arc(35 * u, 11 * u, 4 * u, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.arc(33.8 * u, 9.8 * u, 1.3 * u, 0, 7); ctx.fill();
+
+  ctx.restore();
+}
+
+/** Frame di Pico di profilo (modalità Runner). */
+export function ensurePicoSide(scene: Phaser.Scene): void {
+  const make = (key: string, o: SideOpts): void => {
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const cv = scene.textures.createCanvas(key, 96, 96);
+    if (!cv) return;
+    drawPicoSide(cv.getContext(), 96, o);
+    cv.refresh();
+  };
+  make('pico-side-idle', { wheelAngle: 0, tilt: 0, arm: 'down' });
+  make('pico-side1', { wheelAngle: 0.5, tilt: -0.04, arm: 'forward' });
+  make('pico-side2', { wheelAngle: 2.3, tilt: 0.05, arm: 'back' });
+  make('pico-side-jump', { wheelAngle: 1.2, tilt: -0.14, arm: 'up' });
 }

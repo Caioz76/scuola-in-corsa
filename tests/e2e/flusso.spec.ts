@@ -32,7 +32,7 @@ async function tocco(
   x: number,
   y: number
 ): Promise<void> {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box, 'il canvas deve essere visibile').not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
 }
@@ -40,7 +40,7 @@ async function tocco(
 test.describe('Flusso di gioco', () => {
   test('il gioco parte dalla schermata di titolo', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     const { scena } = await statoGioco(page);
     test.skip(scena === null, 'Il motore non espone window.__GIOCO__.');
@@ -50,7 +50,7 @@ test.describe('Flusso di gioco', () => {
 
   test('si può scegliere una materia e la partita comincia', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     const { scena } = await statoGioco(page);
     test.skip(scena === null, 'In attesa che il motore esponga lo stato delle scene.');
@@ -68,7 +68,7 @@ test.describe('Flusso di gioco', () => {
 
   test('il progresso viene salvato in localStorage', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     /* Il salvataggio è gestito da src/core/storage.ts. Anche senza completare
      * una tappa, verifichiamo che localStorage sia accessibile e non contenga

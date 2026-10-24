@@ -18,7 +18,7 @@ test.describe('Avvio del gioco', () => {
     await page.goto('/');
 
     /* Aspetta che il canvas sia creato da Phaser. */
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     expect(errori, `Errori JS alla pagina:\n${errori.join('\n')}`).toEqual([]);
   });
@@ -36,7 +36,7 @@ test.describe('Avvio del gioco', () => {
   test('il canvas viene creato da Phaser con dimensioni non nulle', async ({ page }) => {
     await page.goto('/');
 
-    const canvas = page.locator('canvas');
+    const canvas = page.locator('#game canvas');
     await expect(canvas).toBeVisible();
 
     const box = await canvas.boundingBox();

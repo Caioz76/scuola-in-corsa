@@ -86,7 +86,7 @@ async function testi(page: import('@playwright/test').Page): Promise<Array<{ tex
 }
 
 async function tocco(page: import('@playwright/test').Page, x: number, y: number, attesa = 650) {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box, 'il canvas deve essere visibile').not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
   await page.waitForTimeout(attesa);
@@ -159,8 +159,8 @@ test('risposta giusta: Pico salta (il mondo reagisce alla prova)', async ({ page
   expect(prima.pico).toMatch(/^pico-run[12]$/);
 
   await page.mouse.click(
-    (await page.locator('canvas').boundingBox())!.x + ((await page.locator('canvas').boundingBox())!.width * bottone!.x) / 1024,
-    (await page.locator('canvas').boundingBox())!.y + ((await page.locator('canvas').boundingBox())!.height * bottone!.y) / 576
+    (await page.locator('#game canvas').boundingBox())!.x + ((await page.locator('#game canvas').boundingBox())!.width * bottone!.x) / 1024,
+    (await page.locator('#game canvas').boundingBox())!.y + ((await page.locator('#game canvas').boundingBox())!.height * bottone!.y) / 576
   );
   await page.waitForTimeout(140);
 

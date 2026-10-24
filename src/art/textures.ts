@@ -178,6 +178,57 @@ function roundbtn(ctx: Ctx, s: number): void {
   ctx.beginPath(); ctx.ellipse(s / 2, s * 0.30, s * 0.30, s * 0.15, 0, 0, 7); ctx.fill();
 }
 
+/** Oggetti di bordo strada: danno la misura dello scorrimento. */
+function propsRow(ctx: Ctx, w: number, h: number): void {
+  // cespuglio
+  const bush = (x: number, s: number): void => {
+    ctx.fillStyle = '#5cc45c';
+    ctx.beginPath();
+    ctx.arc(x - 13 * s, h - 12 * s, 10 * s, 0, 7);
+    ctx.arc(x, h - 18 * s, 13 * s, 0, 7);
+    ctx.arc(x + 13 * s, h - 12 * s, 10 * s, 0, 7);
+    ctx.fill();
+    ctx.fillStyle = '#8fe08a';
+    ctx.beginPath();
+    ctx.arc(x - 8 * s, h - 20 * s, 7 * s, 0, 7);
+    ctx.arc(x + 6 * s, h - 22 * s, 8 * s, 0, 7);
+    ctx.fill();
+  };
+  // sasso
+  const stone = (x: number, s: number): void => {
+    ctx.fillStyle = '#c9d3e0';
+    ctx.beginPath(); ctx.ellipse(x, h - 9 * s, 14 * s, 9 * s, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#eef2f7';
+    ctx.beginPath(); ctx.ellipse(x - 3 * s, h - 12 * s, 7 * s, 4 * s, -0.3, 0, 7); ctx.fill();
+  };
+  // fiorellino
+  const flower = (x: number, s: number): void => {
+    ctx.strokeStyle = '#5cc45c';
+    ctx.lineWidth = 2.5 * s;
+    ctx.beginPath(); ctx.moveTo(x, h - 4 * s); ctx.lineTo(x, h - 18 * s); ctx.stroke();
+    ctx.fillStyle = '#ffa8c8';
+    for (let i = 0; i < 5; i++) {
+      const a = (Math.PI * 2 * i) / 5 - Math.PI / 2;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * 5 * s, h - 18 * s + Math.sin(a) * 5 * s, 3.4 * s, 0, 7);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#ffd93d';
+    ctx.beginPath(); ctx.arc(x, h - 18 * s, 3 * s, 0, 7); ctx.fill();
+  };
+  bush(52, 1);
+  stone(150, 0.9);
+  flower(238, 1);
+  bush(330, 0.75);
+  stone(404, 0.7);
+  flower(474, 0.85);
+  // ciuffi d'erba
+  ctx.fillStyle = '#7ccf72';
+  for (const x of [20, 108, 196, 288, 372, 448]) {
+    ctx.beginPath(); ctx.moveTo(x - 5, h); ctx.lineTo(x, h - 11); ctx.lineTo(x + 5, h); ctx.closePath(); ctx.fill();
+  }
+}
+
 /** Crea tutte le texture UI. Da chiamare una volta sola (Boot). */
 export function ensureUI(scene: Phaser.Scene): void {
   const make = (key: string, w: number, h: number, draw: (ctx: Ctx) => void): void => {
@@ -210,6 +261,8 @@ export function ensureUI(scene: Phaser.Scene): void {
       ctx.restore();
     }
   });
+  // propsRow: cespugli, sassi e fiori sul bordo della pista (modalità Runner)
+  make('propsRow', 512, 64, (ctx) => propsRow(ctx, 512, 64));
 }
 
 /** Crea le texture delle icone (id → texture `icon-{id}`) per le prove di riconoscimento. */

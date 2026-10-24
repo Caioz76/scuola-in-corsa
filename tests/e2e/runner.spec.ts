@@ -1,11 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
 
 /**
- * Modalità Runner: le prove a scelta non sono bottoni ma **cartelli** piantati
- * sulla pista. Questi test verificano fatti osservabili, non promesse:
+ * Modalità Runner: è un side-scroller. Pico corre di profilo, il mondo scorre,
+ * la domanda arriva come un **cancello** che frena davanti a lui. Questi test
+ * verificano fatti osservabili, non promesse:
  *  - la modalità si sceglie dalle Impostazioni e resta salvata (anche cambiando
  *    profilo, che è il punto in cui si perdeva);
- *  - in partita i cartelli sostituiscono i bottoni;
+ *  - in partita il cancello arriva da destra, la pista scorre e poi si ferma;
+ *  - i cartelli sostituiscono i bottoni e si toccano solo all'arrivo;
  *  - toccare il cartello giusto fa saltare Pico e porta alla prova dopo;
  *  - con "meno opzioni" i cartelli sono due;
  *  - dopo 3 errori la prova si sblocca lo stesso (mai bloccarsi).
@@ -30,6 +32,8 @@ interface Mondo {
   bottoni: number;
   pico: Pico;
   pista: number;
+  /** Centro del cancello, in coordinate di schermo. `null` se non c'è. */
+  cancello: number | null;
 }
 
 async function scena(page: Page): Promise<string | null> {
@@ -71,7 +75,7 @@ async function testi(page: Page): Promise<Testo[]> {
   });
 }
 
-/** Stato osservabile del mondo: cartelli, bottoni, Pico, scorrimento. */
+/** Stato osservabile del mondo: cancello, cartelli, bottoni, Pico, scorrimento. */
 async function mondo(page: Page): Promise<Mondo> {
   return page.evaluate(() => {
     const g = (window as unknown as {
@@ -81,9 +85,10 @@ async function mondo(page: Page): Promise<Mondo> {
       segni: 0,
       bottoni: 0,
       pico: { texture: null, x: null, y: null },
-      pista: 0
+      pista: 0,
+      cancello: null
     };
-    for (const o of g?.scenaAttiva?.children.list ?? []) {
+    const walk = (o: unknown): void => {
       const n = o as {
         type?: string;
         name?: string;
@@ -91,15 +96,20 @@ async function mondo(page: Page): Promise<Mondo> {
         x?: number;
         y?: number;
         tilePositionX?: number;
+        list?: unknown[];
       };
+      if (!n) return;
       const key = n.texture?.key ?? '';
       if (n.type === 'Container' && n.name === 'segno') out.segni++;
+      if (n.type === 'Container' && n.name === 'cancello') out.cancello = n.x ?? null;
       if (n.type === 'Sprite' && key.startsWith('btn-')) out.bottoni++;
       if (n.type === 'Image' && n.name === 'pico') {
         out.pico = { texture: key, x: n.x ?? null, y: n.y ?? null };
       }
       if (n.type === 'TileSprite' && n.name === 'pista') out.pista = n.tilePositionX ?? 0;
-    }
+      if (n.list) n.list.forEach(walk);
+    };
+    g?.scenaAttiva?.children.list.forEach(walk);
     return out;
   });
 }
@@ -126,7 +136,7 @@ async function evidenza(page: Page, label: string): Promise<string | null> {
 }
 
 async function tocco(page: Page, x: number, y: number, attesa = 650): Promise<void> {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box, 'il canvas deve essere visibile').not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
   await page.waitForTimeout(attesa);
@@ -141,17 +151,29 @@ async function attendi(page: Page, pred: () => Promise<boolean>, ms = 9000): Pro
   return false;
 }
 
+/** Il cancello ha finito di avvicinarsi: non si muove più (e nemmeno la pista). */
+async function attendiFermata(page: Page): Promise<void> {
+  const ok = await attendi(page, async () => {
+    const a = await mondo(page);
+    if (a.cancello === null) return false;
+    await page.waitForTimeout(220);
+    const b = await mondo(page);
+    return b.cancello !== null && Math.abs(b.cancello - a.cancello) < 0.5;
+  }, 9000);
+  expect(ok, 'il cancello deve arrivare e fermarsi davanti a Pico').toBe(true);
+}
+
 /** Dal titolo alla prima prova di Matematica. */
 async function avviaMatematica(page: Page): Promise<void> {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
   await tocco(page, 512, 358); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
-  await tocco(page, 322, 248); // Matematica
+  await tocco(page, 322, 248, 120); // Matematica (senza perdere l'avvicinamento)
   await expect.poll(() => scena(page)).toBe('Game');
 }
 
-/** Le prime due prove della tappa 1 di Matematica, lette dal pack vero. */
+/** Le prove della tappa 1 di Matematica, lette dal pack vero. */
 async function prove(page: Page): Promise<
   Array<{
     prompt: string;
@@ -181,6 +203,42 @@ async function impostaModalita(page: Page, mode: 'quiz' | 'runner', overrides = 
   );
 }
 
+interface StatoTreD {
+  attivo: boolean;
+  pronta: boolean;
+  cancello: number | null;
+  arrivato: boolean;
+  velocita: number;
+  pannelli: Array<{ x: number; y: number }>;
+  etichette: string[];
+  errori: number;
+}
+
+async function treD(page: Page): Promise<StatoTreD | null> {
+  return page.evaluate(() => {
+    const g = (window as unknown as { __GIOCO__?: { treD?: StatoTreD } }).__GIOCO__;
+    return g?.treD ?? null;
+  });
+}
+
+/** Impostazioni con modalità e grafica insieme (le due scelte sono separate). */
+async function impostaGrafica(
+  page: Page,
+  mode: 'quiz' | 'runner',
+  graphics: '2d' | '3d',
+  overrides = {}
+): Promise<void> {
+  await page.addInitScript(
+    ([m, g, o]) => {
+      localStorage.setItem(
+        'sic.settings',
+        JSON.stringify({ profileId: null, overrides: o, mode: m, graphics: g })
+      );
+    },
+    [mode, graphics, overrides] as const
+  );
+}
+
 test.describe('Modalità Runner', () => {
   test('si sceglie dalle Impostazioni e resta salvata anche cambiando profilo', async ({ page }) => {
     await page.addInitScript(() => localStorage.clear());
@@ -194,14 +252,14 @@ test.describe('Modalità Runner', () => {
     expect(await evidenza(page, 'Quiz (bottoni)')).toBe('btn-green');
     expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-blue');
 
-    await tocco(page, 664, 148); // Runner
+    await tocco(page, 664, 126); // Runner
     const salvata = await page.evaluate(() => localStorage.getItem('sic.settings'));
     expect(salvata).not.toBeNull();
     expect(JSON.parse(salvata!).mode).toBe('runner');
     expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
 
     // Cambiare profilo non deve perdere la modalità scelta.
-    await tocco(page, 200, 218); // ADHD
+    await tocco(page, 200, 232); // ADHD
     expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
     expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!).mode).toBe(
       'runner'
@@ -213,35 +271,80 @@ test.describe('Modalità Runner', () => {
     );
 
     // E tornando al Quiz la scelta si inverte.
-    await tocco(page, 448, 148);
+    await tocco(page, 448, 126);
     expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!).mode).toBe(
       'quiz'
     );
   });
 
-  test('in partita i cartelli sostituiscono i bottoni del quiz', async ({ page }) => {
+  test('la grafica 2D/3D si sceglie a parte dalla modalità', async ({ page }) => {
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto('/');
+    await expect.poll(() => scena(page)).toBe('Title');
+
+    await tocco(page, 512, 458); // Impostazioni
+    await expect.poll(() => scena(page)).toBe('Settings');
+
+    // Default: 2D e Quiz.
+    expect(await evidenza(page, '2D')).toBe('btn-green');
+    expect(await evidenza(page, '3D')).toBe('btn-blue');
+    expect(await evidenza(page, 'Quiz (bottoni)')).toBe('btn-green');
+
+    // Scelgo 3D: la modalità resta Quiz.
+    await tocco(page, 664, 168);
+    let s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(s.graphics).toBe('3d');
+    expect(s.mode).toBe('quiz');
+    expect(await evidenza(page, '3D')).toBe('btn-green');
+
+    // Scelgo Runner: la grafica resta 3D.
+    await tocco(page, 664, 126);
+    s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(s.mode).toBe('runner');
+    expect(s.graphics).toBe('3d');
+    expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
+    expect(await evidenza(page, '3D')).toBe('btn-green');
+
+    // E la grafica si cambia di nuovo da sola.
+    await tocco(page, 448, 168);
+    s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(s.graphics).toBe('2d');
+    expect(s.mode).toBe('runner');
+  });
+
+  test('il cancello arriva da destra, la pista scorre e poi si ferma', async ({ page }) => {
     await impostaModalita(page, 'runner');
     await avviaMatematica(page);
     const rounds = await prove(page);
     const primo = rounds[0];
     expect(primo.type, 'la prima prova deve essere a scelta').toBe('quiz');
 
-    // I cartelli entrano da destra: diamo loro il tempo di fermarsi.
-    expect(await attendi(page, async () => (await mondo(page)).segni > 0)).toBe(true);
-    const stato = await mondo(page);
-    expect(stato.segni, 'un cartello per ogni opzione').toBe(primo.options!.length);
-    expect(stato.bottoni, 'nessun bottone di risposta in modalità Runner').toBe(0);
+    // La corsa è partita: il cancello è ancora a destra e si avvicina.
+    const a = await mondo(page);
+    expect(a.cancello, 'il cancello deve esistere').not.toBeNull();
+    await page.waitForTimeout(350);
+    const b = await mondo(page);
+    expect(b.cancello!, 'il cancello avanza verso Pico').toBeLessThan(a.cancello!);
+    expect(b.pista, 'la pista scorre durante l\'avvicinamento').toBeGreaterThan(a.pista);
 
-    // Le etichette delle opzioni stanno sui cartelli, in basso (sulla pista).
+    // Frena e si ferma davanti a Pico, con la pista ferma.
+    await attendiFermata(page);
+    const fermo = await mondo(page);
+    expect(fermo.cancello!, 'il cancello si ferma davanti a Pico').toBeLessThan(900);
+    const pistaPrima = fermo.pista;
+    await page.waitForTimeout(400);
+    const pistaDopo = (await mondo(page)).pista;
+    expect(Math.abs(pistaDopo - pistaPrima), 'all\'arrivo la pista si ferma').toBeLessThan(1);
+
+    // I cartelli sostituiscono i bottoni.
+    expect(fermo.segni, 'un cartello per ogni opzione').toBe(primo.options!.length);
+    expect(fermo.bottoni, 'nessun bottone di risposta in modalità Runner').toBe(0);
+
+    // Le etichette delle opzioni stanno sui cartelli, sulla pista.
     const etichette = (await testi(page)).filter((t) => t.y > 300).map((t) => t.text);
     for (const opt of primo.options!) {
       expect(etichette, `il cartello "${opt.label}" deve essere sulla pista`).toContain(opt.label);
     }
-
-    // E il mondo continua a scorrere: è una corsa, non una schermata ferma.
-    const prima = await mondo(page);
-    await page.waitForTimeout(600);
-    expect((await mondo(page)).pista, 'la pista deve scorrere').toBeGreaterThan(prima.pista);
   });
 
   test('toccare il cartello giusto fa saltare Pico e passa alla prova dopo', async ({ page }) => {
@@ -251,22 +354,22 @@ test.describe('Modalità Runner', () => {
     const primo = rounds[0];
     const giusta = primo.options!.find((o) => o.correct)!.label;
 
-    expect(await attendi(page, async () => (await mondo(page)).segni > 0)).toBe(true);
-    await page.waitForTimeout(700); // fine dell'ingresso dei cartelli
+    await attendiFermata(page);
     const cartello = (await testi(page)).find((t) => t.text === giusta && t.y > 300);
     expect(cartello, `il cartello "${giusta}" deve essere toccabile`).toBeTruthy();
 
     const prima = await mondo(page);
-    expect(prima.pico.texture).toMatch(/^pico-run[12]$/);
-    expect(prima.pico.x).toBeLessThan(200);
+    // Fermo davanti al cancello, Pico è di profilo e non corre.
+    expect(prima.pico.texture, 'Pico è di profilo').toBe('pico-side-idle');
+    expect(prima.pico.x).toBeCloseTo(110, 0);
 
     await tocco(page, cartello!.x, cartello!.y, 150);
     const durante = await mondo(page);
-    expect(durante.pico.texture, 'Pico salta verso il cartello').toBe('pico-jump');
+    expect(durante.pico.texture, 'Pico salta verso il cartello').toBe('pico-side-jump');
     expect(durante.pico.y!, 'Pico si stacca da terra').toBeLessThan(prima.pico.y! - 40);
     expect(durante.pico.x!, 'Pico va verso il cartello scelto').toBeGreaterThan(prima.pico.x! + 80);
 
-    // La corsa avanza: compare la domanda della prova successiva.
+    // La corsa riparte: compare la domanda della prova successiva.
     const dopo = await attendi(
       page,
       async () => (await testi(page)).some((t) => t.text === rounds[1].prompt),
@@ -274,16 +377,16 @@ test.describe('Modalità Runner', () => {
     );
     expect(dopo, 'dopo la risposta giusta deve arrivare la prova successiva').toBe(true);
 
-    // Pico è tornato al suo posto, pronto per il prossimo salto.
+    // Pico è tornato al suo posto, pronto per la prossima corsa.
     const riposo = await mondo(page);
-    expect(riposo.pico.x).toBeLessThan(200);
-    expect(riposo.pico.texture).toMatch(/^pico-run[12]$/);
+    expect(riposo.pico.x).toBeCloseTo(110, 0);
+    expect(riposo.pico.texture).toMatch(/^pico-side[12]$/);
   });
 
   test('con "meno opzioni" restano due cartelli', async ({ page }) => {
     await impostaModalita(page, 'runner', { fewerOptions: true });
     await avviaMatematica(page);
-    expect(await attendi(page, async () => (await mondo(page)).segni > 0)).toBe(true);
+    await attendiFermata(page);
     expect((await mondo(page)).segni).toBe(2);
   });
 
@@ -295,18 +398,17 @@ test.describe('Modalità Runner', () => {
     const primo = rounds[0];
     const sbagliata = primo.options!.find((o) => !o.correct)!.label;
 
-    expect(await attendi(page, async () => (await mondo(page)).segni > 0)).toBe(true);
-    await page.waitForTimeout(700); // fine dell'ingresso dei cartelli
+    await attendiFermata(page);
 
     // Tocca il cartello sbagliato e verifica che il tocco sia arrivato: Pico
-    // salta. Se il primo tocco cade nel vuoto (cartello ancora in movimento) si
-    // riprova una volta, ma un tocco che il gioco ignora fa fallire il test.
+    // salta. Se il primo tocco cade nel vuoto si riprova una volta, ma un tocco
+    // che il gioco ignora fa fallire il test.
     const toccaSbagliata = async (tentativo: number): Promise<boolean> => {
       for (let prova = 0; prova < 2; prova++) {
         const cartello = (await testi(page)).find((t) => t.text === sbagliata && t.y > 300);
         expect(cartello, `tentativo ${tentativo}: cartello sbagliato non trovato`).toBeTruthy();
         await tocco(page, cartello!.x, cartello!.y, 200);
-        if ((await mondo(page)).pico.texture === 'pico-jump') return true;
+        if ((await mondo(page)).pico.texture === 'pico-side-jump') return true;
       }
       return false;
     };
@@ -322,5 +424,73 @@ test.describe('Modalità Runner', () => {
       10_000
     );
     expect(avanti, 'tre errori non devono bloccare la corsa').toBe(true);
+  });
+});
+
+test.describe('Grafica 3D', () => {
+  test('Runner 3D: il cancello arriva, si tocca e la corsa riparte', async ({ page }) => {
+    test.setTimeout(60_000);
+    await impostaGrafica(page, 'runner', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+    await expect(page.locator('canvas.tre-d')).toHaveCount(1);
+
+    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 12_000);
+    expect(arrivato, 'il cancello 3D deve arrivare e fermarsi').toBe(true);
+
+    const primo = (await treD(page))!;
+    expect(primo.etichette.length).toBeGreaterThan(1);
+    expect(primo.pannelli.length).toBe(primo.etichette.length);
+    // La corsa finisce di frenare: a cancello fermo la velocità va a zero.
+    await expect.poll(async () => (await treD(page))?.velocita ?? 999).toBeLessThan(5);
+
+    const rounds = await prove(page);
+    const giusta = rounds[0].options!.find((o) => o.correct)!.label;
+    const sbagliata = rounds[0].options!.find((o) => !o.correct)!.label;
+
+    // Tocco sbagliato: il gioco lo registra e resta sulla stessa domanda.
+    const iSbagliata = primo.etichette.indexOf(sbagliata);
+    expect(iSbagliata, `il pannello "${sbagliata}" deve esistere`).toBeGreaterThanOrEqual(0);
+    await tocco(page, primo.pannelli[iSbagliata].x, primo.pannelli[iSbagliata].y, 300);
+    await expect.poll(async () => (await treD(page))?.errori ?? 0).toBe(1);
+    expect((await treD(page))!.etichette).toEqual(primo.etichette);
+
+    // Dopo il reset, il pannello giusto fa ripartire la corsa.
+    await page.waitForTimeout(1100);
+    const iGiusta = primo.etichette.indexOf(giusta);
+    expect(iGiusta, `il pannello "${giusta}" deve esistere`).toBeGreaterThanOrEqual(0);
+    await tocco(page, primo.pannelli[iGiusta].x, primo.pannelli[iGiusta].y, 200);
+
+    const cambiata = await attendi(page, async () => {
+      const t = await treD(page);
+      return Boolean(t && t.etichette.length > 0 && t.etichette.join('|') !== primo.etichette.join('|'));
+    }, 10_000);
+    expect(cambiata, 'dopo la risposta giusta deve arrivare il cancello successivo').toBe(true);
+
+    const arrivo2 = await attendi(page, async () => (await treD(page))?.arrivato === true, 12_000);
+    expect(arrivo2, 'anche il secondo cancello deve fermarsi davanti a Pico').toBe(true);
+  });
+
+  test('Quiz 3D: il mondo c\'è, i bottoni restano l\'interfaccia', async ({ page }) => {
+    await impostaGrafica(page, 'quiz', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+    await expect(page.locator('canvas.tre-d')).toHaveCount(1);
+    const stato = (await treD(page))!;
+    expect(stato.cancello, 'in Quiz non c\'è un cancello da toccare').toBeNull();
+    expect(stato.etichette).toEqual([]);
+
+    // Le risposte restano i bottoni Phaser: il 3D è il mondo, non l'interfaccia.
+    expect((await mondo(page)).bottoni).toBeGreaterThan(0);
+  });
+
+  test('con alto contrasto il 3D si spegne (fondo chiaro e testi neri)', async ({ page }) => {
+    await impostaGrafica(page, 'quiz', '3d', { highContrast: true });
+    await avviaMatematica(page);
+
+    await expect(page.locator('canvas.tre-d')).toHaveCount(0);
+    expect((await treD(page))?.attivo ?? false).toBe(false);
   });
 });

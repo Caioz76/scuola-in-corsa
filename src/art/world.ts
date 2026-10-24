@@ -30,6 +30,12 @@ export interface WorldOpts {
    * modalità Runner, dove è il salto verso il cartello a muoverlo.
    */
   advance?: boolean;
+  /** Pico di profilo (Runner) invece che frontale (Quiz). */
+  sidePico?: boolean;
+  /** Posizione di Pico sullo schermo; in Runner sta più al centro. */
+  picoX?: number;
+  /** Cespugli e sassi che scorrono sul bordo della pista (Runner). */
+  props?: boolean;
 }
 
 export interface World {
@@ -41,6 +47,10 @@ export interface World {
   leap(x: number, y: number): void;
   /** Inciampo: Pico diventa rosso per un attimo. */
   stumble(): void;
+  /** Velocità attuale dello scorrimento, in px/s (la usa il Runner). */
+  speed(): number;
+  /** Cambia la velocità: il mondo accelera o frena dolcemente. */
+  setSpeed(px: number): void;
   destroy(): void;
 }
 
@@ -89,8 +99,25 @@ export function addWorld(
     .setName('pista');
   oggetti.push(pista);
 
+  // Cespugli, sassi e fiori sul bordo: senza riferimenti vicini lo scorrimento
+  // non si vede. Sono decorazione, quindi spariscono con "schermata pulita".
+  let props: Phaser.GameObjects.TileSprite | null = null;
+  if (opts.props && scenografia) {
+    props = scene.add
+      .tileSprite(0, H - 96, W, 64, 'propsRow')
+      .setOrigin(0)
+      .setDepth(-21)
+      .setName('bordo');
+    oggetti.push(props);
+  }
+
   // ── Pico ──
   const modoPico = opts.pico ?? 'run';
+  const diProfilo = opts.sidePico === true;
+  const picoX = opts.picoX ?? 66;
+  const texCorsa = diProfilo ? ['pico-side1', 'pico-side2'] : ['pico-run1', 'pico-run2'];
+  const texFermo = diProfilo ? 'pico-side-idle' : 'pico-idle';
+  const texSalto = diProfilo ? 'pico-side-jump' : 'pico-jump';
   let pico: Phaser.GameObjects.Image | null = null;
   let frame = 0;
   let inCorsa = animato || velocitaBase > 0;
@@ -98,14 +125,14 @@ export function addWorld(
 
   if (modoPico !== false) {
     pico = scene.add
-      .image(66, H - 50, modoPico === 'cheer' ? 'pico-cheer' : 'pico-run1')
-      .setScale(0.84)
+      .image(picoX, H - 50, modoPico === 'cheer' ? (diProfilo ? texSalto : 'pico-cheer') : texCorsa[0])
+      .setScale(diProfilo ? 0.92 : 0.84)
       .setDepth(-15)
       .setName('pico');
     oggetti.push(pico);
   }
   // Da dove parte e dove torna dopo un salto (modalità Runner).
-  const CASA_X = 66;
+  const CASA_X = picoX;
   const CASA_Y = H - 50;
 
   const passo = scene.time.addEvent({
@@ -114,9 +141,33 @@ export function addWorld(
     callback: () => {
       if (!pico || !inCorsa || modoPico !== 'run' || saltoInCorso) return;
       frame = 1 - frame;
-      pico.setTexture(frame === 1 ? 'pico-run2' : 'pico-run1');
+      pico.setTexture(texCorsa[frame]);
     }
   });
+
+  // Polvere dietro la ruota: dà la velocità anche guardando solo Pico.
+  let polvere: Phaser.Time.TimerEvent | null = null;
+  if (diProfilo && animato) {
+    polvere = scene.time.addEvent({
+      delay: 85,
+      loop: true,
+      callback: () => {
+        if (!pico || !inCorsa || saltoInCorso) return;
+        const r = Phaser.Math.Between(3, 6);
+        const d = scene.add.circle(pico.x - 26, CASA_Y + 30, r, 0xffffff, 0.55).setDepth(-16);
+        scene.tweens.add({
+          targets: d,
+          x: d.x - 46,
+          y: d.y - 10,
+          alpha: 0,
+          scale: 0.4,
+          duration: 430,
+          ease: 'Quad.easeOut',
+          onComplete: () => d.destroy()
+        });
+      }
+    });
+  }
 
   // ── Checkpoint (solo nella schermata di gioco) ──
   const checkpoint = scene.add.graphics().setDepth(-14);
@@ -170,15 +221,33 @@ export function addWorld(
 
   // ── Scorrimento ──
   let spinta = 0;
+  let velocita = velocitaBase;
+  let bersaglio = velocitaBase;
+  const ACCEL = 1800; // px/s²
+  const FRENA = 2600;
 
   const aggiorna = (_time: number, deltaMs: number): void => {
     const dt = Math.min(deltaMs, 50);
-    const velocita = spinta > 0 ? 430 : velocitaBase;
+    const dtS = dt / 1000;
     if (spinta > 0) spinta -= dt;
-    const spostamento = (velocita * dt) / 1000;
+    const desiderata = spinta > 0 ? Math.max(bersaglio, 430) : bersaglio;
+    if (!animato) velocita = 0;
+    else if (velocita < desiderata) velocita = Math.min(desiderata, velocita + ACCEL * dtS);
+    else velocita = Math.max(desiderata, velocita - FRENA * dtS);
+
+    const correndo = animato && velocita > 8;
+    if (correndo !== inCorsa) {
+      inCorsa = correndo;
+      if (pico && !saltoInCorso && modoPico === 'run') {
+        pico.setTexture(correndo ? texCorsa[0] : texFermo);
+      }
+    }
+
+    const spostamento = velocita * dtS;
     if (far) far.tilePositionX += spostamento * 0.35;
     if (mid) mid.tilePositionX += spostamento * 0.7;
     pista.tilePositionX += spostamento;
+    if (props) props.tilePositionX += spostamento;
   };
   scene.events.on(Phaser.Scenes.Events.UPDATE, aggiorna);
 
@@ -188,6 +257,7 @@ export function addWorld(
     scene.events.off(Phaser.Scenes.Events.UPDATE, aggiorna);
     scene.events.off(Phaser.Scenes.Events.SHUTDOWN, distruggi);
     passo.remove(false);
+    polvere?.remove(false);
     oggetti.forEach((o) => o.destroy());
   };
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, distruggi);
@@ -204,7 +274,7 @@ export function addWorld(
       if (!pico || saltoInCorso) return;
       saltoInCorso = true;
       inCorsa = true;
-      pico.setTexture('pico-jump');
+      pico.setTexture(texSalto);
       scene.tweens.add({
         targets: pico,
         y: pico.y - 26,
@@ -213,7 +283,7 @@ export function addWorld(
         ease: 'Quad.easeOut',
         onComplete: () => {
           saltoInCorso = false;
-          if (pico && modoPico === 'run') pico.setTexture('pico-run1');
+          if (pico && modoPico === 'run') pico.setTexture(inCorsa ? texCorsa[0] : texFermo);
         }
       });
     },
@@ -230,7 +300,7 @@ export function addWorld(
       inCorsa = true;
       const bersaglioX = Phaser.Math.Clamp(x, 150, W - 150);
       const bersaglioY = Phaser.Math.Clamp(y, 300, CASA_Y - 40);
-      pico.setTexture('pico-jump');
+      pico.setTexture(texSalto);
       scene.tweens.add({
         targets: pico,
         x: bersaglioX,
@@ -249,12 +319,18 @@ export function addWorld(
               ease: 'Quad.easeIn',
               onComplete: () => {
                 saltoInCorso = false;
-                if (pico && modoPico === 'run') pico.setTexture('pico-run1');
+                if (pico && modoPico === 'run') pico.setTexture(inCorsa ? texCorsa[0] : texFermo);
               }
             });
           });
         }
       });
+    },
+    speed(): number {
+      return velocita;
+    },
+    setSpeed(px: number): void {
+      bersaglio = animato ? Math.max(0, px) : 0;
     },
     destroy(): void {
       distruggi();

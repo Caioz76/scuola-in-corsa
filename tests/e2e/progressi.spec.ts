@@ -33,7 +33,7 @@ async function testi(page: import('@playwright/test').Page): Promise<string[]> {
 }
 
 async function tocco(page: import('@playwright/test').Page, x: number, y: number, attesa = 600) {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
   await page.waitForTimeout(attesa);

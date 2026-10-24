@@ -1,7 +1,7 @@
 # Scuola in Corsa
 
-Gioco didattico 2D per bambini della scuola primaria, sviluppato con **Phaser 3**
-e **TypeScript**. Il gioco è pensato per essere **inclusivo per davvero**: ogni
+Gioco didattico 2D e 3D per bambini della scuola primaria, sviluppato con **Phaser 3**,
+**Three.js** e **TypeScript**. Il gioco è pensato per essere **inclusivo per davvero**: ogni
 profilo BES (Bisogni Educativi Speciali) è una configurazione concreta che cambia
 il modo in cui il gioco si comporta, non un'etichetta.
 
@@ -53,9 +53,11 @@ funziona offline una volta caricato.
 ## Come si gioca
 
 1. Il bambino sceglie (o l'insegnante imposta) un **profilo BES** — oppure nessuno.
-2. In **Impostazioni** si sceglie anche la **modalità**: *Quiz* (risposte con i
-   bottoni) o *Runner* (le risposte sono cartelli piantati sulla pista e Pico
-   salta su quello scelto). La scelta resta salvata sul dispositivo.
+2. In **Impostazioni** si scelgono due cose indipendenti: la **modalità** —
+   *Quiz* (risposte con i bottoni) o *Runner* (le risposte sono cartelli
+   piantati sulla pista e Pico salta su quello scelto) — e la **grafica**,
+   *2D* (disegno laterale) o *3D* (terza persona con Three.js). Entrambe
+   restano salvate sul dispositivo.
 3. Sceglie una **materia**: matematica, italiano, scienze o storia.
 4. Percorre il livello: il personaggio scorre, a ogni checkpoint compare una sfida.
 5. Risponde; il gioco dà un **riscontro immediato** (positivo o con spiegazione).

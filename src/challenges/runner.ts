@@ -1,12 +1,12 @@
 /**
- * Modalità Runner: le risposte non sono bottoni del quiz ma **cartelli**
- * piantati lungo la pista. Entrano scorrendo da destra e si fermano davanti a
- * Pico; toccandone uno, Pico salta a testata sul cartello.
+ * Modalità Runner: la domanda è un **cancello** piantato sulla pista. Il mondo
+ * scorre, il cancello arriva da destra e frena davanti a Pico; solo allora i
+ * cartelli diventano toccabili.
  *
- * - risposta giusta → il cartello diventa verde, esplode in stelline, Pico
- *   esulta e la corsa avanza;
- * - risposta sbagliata → il cartello diventa rosso e cade, Pico inciampa e si
- *   riprova (fino a 3 tentativi, come nel quiz);
+ * - risposta giusta → il cancello si illumina, Pico salta sulla testata, la
+ *   corsa riparte e il cancello esce a sinistra;
+ * - risposta sbagliata → il mondo resta fermo, il cartello trema, Pico
+ *   inciampa e si riprova (fino a 3 tentativi, come nel quiz);
  * - nessun timer: chi ha bisogno di tempo può guardare i cartelli quanto vuole.
  *
  * Le regole BES restano rispettate: numero di opzioni, font, scala del testo,
@@ -16,6 +16,7 @@ import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
 import type { ImageRound, Option, QuizRound } from '../content/types';
 import { synth } from '../audio/synth';
+import type { Gate3D, World3D } from '../art/three-world';
 import { T } from '../art/palette';
 import {
   MAX_ATTEMPTS,
@@ -33,35 +34,45 @@ import {
 type ChoiceRound = QuizRound | ImageRound;
 type Kind = 'normal' | 'correct' | 'wrong' | 'dim';
 
-/** Quello che il Runner chiede al mondo di gioco (Pico che salta e inciampa). */
+/** Quello che il Runner chiede al mondo di gioco (Pico che corre e salta). */
 export interface RunnerWorld {
   leap(x: number, y: number): void;
   stumble(): void;
+  /** Velocità attuale dello scorrimento, in px/s. */
+  speed(): number;
+  /** Velocità desiderata: il mondo accelera o frena da solo. */
+  setSpeed(px: number): void;
+  /** Solo nel mondo 3D: il cancello è disegnato da Three.js. */
+  openGate?(labels: string[]): Gate3D;
 }
+
+/** Velocità di crociera della corsa, px/s. */
+const RUN_SPEED = 480;
+/** Quanto spazio occupa la fila di cartelli, al massimo. */
+const AVAIL = 820;
+/** Bordo sinistro della fila quando il cancello è fermo. */
+const LEFT = 170;
+const GAP = 14;
+const GATE_Y = 380;
+const W = 1024;
 
 interface Sign {
   root: Phaser.GameObjects.Container;
-  x: number;
-  y: number;
   w: number;
   h: number;
-  /** Dove si ferma il cartello dopo l'ingresso da destra. */
-  targetX: number;
   setKind(k: Kind): void;
   setEnabled(b: boolean): void;
   onTap(cb: () => void): void;
   dispose(): void;
 }
 
-/** Un cartello della pista: scheda bianca su un palo, con etichetta grande. */
+/** Un cartello del cancello: scheda bianca con etichetta grande. */
 function makeSign(
   scene: Phaser.Scene,
   cfg: EffectiveConfig,
-  x: number,
-  y: number,
-  w: number,
+  lx: number,
   label: string,
-  targetX: number
+  w: number
 ): Sign {
   const spec = fontSpec(cfg);
   const text = scene.add
@@ -95,7 +106,7 @@ function makeSign(
   };
   draw('normal');
 
-  const root = scene.add.container(x, y, [card, text]).setDepth(20).setName('segno');
+  const root = scene.add.container(lx, 0, [card, text]).setName('segno');
   const margine = cfg.permissiveTouch ? 20 : 8;
   const hit = new Phaser.Geom.Rectangle(
     -w / 2 - margine,
@@ -108,11 +119,8 @@ function makeSign(
   let enabled = true;
   return {
     root,
-    x,
-    y,
     w,
     h,
-    targetX,
     setKind(k: Kind): void {
       draw(k);
       root.setAlpha(k === 'dim' ? 0.55 : 1);
@@ -158,6 +166,16 @@ export class RunnerChallenge implements Challenge {
   private timers: Phaser.Time.TimerEvent[] = [];
   private tweens: Phaser.Tweens.Tween[] = [];
 
+  private gate: Phaser.GameObjects.Container | null = null;
+  /** Cancello 3D (Three.js); in 2D resta null. */
+  private gate3d: Gate3D | null = null;
+  /** Larghezza totale della fila di cartelli. */
+  private totale = 0;
+  /** Dove si ferma il centro del cancello. */
+  private stopX = 512;
+  private arrivato = false;
+  private uscita = false;
+
   private promptText: Phaser.GameObjects.Text;
   private hintText: Phaser.GameObjects.Text | null = null;
   private reBtn: Btn | null = null;
@@ -199,57 +217,23 @@ export class RunnerChallenge implements Challenge {
       }
     }
 
-    // ── Cartelli in fila sulla pista ──
-    const n = this.options.length;
-    const gap = 18;
-    const larghezza = Math.min(210, (900 - (n - 1) * gap) / n);
-    const totale = n * larghezza + (n - 1) * gap;
-    const x0 = 512 - totale / 2 + larghezza / 2;
-    const y = 384;
-    const animato = cfg.motion !== 'off';
+    // ── Il cancello ──
+    // In 3D lo disegna Three.js e i pannelli si toccano con il raycast.
+    // In 2D è un container Phaser che entra da destra.
+    const treD = this.world as World3D | null;
+    if (treD?.openGate) {
+      const g = treD.openGate(this.options.map((o) => o.label));
+      this.gate3d = g;
+      g.onArrive(() => {
+        this.arrivato = true;
+      });
+      g.onPick((i) => this.onPick(i));
+    } else {
+      this.creaCancello2D();
+    }
 
-    this.options.forEach((opt, i) => {
-      const targetX = x0 + i * (larghezza + gap);
-      const sign = makeSign(scene, cfg, targetX, y, larghezza, opt.label, targetX);
-      sign.onTap(() => this.onPick(i));
-      this.signs.push(sign);
-
-      // Palo che regge il cartello, piantato sul bordo della pista.
-      const palo = scene.add.graphics().setDepth(6);
-      const fondo = y + sign.h / 2;
-      palo.fillStyle(0x8a99ad, 0.9);
-      palo.fillRoundedRect(targetX - 3, fondo, 6, 480 - fondo, 3);
-      palo.fillStyle(0x6f7a99, 0.9);
-      palo.fillEllipse(targetX, 481, 28, 8);
-      this.objects.push(palo);
-
-      if (!animato) return;
-      // Ingresso da destra, uno dopo l'altro: il mondo scorre, i cartelli arrivano.
-      sign.root.setX(targetX + 760).setAlpha(0);
-      this.tweens.push(
-        scene.tweens.add({
-          targets: sign.root,
-          x: targetX,
-          alpha: 1,
-          duration: 380,
-          delay: 80 * i,
-          ease: 'Cubic.easeOut',
-          onComplete: () => {
-            // leggero dondolio: sono cartelli, non bottoni
-            this.tweens.push(
-              scene.tweens.add({
-                targets: sign.root,
-                y: y - 5,
-                duration: 1500 + i * 120,
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-              })
-            );
-          }
-        })
-      );
-    });
+    scene.events.on(Phaser.Scenes.Events.UPDATE, this.aggiorna);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.pulizia);
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
@@ -261,41 +245,143 @@ export class RunnerChallenge implements Challenge {
     }
   }
 
+  // ── Cancello 2D: cartelli in fila, pali e traversa ──────────────
+
+  private creaCancello2D(): void {
+    const scene = this.scene;
+    const cfg = this.cfg;
+    const n = this.options.length;
+    const larghezza = Math.min(210, (AVAIL - (n - 1) * GAP) / n);
+    this.totale = n * larghezza + (n - 1) * GAP;
+    // Centrato, ma se è troppo largo resta dentro lo schermo.
+    this.stopX = Math.max(512, LEFT + this.totale / 2);
+
+    const x0 = -this.totale / 2 + larghezza / 2;
+    this.options.forEach((opt, i) => {
+      const sign = makeSign(scene, cfg, x0 + i * (larghezza + GAP), opt.label, larghezza);
+      sign.onTap(() => this.onPick(i));
+      // Fino all'arrivo i cartelli non si toccano: la corsa deve arrivare.
+      sign.setEnabled(false);
+      this.signs.push(sign);
+    });
+
+    const maxH = Math.max(...this.signs.map((s) => s.h));
+    const crossY = -maxH / 2 - 30;
+    const half = this.totale / 2;
+    const fondo = 120;
+
+    const struttura = scene.add.graphics();
+    // pali (dietro ai cartelli)
+    struttura.fillStyle(0x8a99ad, 0.95);
+    struttura.fillRoundedRect(-half - 22, crossY, 10, fondo - crossY, 5);
+    struttura.fillRoundedRect(half + 12, crossY, 10, fondo - crossY, 5);
+    struttura.fillStyle(0x3b4a5a, 0.12);
+    struttura.fillEllipse(-half - 17, fondo + 3, 32, 9);
+    struttura.fillEllipse(half + 17, fondo + 3, 32, 9);
+    // traversa gialla con "?" al centro: si vede da lontano che è una domanda
+    struttura.fillStyle(0x3b4a5a, 0.14);
+    struttura.fillRoundedRect(-half - 30, crossY + 4, 2 * (half + 30), 16, 8);
+    struttura.fillStyle(0xffd93d, 1);
+    struttura.fillRoundedRect(-half - 30, crossY - 4, 2 * (half + 30), 16, 8);
+    struttura.lineStyle(3, 0xd9a91e, 1);
+    struttura.strokeRoundedRect(-half - 30, crossY - 4, 2 * (half + 30), 16, 8);
+    struttura.fillStyle(0xffffff, 1);
+    struttura.fillCircle(0, crossY + 4, 21);
+    struttura.lineStyle(4, 0x5fade3, 1);
+    struttura.strokeCircle(0, crossY + 4, 21);
+
+    const badge = scene.add
+      .text(0, crossY + 4, '?', {
+        fontFamily: fontSpec(cfg).family,
+        fontSize: '24px',
+        fontStyle: 'bold',
+        color: cfg.highContrast ? '#000000' : '#2b7fd4'
+      })
+      .setOrigin(0.5);
+
+    this.gate = scene.add
+      .container(W + this.totale / 2 + 40, GATE_Y, [
+        struttura,
+        ...this.signs.map((s) => s.root),
+        badge
+      ])
+      .setDepth(20)
+      .setName('cancello');
+  }
+
+  // ── Avvicinamento ──────────────────────────────────────────────
+
+  /**
+   * Il cancello avanza con la stessa velocità del mondo e frena negli ultimi
+   * metri. Usare la velocità vera del mondo (non un timer) tiene sincronizzati
+   * pista, cartelli e Pico: si fermano insieme.
+   */
+  private aggiorna = (_time: number, deltaMs: number): void => {
+    // In 3D il cancello e la frenata li gestisce Three.js.
+    if (this.gate3d) return;
+    if (!this.gate || this.arrivato || this.uscita) return;
+    const dt = Math.min(deltaMs, 50);
+    const dist = Math.max(0, this.gate.x - this.stopX);
+    // Curva di frenata: v = √(2·a·s), con a = 900 px/s².
+    const frenata = Math.sqrt(2 * 900 * dist);
+    this.world?.setSpeed(Math.min(RUN_SPEED, frenata));
+
+    const v = this.world?.speed() ?? 0;
+    this.gate.x -= (v * dt) / 1000;
+
+    if (this.gate.x <= this.stopX + 0.5 || v < 2) {
+      this.gate.x = this.stopX;
+      this.arrivato = true;
+      this.world?.setSpeed(0);
+      this.signs.forEach((s) => s.setEnabled(true));
+    }
+  };
+
   // ── Interazione ────────────────────────────────────────────────
 
   private onPick(i: number): void {
-    if (this.locked || this.revealed) return;
+    if (this.locked || this.revealed || !this.arrivato) return;
+    if (!this.gate && !this.gate3d) return;
     const sign = this.signs[i];
     const correct = this.options[i].correct;
-
-    // Se i cartelli stanno ancora entrando, si fermano subito dove devono.
-    this.signs.forEach((s) => {
-      this.scene.tweens.killTweensOf(s.root);
-      s.root.setX(s.targetX).setAlpha(1);
-    });
+    const tre = this.gate3d;
 
     this.locked = true;
     synth.play('click');
-    this.world?.leap(sign.x, sign.y + sign.h / 2 + 24);
+    const wx = this.gate && sign ? this.gate.x + sign.root.x : 0;
+    const wy = this.gate && sign ? this.gate.y + sign.root.y + sign.h / 2 + 24 : 0;
+    this.world?.leap(wx, wy);
 
     if (correct) {
-      sign.setKind('correct');
-      this.signs.forEach((s, j) => {
-        if (j !== i) s.setKind('dim');
-        s.setEnabled(false);
-      });
+      if (tre) {
+        // Three.js: pannello verde, salto, stelline, cancello che esce.
+        tre.markCorrect(i);
+      } else if (sign) {
+        sign.setKind('correct');
+        this.signs.forEach((s, j) => {
+          if (j !== i) s.setKind('dim');
+          s.setEnabled(false);
+        });
+        this.burst(wx, wy);
+        // La corsa riparte e il cancello resta indietro, a sinistra.
+        this.world?.setSpeed(560);
+        this.esci();
+      }
       synth.play('correct');
       flashCue(this.scene, this.cfg, 'ok');
-      this.burst(sign);
       this.cb.onCorrect();
       return;
     }
 
     // ── Errore ──
     this.attempts++;
-    sign.setKind('wrong');
-    this.shake(sign);
-    this.world?.stumble();
+    if (tre) {
+      tre.markWrong(i);
+    } else if (sign) {
+      sign.setKind('wrong');
+      this.shake(sign);
+      this.world?.stumble();
+    }
     synth.play('wrong');
     flashCue(this.scene, this.cfg, 'bad');
     this.cb.onWrong(this.attempts);
@@ -322,25 +408,38 @@ export class RunnerChallenge implements Challenge {
     }
     this.schedule(() => {
       if (this.revealed) return;
-      sign.setKind('normal');
+      if (tre) tre.reset();
+      else sign?.setKind('normal');
       this.locked = false;
     }, delay);
   }
 
-  /** Stelline dal cartello indovinato. */
-  private burst(sign: Sign): void {
+  /** Il cancello superato esce a sinistra mentre il mondo riparte. */
+  private esci(): void {
+    if (!this.gate) return;
+    this.uscita = true;
+    this.tweens.push(
+      this.scene.tweens.add({
+        targets: this.gate,
+        x: -this.totale / 2 - 160,
+        alpha: 0,
+        duration: 520,
+        ease: 'Cubic.easeIn'
+      })
+    );
+  }
+
+  /** Stelline dal cartello indovinato (coordinate di mondo). */
+  private burst(x: number, y: number): void {
     for (let i = 0; i < 6; i++) {
       const ang = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-      const stella = this.scene.add
-        .image(sign.x, sign.y, 'star')
-        .setScale(0.34)
-        .setDepth(30);
+      const stella = this.scene.add.image(x, y, 'star').setScale(0.34).setDepth(30);
       this.objects.push(stella);
       this.tweens.push(
         this.scene.tweens.add({
           targets: stella,
-          x: sign.x + Math.cos(ang) * 70,
-          y: sign.y + Math.sin(ang) * 60,
+          x: x + Math.cos(ang) * 70,
+          y: y + Math.sin(ang) * 60,
           alpha: 0,
           duration: 620,
           ease: 'Quad.easeOut',
@@ -351,15 +450,16 @@ export class RunnerChallenge implements Challenge {
   }
 
   private shake(sign: Sign): void {
+    const baseX = sign.root.x;
     this.tweens.push(
       this.scene.tweens.add({
         targets: sign.root,
-        x: sign.targetX + 7,
+        x: baseX + 7,
         duration: 60,
         yoyo: true,
         repeat: 3,
         ease: 'Sine.easeInOut',
-        onComplete: () => sign.root.setX(sign.targetX)
+        onComplete: () => sign.root.setX(baseX)
       })
     );
   }
@@ -379,6 +479,16 @@ export class RunnerChallenge implements Challenge {
     this.timers.push(t);
   }
 
+  /** Stacca listener e timer (la scena può chiudersi in qualsiasi momento). */
+  private pulizia = (): void => {
+    this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.aggiorna);
+    this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.pulizia);
+    this.timers.forEach((t) => t.remove(false));
+    this.timers = [];
+    this.tweens.forEach((t) => t.remove());
+    this.tweens = [];
+  };
+
   // ── Contratto Challenge ────────────────────────────────────────
 
   reveal(): void {
@@ -387,6 +497,11 @@ export class RunnerChallenge implements Challenge {
     this.locked = true;
     this.timers.forEach((t) => t.remove(false));
     this.timers = [];
+    if (this.gate3d) {
+      const giusta = this.options.findIndex((o) => o.correct);
+      this.gate3d.reveal(giusta);
+      return;
+    }
     this.signs.forEach((s, i) => {
       s.setKind(this.options[i].correct ? 'correct' : 'dim');
       s.setEnabled(false);
@@ -397,18 +512,20 @@ export class RunnerChallenge implements Challenge {
     this.locked = true;
     this.timers.forEach((t) => t.remove(false));
     this.timers = [];
+    this.gate3d?.lock();
     this.signs.forEach((s) => s.setEnabled(false));
   }
 
   dispose(): void {
     this.locked = true;
     this.revealed = true;
-    this.timers.forEach((t) => t.remove(false));
-    this.timers = [];
-    this.tweens.forEach((t) => t.remove());
-    this.tweens = [];
+    this.pulizia();
+    this.gate3d?.dispose();
+    this.gate3d = null;
     this.signs.forEach((s) => s.dispose());
     this.signs = [];
+    this.gate?.destroy();
+    this.gate = null;
     this.promptText.destroy();
     if (this.hintText) this.hintText.destroy();
     if (this.reBtn) this.reBtn.dispose();

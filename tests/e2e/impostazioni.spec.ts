@@ -49,7 +49,7 @@ async function testi(page: import('@playwright/test').Page): Promise<Array<{ tex
 }
 
 async function tocco(page: import('@playwright/test').Page, x: number, y: number, attesa = 650) {
-  const box = await page.locator('canvas').boundingBox();
+  const box = await page.locator('#game canvas').boundingBox();
   expect(box).not.toBeNull();
   await page.mouse.click(box!.x + (box!.width * x) / 1024, box!.y + (box!.height * y) / 576);
   await page.waitForTimeout(attesa);
@@ -66,7 +66,7 @@ test.describe('Impostazioni BES', () => {
   test('scelgo un profilo, viene salvato e cambia davvero il gioco', async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('#game canvas')).toBeVisible();
 
     test.skip(
       !(await page.evaluate(() => Boolean((window as unknown as { __GIOCO__?: { scenaAttiva?: unknown } }).__GIOCO__?.scenaAttiva))),

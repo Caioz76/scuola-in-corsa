@@ -14,7 +14,8 @@ export function loadSettings(): BesSettings {
   return {
     profileId: s.profileId ?? null,
     overrides: s.overrides ?? {},
-    mode: s.mode === 'runner' ? 'runner' : 'quiz'
+    mode: s.mode === 'runner' ? 'runner' : 'quiz',
+    graphics: s.graphics === '3d' ? '3d' : '2d'
   };
 }
 
