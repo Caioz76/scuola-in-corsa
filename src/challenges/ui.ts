@@ -53,11 +53,32 @@ export interface TextOpts {
   italic?: boolean;
   align?: 'left' | 'center' | 'right';
   wrap?: number;
+  /** Altezza massima consentita in px: riduce automaticamente il font se il testo straborda. */
+  maxH?: number;
   /** Contorno bianco leggero (leggibilità su sfondi vari). */
   outline?: boolean;
 }
 
-/** Testo BES-aware (font, scala, spaziatura). */
+/**
+ * Riduce progressivamente il fontSize (fino a `minPx`) se il testo supera
+ * `maxW` o `maxH`, evitando sovrapposizioni quando `fontScale > 1` (es. Dislessia / Ipovisione).
+ */
+export function fitTextToBox(
+  t: Phaser.GameObjects.Text,
+  maxW: number,
+  maxH: number,
+  minPx = 11
+): void {
+  const rawSize = parseInt(String(t.style.fontSize), 10);
+  let px = Number.isFinite(rawSize) && rawSize > 0 ? rawSize : 18;
+  while (px > minPx && (t.height > maxH || t.width > maxW + 6)) {
+    px -= 1;
+    t.setFontSize(px);
+    t.setLineSpacing(Math.max(1, Math.round(px * 0.12)));
+  }
+}
+
+/** Testo BES-aware (font, scala, spaziatura, anti-sovrapposizione). */
 export function makeText(
   scene: Phaser.Scene,
   x: number,
@@ -69,17 +90,22 @@ export function makeText(
   const spec = fontSpec(cfg);
   const size = Math.round((o.size ?? 22) * cfg.fontScale);
   const colore = cfg.highContrast ? hcColor(o.color ?? T.body) : (o.color ?? T.body);
+  const wrapW = o.wrap ?? 820;
+  const lineGap = Math.round(size * 0.14);
   const t = scene.add.text(x, y, str, {
     fontFamily: spec.family,
     fontSize: `${size}px`,
     fontStyle: o.bold ? 'bold' : 'normal',
     color: colore,
     align: o.align ?? 'center',
-    wordWrap: { width: o.wrap ?? 820, useAdvancedWrap: true },
+    wordWrap: { width: wrapW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
-    lineSpacing: Math.round(size * 0.16)
+    lineSpacing: lineGap
   }).setOrigin(0.5);
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
+  if (o.maxH !== undefined && o.maxH > 0) {
+    fitTextToBox(t, wrapW, o.maxH, 11);
+  }
   if (o.outline) t.setShadow(0, 0, '#ffffff', Math.max(2, Math.round(size * 0.09)), true, false);
   // Alto contrasto: nero pieno, senza ombre decorative.
   if (cfg.highContrast) {
@@ -130,21 +156,29 @@ export function makeButton(
   x: number,
   y: number,
   label: string,
-  o: { w?: number; scale?: number; depth?: number } = {}
+  o: { w?: number; scale?: number; maxTargetScale?: number; depth?: number } = {}
 ): Btn {
-  const s = cfg.targetScale * (o.scale ?? 1);
+  const k = o.scale ?? 1;
+  // Nelle griglie fitte (scale < 0.85) limitiamo automaticamente l'espansione di targetScale
+  // per impedire che bottoni adiacenti si sovrappongano.
+  const defaultMaxTs = k < 0.65 ? 1.03 : k < 0.88 ? 1.06 : 1.22;
+  const ts = Math.min(cfg.targetScale, o.maxTargetScale ?? defaultMaxTs);
+  const s = ts * k;
   const sprite = scene.add.sprite(0, 0, 'btn-blue').setScale(s);
   const spec = fontSpec(cfg);
-  const k = o.scale ?? 1;
+  const boxW = Math.max(56, (BTN_W - 36) * s);
+  const boxH = Math.max(18, (BTN_H - 18) * s);
+  const baseFontPx = Math.max(11, Math.round(24 * cfg.fontScale * k));
   const text = scene.add.text(0, 0, label, {
     fontFamily: spec.family,
-    fontSize: `${Math.round(24 * cfg.fontScale * k)}px`,
+    fontSize: `${baseFontPx}px`,
     fontStyle: 'bold',
     color: T.body,
     align: 'center',
-    wordWrap: { width: (BTN_W - 44) * k, useAdvancedWrap: true },
+    wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
+  fitTextToBox(text, boxW, boxH, 10);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 10);
 
@@ -156,12 +190,14 @@ export function makeButton(
   return {
     root,
     text,
-    setLabel(s: string): void {
-      text.setText(s);
+    setLabel(sLbl: string): void {
+      text.setFontSize(baseFontPx);
+      text.setText(sLbl);
+      fitTextToBox(text, boxW, boxH, 10);
     },
-    setKind(k: BtnKind): void {
-      if (scene.textures.exists(KIND_TEX[k])) sprite.setTexture(KIND_TEX[k]);
-      if (k === 'disabled') text.setStyle({ color: T.faint });
+    setKind(kKind: BtnKind): void {
+      if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
+      if (kKind === 'disabled') text.setStyle({ color: T.faint });
       else text.setStyle({ color: T.body });
     },
     setEnabled(b: boolean): void {
@@ -218,18 +254,25 @@ export function makeChip(
 ): Chip {
   const w = o.w ?? 256;
   const h = o.h ?? 96;
-  const s = cfg.targetScale * (w / 256);
-  const sprite = scene.add.sprite(0, 0, 'card').setScale(s);
+  // Quando larghezza o altezza sono vincolate dalla griglia (match/order),
+  // non espandiamo la card oltre la cella assegnata per evitare collisioni.
+  const ts = o.w !== undefined || o.h !== undefined ? Math.min(cfg.targetScale, 1.02) : cfg.targetScale;
+  const sx = ts * (w / 256);
+  const sy = ts * (h / 96);
+  const sprite = scene.add.sprite(0, 0, 'card').setScale(sx, sy);
   const spec = fontSpec(cfg);
+  const boxW = Math.max(56, w * ts - 32);
+  const boxH = Math.max(20, h * ts - 14);
   const text = scene.add.text(0, 0, label, {
     fontFamily: spec.family,
     fontSize: `${Math.round((o.size ?? 22) * cfg.fontScale)}px`,
     fontStyle: 'bold',
     color: T.body,
     align: 'center',
-    wordWrap: { width: w - 40, useAdvancedWrap: true },
+    wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
+  fitTextToBox(text, boxW, boxH, 11);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 20);
 
@@ -290,8 +333,10 @@ export function makeSlot(
 ): { root: Phaser.GameObjects.Container; dispose(): void } {
   const w = o.w ?? 256;
   const h = o.h ?? 96;
-  const s = cfg.targetScale * (w / 256);
-  const sprite = scene.add.sprite(0, 0, 'slot').setScale(s);
+  const ts = o.w !== undefined || o.h !== undefined ? Math.min(cfg.targetScale, 1.02) : cfg.targetScale;
+  const sx = ts * (w / 256);
+  const sy = ts * (h / 96);
+  const sprite = scene.add.sprite(0, 0, 'slot').setScale(sx, sy);
   const spec = fontSpec(cfg);
   const num = scene.add.text(0, 0, String(index), {
     fontFamily: spec.family,
@@ -372,26 +417,28 @@ export function makeToggle(
   on: boolean,
   onTap: () => void
 ): void {
-  const h = 36;
+  const h = 32;
   const spec = fontSpec(cfg);
   const g = scene.add.graphics().setDepth(10);
   g.fillStyle(on ? 0xdff6e7 : 0xffffff, 0.96);
-  g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 10);
+  g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 9);
   g.lineStyle(2, on ? 0x3aa564 : 0xc9d3e0, 1);
-  g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 10);
+  g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 9);
 
-  scene.add
+  const lbl = scene.add
     .text(x - w / 2 + 12, y, label, {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: cfg.highContrast ? '#000000' : T.body
+      color: cfg.highContrast ? '#000000' : T.body,
+      wordWrap: { width: w - 74, useAdvancedWrap: true }
     })
     .setOrigin(0, 0.5)
     .setDepth(11);
+  fitTextToBox(lbl, w - 74, h - 6, 10);
   scene.add
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
-      fontSize: `${Math.round(13 * cfg.fontScale)}px`,
+      fontSize: `${Math.min(15, Math.round(13 * cfg.fontScale))}px`,
       color: on ? T.ok : cfg.highContrast ? '#000000' : T.faint,
       fontStyle: 'bold'
     })

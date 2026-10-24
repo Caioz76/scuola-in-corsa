@@ -161,4 +161,111 @@ test.describe('Impostazioni BES', () => {
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     expect((await testi(page)).some((t) => t.text.includes('2ª Secondaria'))).toBe(true);
   });
+
+  test('con carattere ingrandito (Ipovisione + Dislessia) titoli, domande e opzioni non si sovrappongono', async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'sic.settings',
+        JSON.stringify({
+          profileId: 'ipovisione',
+          schoolYear: 'S3',
+          overrides: {
+            dyslexiaFont: true,
+            hintFirst: true,
+            repeatPrompt: true,
+            clearProgress: true,
+            mascotGuide: true
+          }
+        })
+      );
+    });
+    await page.goto('/');
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    const verificaNessunaSovrapposizione = async (nomeScena: string): Promise<void> => {
+      const collisioni = await page.evaluate(() => {
+        const g = (window as unknown as {
+          __GIOCO__?: { scenaAttiva?: { children: { list: unknown[] } } | null };
+        }).__GIOCO__;
+        const s = g?.scenaAttiva;
+        if (!s) return [];
+        const boxes: Array<{ text: string; x: number; y: number; w: number; h: number }> = [];
+        const walk = (o: unknown): void => {
+          const n = o as {
+            type?: string;
+            text?: string;
+            visible?: boolean;
+            alpha?: number;
+            getBounds?: () => { x: number; y: number; width: number; height: number };
+            list?: unknown[];
+          };
+          if (!n || n.visible === false || (typeof n.alpha === 'number' && n.alpha <= 0.05)) return;
+          if (n.type === 'Text' && n.text && String(n.text).trim().length > 0 && n.getBounds) {
+            const b = n.getBounds();
+            // Margine interno di 3px per ignorare il padding naturale del line-height
+            boxes.push({
+              text: String(n.text).trim(),
+              x: b.x + 3,
+              y: b.y + 3,
+              w: Math.max(0, b.width - 6),
+              h: Math.max(0, b.height - 6)
+            });
+          }
+          if (n.list) n.list.forEach(walk);
+        };
+        s.children.list.forEach(walk);
+        const urti: string[] = [];
+        for (let i = 0; i < boxes.length; i++) {
+          for (let j = i + 1; j < boxes.length; j++) {
+            const a = boxes[i];
+            const b = boxes[j];
+            const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+            const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+            if (overlapX > 2 && overlapY > 2) {
+              urti.push(`"${a.text}" <-> "${b.text}" (${Math.round(overlapX)}x${Math.round(overlapY)}px)`);
+            }
+          }
+        }
+        return urti;
+      });
+      expect(collisioni, `Sovrapposizioni trovate in ${nomeScena}`).toEqual([]);
+    };
+
+    await verificaNessunaSovrapposizione('Title');
+
+    await tocco(page, 872, 44); // Progressi
+    await expect.poll(async () => (await stato(page)).scena).toBe('Progress');
+    await verificaNessunaSovrapposizione('Progress');
+
+    expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    await tocco(page, 512, 458); // Impostazioni
+    await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
+    await verificaNessunaSovrapposizione('Settings (profili)');
+
+    expect(await toccaTesto(page, 'Anno scolastico')).toBe(true);
+    await verificaNessunaSovrapposizione('Settings (classe)');
+    expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+
+    expect(await toccaTesto(page, 'Regole una per una')).toBe(true);
+    await verificaNessunaSovrapposizione('Settings (regole)');
+    expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+
+    expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    await tocco(page, 512, 358); // Gioca
+    await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
+    await verificaNessunaSovrapposizione('Subject');
+
+    await tocco(page, 872, 44); // Tutte le tappe
+    await expect.poll(async () => (await stato(page)).scena).toBe('Levels');
+    await verificaNessunaSovrapposizione('Levels');
+
+    await tocco(page, 520, 150); // Matematica, tappa 1
+    await expect.poll(async () => (await stato(page)).scena).toBe('Game');
+    await verificaNessunaSovrapposizione('Game');
+  });
 });

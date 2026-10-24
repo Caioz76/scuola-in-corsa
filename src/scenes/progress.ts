@@ -23,15 +23,19 @@ export class ProgressScene extends Phaser.Scene {
 
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
 
-    makeText(this, 512, 42, 'Progressi', cfg, {
-      size: 32,
+    makeText(this, 512, 38, 'Progressi', cfg, {
+      size: 30,
       bold: true,
       color: '#1d6fb8',
+      wrap: 620,
+      maxH: 36,
       outline: true
     });
-    makeText(this, 512, 76, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
+    makeText(this, 512, 74, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
       size: 14,
-      color: '#5f7186'
+      color: '#5f7186',
+      wrap: 760,
+      maxH: 22
     });
 
     const righe = allPacks().flatMap((pack) =>
@@ -41,35 +45,52 @@ export class ProgressScene extends Phaser.Scene {
       }))
     );
 
-    let y = 112;
     let totale = 0;
-    for (const r of righe) {
+    righe.forEach((r, idx) => {
       totale += r.stelle;
-      makeText(this, 300, y, r.titolo, cfg, { size: 13, align: 'left', wrap: 520, color: '#2f3b4c' });
-      makeText(this, 800, y, `★ ${r.stelle} / 3`, cfg, {
+      const col = idx < 6 ? 0 : 1;
+      const row = idx % 6;
+      const y = 118 + row * 48;
+      const xTitolo = col === 0 ? 210 : 700;
+      const xStelle = col === 0 ? 445 : 935;
+      makeText(this, xTitolo, y, r.titolo, cfg, {
+        size: 13,
+        align: 'left',
+        wrap: 330,
+        maxH: 34,
+        color: '#2f3b4c'
+      });
+      makeText(this, xStelle, y, `★ ${r.stelle} / 3`, cfg, {
         size: 14,
         bold: r.stelle > 0,
+        maxH: 22,
         color: r.stelle === 3 ? '#d99a00' : r.stelle > 0 ? '#1f8a4c' : '#8a99ad'
       });
-      y += 26;
-    }
+    });
 
-    makeText(this, 512, y + 10, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
+    makeText(this, 512, 424, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
       size: 15,
-      color: '#5f7186'
+      color: '#5f7186',
+      wrap: 620,
+      maxH: 22
     });
 
     const storia = loadHistory();
     const ultima = storia[storia.length - 1];
     if (ultima) {
       const data = new Date(ultima.finishedAt).toLocaleDateString('it-IT');
-      makeText(this, 512, y + 32, `Ultima partita: ${ultima.correct}/${ultima.total} — ${data}`, cfg, {
+      makeText(this, 512, 456, `Ultima partita: ${ultima.correct}/${ultima.total} — ${data}`, cfg, {
         size: 14,
-        color: '#1f8a4c'
+        color: '#1f8a4c',
+        wrap: 620,
+        maxH: 22
       });
     }
 
-    const indietro = makeButton(this, cfg, 512, 528, 'Torna al titolo', { scale: 0.62 });
+    const indietro = makeButton(this, cfg, 512, 526, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04
+    });
     indietro.onTap(() => this.scene.start('Title'));
   }
 }

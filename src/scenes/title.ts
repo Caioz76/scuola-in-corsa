@@ -48,9 +48,9 @@ export class TitleScene extends Phaser.Scene {
 
       // Pillola informativa sotto il sottotitolo
       card.fillStyle(0xeaf4ff, 0.95);
-      card.fillRoundedRect(w / 2 - 210, h / 2 - 32, 420, 34, 17);
+      card.fillRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
       card.lineStyle(1.5, 0x93d2f7, 0.85);
-      card.strokeRoundedRect(w / 2 - 210, h / 2 - 32, 420, 34, 17);
+      card.strokeRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
 
       // Badge delle 4 materie ai lati della card
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
@@ -119,13 +119,17 @@ export class TitleScene extends Phaser.Scene {
       size: 50,
       bold: true,
       color: '#1d6fb8',
+      wrap: 560,
+      maxH: 58,
       outline: true
     }).setDepth(5);
 
     makeText(this, w / 2, h / 2 - 60, 'Scegli la materia e corri!', cfg, {
       size: 21,
       bold: true,
-      color: '#5f7186'
+      color: '#5f7186',
+      wrap: 540,
+      maxH: 30
     }).setDepth(5);
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
@@ -141,20 +145,30 @@ export class TitleScene extends Phaser.Scene {
       {
         size: 14,
         bold: true,
-        color: '#2b6cb0'
+        color: '#2b6cb0',
+        wrap: 468,
+        maxH: 24
       }
     ).setDepth(5);
 
-    const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', { depth: 10 });
+    const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', {
+      maxTargetScale: 1.08,
+      depth: 10
+    });
     gioca.onTap(() => this.scene.start('Subject'));
 
     const impostazioni = makeButton(this, cfg, w / 2, h / 2 + 170, 'Impostazioni', {
       scale: 0.62,
+      maxTargetScale: 1.05,
       depth: 10
     });
     impostazioni.onTap(() => this.scene.start('Settings'));
 
-    const progressi = makeButton(this, cfg, 872, 44, 'Progressi', { scale: 0.55, depth: 10 });
+    const progressi = makeButton(this, cfg, 872, 44, 'Progressi', {
+      scale: 0.55,
+      maxTargetScale: 1.05,
+      depth: 10
+    });
     progressi.onTap(() => this.scene.start('Progress'));
 
     makeText(
@@ -166,6 +180,8 @@ export class TitleScene extends Phaser.Scene {
       {
         size: 12,
         color: '#3b4a5a',
+        wrap: 620,
+        maxH: 18,
         outline: true
       }
     ).setDepth(5);

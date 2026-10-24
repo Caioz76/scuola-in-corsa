@@ -44,6 +44,7 @@ export class ChoiceChallenge implements Challenge {
   private timers: Phaser.Time.TimerEvent[] = [];
   private promptText: Phaser.GameObjects.Text;
   private hintText: Phaser.GameObjects.Text | null = null;
+  private reBtn: Btn | null = null;
   private supportG: Phaser.GameObjects.Graphics | null = null;
   private supportTexts: Phaser.GameObjects.Text[] = [];
   /** Icona della prova "riconosci l'immagine": va tolta a ogni cambio prova. */
@@ -55,13 +56,16 @@ export class ChoiceChallenge implements Challenge {
     this.cfg = cfg;
     this.cb = cb;
 
-    // ── Prompt ──
+    // ── Prompt (con fascia verticale dedicata per non toccare il titolo o l'indizio) ──
     const promptStr = testoSemplice(round.prompt, cfg);
-    this.promptText = makeText(scene, 512, 64, promptStr, cfg, {
-      size: 26,
+    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptWrap = cfg.repeatPrompt ? 640 : 780;
+    this.promptText = makeText(scene, promptX, 66, promptStr, cfg, {
+      size: 25,
       bold: true,
       color: '#2f3b4c',
-      wrap: 800,
+      wrap: promptWrap,
+      maxH: 54,
       outline: true
     });
 
@@ -72,19 +76,19 @@ export class ChoiceChallenge implements Challenge {
     }
 
     // ── Supporto matematico (visivo) ──
-    let optsTop = 250;
+    let yShift = 0;
     if (round.type === 'quiz' && round.support && cfg.visualSupports) {
       this.supportG = this.drawSupport(round.support);
-      optsTop = 262;
+      yShift = 14;
     }
 
     // ── Icona (riconoscimento immagine) ──
     if (round.type === 'image') {
       const iconKey = `icon-${round.icon}`;
       if (scene.textures.exists(iconKey)) {
-        this.iconImage = scene.add.image(512, 186, iconKey).setScale(2.0).setDepth(8);
+        this.iconImage = scene.add.image(512, 188, iconKey).setScale(1.65).setDepth(8);
       }
-      optsTop = 286;
+      yShift = 18;
     }
 
     // ── Opzioni (adattate al limite BES; salvate: i bottoni seguono QUESTE) ──
@@ -92,8 +96,6 @@ export class ChoiceChallenge implements Challenge {
     const options = this.options;
     const scale = cfg.targetScale;
     const pos = optionLayout(options.length, scale);
-    // se ci sono icona o supporto, le opzioni partono più in basso
-    const yShift = optsTop > 296 ? optsTop - 296 : 0;
 
     options.forEach((opt, i) => {
       const [px, py] = pos[i];
@@ -104,10 +106,14 @@ export class ChoiceChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      const rb = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
-      rb.onTap(() => {
+      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+        scale: 0.52,
+        maxTargetScale: 1.04,
+        depth: 12
+      });
+      this.reBtn.onTap(() => {
         const banner = showBanner(scene, cfg, round.prompt, null, 'ok', { y: 186 });
-        scene.time.delayedCall(2200, () => banner.dispose());
+        this.schedule(() => banner.dispose(), 2200);
       });
     }
   }
@@ -229,10 +235,11 @@ export class ChoiceChallenge implements Challenge {
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
     this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
-      size: 15,
+      size: 14,
       color: C.orangeDeep,
       italic: true,
-      wrap: 760
+      wrap: 740,
+      maxH: 24
     });
   }
 
@@ -266,6 +273,8 @@ export class ChoiceChallenge implements Challenge {
     this.timers = [];
     this.btns.forEach((b) => b.dispose());
     this.btns = [];
+    if (this.reBtn) this.reBtn.dispose();
+    this.reBtn = null;
     this.promptText.destroy();
     if (this.iconImage) this.iconImage.destroy();
     this.iconImage = null;

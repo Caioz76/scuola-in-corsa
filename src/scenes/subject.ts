@@ -19,23 +19,31 @@ export class SubjectScene extends Phaser.Scene {
 
     addWorld(this, 'scuola', cfg, { speed: 44 });
 
-    makeText(this, w / 2, 90, 'Scegli la materia', cfg, {
-      size: 38,
+    makeText(this, w / 2, 82, 'Scegli la materia', cfg, {
+      size: 36,
       bold: true,
       color: '#1d6fb8',
+      wrap: 620,
+      maxH: 46,
       outline: true
     });
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
     if (infoAnno) {
-      makeText(this, w / 2, 134, `Classe attiva: ${infoAnno.label}`, cfg, {
+      makeText(this, w / 2, 132, `Classe attiva: ${infoAnno.label}`, cfg, {
         size: 15,
-        color: '#5f7186'
+        color: '#5f7186',
+        wrap: 620,
+        maxH: 24
       });
     }
 
     // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
-    const tappe = makeButton(this, cfg, 872, 44, 'Tutte le tappe', { scale: 0.55, depth: 10 });
+    const tappe = makeButton(this, cfg, 872, 44, 'Tutte le tappe', {
+      scale: 0.55,
+      maxTargetScale: 1.05,
+      depth: 10
+    });
     tappe.onTap(() => this.scene.start('Levels'));
 
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
@@ -46,7 +54,11 @@ export class SubjectScene extends Phaser.Scene {
     ];
 
     for (const v of voci) {
-      const b = makeButton(this, cfg, v.x, v.y, v.label, { depth: 10 });
+      const b = makeButton(this, cfg, v.x, v.y, v.label, {
+        scale: 0.88,
+        maxTargetScale: 1.04,
+        depth: 10
+      });
       b.onTap(() => {
         setMateria(v.id);
         setLevel(null);
@@ -56,10 +68,11 @@ export class SubjectScene extends Phaser.Scene {
       const livello = pack ? defaultLevelForYear(pack, cfg.schoolYear) : undefined;
       if (pack && livello) {
         const stelle = starsFor(pack.packId, livello.id);
-        makeText(this, v.x, v.y + 62, `★ ${stelle} / 3`, cfg, {
-          size: 18,
+        makeText(this, v.x, v.y + 52, `★ ${stelle} / 3`, cfg, {
+          size: 16,
           bold: stelle > 0,
-          color: stelle > 0 ? '#d99a00' : '#8a99ad'
+          color: stelle > 0 ? '#d99a00' : '#8a99ad',
+          maxH: 20
         });
       }
     }

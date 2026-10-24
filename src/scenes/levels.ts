@@ -35,27 +35,38 @@ export class LevelsScene extends Phaser.Scene {
 
     addWorld(this, 'scuola', cfg, { speed: 24 });
 
-    makeText(this, 512, 50, 'Tutte le tappe', cfg, {
-      size: 32,
+    makeText(this, 512, 46, 'Tutte le tappe', cfg, {
+      size: 30,
       bold: true,
       color: '#1d6fb8',
+      wrap: 620,
+      maxH: 38,
       outline: true
     });
-    makeText(this, 512, 90, 'Scegli direttamente la tappa da giocare.', cfg, {
-      size: 15,
-      color: '#5f7186'
+    makeText(this, 512, 86, 'Scegli direttamente la tappa da giocare.', cfg, {
+      size: 14,
+      color: '#5f7186',
+      wrap: 720,
+      maxH: 22
     });
 
     MATERIE.forEach((m, row) => {
       const y = 150 + row * 92;
       const pack = allPacks().find((p) => p.subject === m.id);
-      makeText(this, 135, y, m.label, cfg, { size: 20, bold: true, color: '#2f3b4c' });
+      makeText(this, 135, y, m.label, cfg, {
+        size: 19,
+        bold: true,
+        color: '#2f3b4c',
+        wrap: 210,
+        maxH: 34
+      });
 
       pack?.levels.forEach((livello, i) => {
-        const x = X_TAPPE[i] ?? 390 + i * 255;
+        const x = X_TAPPE[i] ?? 420 + i * 250;
         const stelle = starsFor(pack.packId, livello.id);
         const b = makeButton(this, cfg, x, y, `Tappa ${i + 1} · ★ ${stelle}`, {
           scale: 0.72,
+          maxTargetScale: 1.0,
           depth: 10
         });
         if (stelle === 3) b.setKind('correct');
@@ -67,7 +78,10 @@ export class LevelsScene extends Phaser.Scene {
       });
     });
 
-    const indietro = makeButton(this, cfg, 512, 525, 'Indietro', { scale: 0.62 });
+    const indietro = makeButton(this, cfg, 512, 525, 'Indietro', {
+      scale: 0.62,
+      maxTargetScale: 1.04
+    });
     indietro.onTap(() => this.scene.start('Subject'));
   }
 }

@@ -93,11 +93,14 @@ export class OrderChallenge implements Challenge {
     this.xs = Array.from({ length: this.n }, (_, i) => x0 + i * (this.slotW + GAP));
 
     // ── Prompt / hint / istruzione ──
-    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
-      size: 26,
+    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptWrap = cfg.repeatPrompt ? 640 : 780;
+    this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
+      size: 25,
       bold: true,
       color: '#2f3b4c',
-      wrap: 800,
+      wrap: promptWrap,
+      maxH: 54,
       outline: true
     });
     if (round.hint && cfg.showHintUpfront) {
@@ -107,19 +110,19 @@ export class OrderChallenge implements Challenge {
     this.instrText = makeText(
       scene,
       512,
-      152,
+      142,
       cfg.simpleLanguage
         ? `Metti nell'ordine da 1 a ${this.n}`
         : dragOk
           ? `Trascina (o tocca) gli elementi negli slot, dall'1 al ${this.n}`
           : `Tocca gli elementi nell'ordine giusto, dall'1 al ${this.n}`,
       cfg,
-      { size: 15, color: '#5f7186', wrap: 760 }
+      { size: 14, color: '#5f7186', wrap: 740, maxH: 22 }
     );
 
     // ── Slot numerati ──
     for (let i = 0; i < this.n; i++) {
-      this.slotRoots.push(makeSlot(scene, cfg, this.xs[i], SLOT_Y, i + 1, { w: this.slotW }));
+      this.slotRoots.push(makeSlot(scene, cfg, this.xs[i], SLOT_Y, i + 1, { w: this.slotW, h: 86 }));
       this.slots.push(null);
       this.slotChips.push(null);
     }
@@ -130,6 +133,7 @@ export class OrderChallenge implements Challenge {
       this.poolLabels.push(label);
       const chip = makeChip(scene, cfg, this.xs[i], POOL_Y, label, {
         w: this.slotW,
+        h: 86,
         size: 18,
         depth: 20
       });
@@ -143,7 +147,11 @@ export class OrderChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
+      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+        scale: 0.52,
+        maxTargetScale: 1.04,
+        depth: 12
+      });
       this.reBtn.onTap(() => {
         if (this.locked) return;
         synth.play('click');
@@ -157,10 +165,11 @@ export class OrderChallenge implements Challenge {
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
     this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
-      size: 15,
+      size: 14,
       color: C.orangeDeep,
       italic: true,
-      wrap: 760
+      wrap: 740,
+      maxH: 24
     });
   }
 

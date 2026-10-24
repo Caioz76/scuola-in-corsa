@@ -35,11 +35,11 @@ const LEFT_X = 276;
 const RIGHT_X = 748;
 const CHIP_W = 264;
 
-/** Righe verticali comprese tra 180 e 420 (lasciano spazio a prompt e terra). */
+/** Righe verticali comprese tra 198 e 442 (lasciano spazio a prompt, indizio, istruzione e terra). */
 function rowsY(n: number): number[] {
-  if (n === 1) return [300];
-  const top = 184;
-  const bottom = 416;
+  if (n === 1) return [310];
+  const top = 198;
+  const bottom = 442;
   return Array.from({ length: n }, (_, i) => top + ((bottom - top) * i) / (n - 1));
 }
 
@@ -93,11 +93,14 @@ export class MatchChallenge implements Challenge {
     this.rightOrder = order;
 
     // ── Prompt / hint / istruzione ──
-    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
-      size: 26,
+    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptWrap = cfg.repeatPrompt ? 640 : 780;
+    this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
+      size: 25,
       bold: true,
       color: '#2f3b4c',
-      wrap: 800,
+      wrap: promptWrap,
+      maxH: 54,
       outline: true
     });
     if (round.hint && cfg.showHintUpfront) {
@@ -106,22 +109,29 @@ export class MatchChallenge implements Challenge {
     this.instrText = makeText(
       scene,
       512,
-      150,
+      142,
       cfg.simpleLanguage
         ? 'Tocca le coppie giuste'
         : 'Abbina: tocca un elemento e poi il suo compagno giusto',
       cfg,
-      { size: 15, color: '#5f7186', wrap: 760 }
+      { size: 14, color: '#5f7186', wrap: 740, maxH: 22 }
     );
 
     // ── Colonne ──
+    const chipH = this.n >= 4 ? 64 : 76;
     for (let i = 0; i < this.n; i++) {
-      const lc = makeChip(scene, cfg, LEFT_X, this.ys[i], left[i], { w: CHIP_W, size: 18, depth: 18 });
+      const lc = makeChip(scene, cfg, LEFT_X, this.ys[i], left[i], {
+        w: CHIP_W,
+        h: chipH,
+        size: 18,
+        depth: 18
+      });
       lc.onTap(() => this.onTap('L', i));
       this.leftChips.push(lc);
 
       const rc = makeChip(scene, cfg, RIGHT_X, this.ys[i], right[this.rightOrder[i]], {
         w: CHIP_W,
+        h: chipH,
         size: 18,
         depth: 18
       });
@@ -134,7 +144,11 @@ export class MatchChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
+      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+        scale: 0.52,
+        maxTargetScale: 1.04,
+        depth: 12
+      });
       this.reBtn.onTap(() => {
         if (this.locked) return;
         synth.play('click');
@@ -148,10 +162,11 @@ export class MatchChallenge implements Challenge {
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
     this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
-      size: 15,
+      size: 14,
       color: C.orangeDeep,
       italic: true,
-      wrap: 760
+      wrap: 740,
+      maxH: 24
     });
   }
 

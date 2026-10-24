@@ -37,30 +37,34 @@ export class PauseScene extends Phaser.Scene {
     card.lineStyle(2, 0xc9d3e0, 1);
     card.strokeRoundedRect(252, 110, 512, 396, 30);
 
-    makeText(this, 512, 176, this.conferma ? 'Vuoi uscire?' : 'Pausa', cfg, {
-      size: 42,
+    makeText(this, 512, 160, this.conferma ? 'Vuoi uscire?' : 'Pausa', cfg, {
+      size: 38,
       bold: true,
       color: this.conferma ? '#c2554d' : '#1d6fb8',
+      wrap: 440,
+      maxH: 46,
       outline: true
     });
 
     makeText(
       this,
       512,
-      232,
+      220,
       this.conferma
         ? 'La tappa non è finita: i progressi di questa partita non vengono salvati.'
         : 'Quando vuoi, si riprende da dove eri rimasto.',
       cfg,
-      { size: 16, color: '#5f7186', wrap: 430 }
+      { size: 15, color: '#5f7186', wrap: 430, maxH: 42 }
     );
 
     // Con "Pausa quando serve" la pausa diventa anche un momento per respirare.
     if (cfg.pauseAllowed && !this.conferma) {
-      makeText(this, 512, 276, 'Fai un respiro: inspira piano, poi espira.', cfg, {
-        size: 15,
+      makeText(this, 512, 268, 'Fai un respiro: inspira piano, poi espira.', cfg, {
+        size: 14,
         italic: true,
-        color: '#2f8f6b'
+        color: '#2f8f6b',
+        wrap: 430,
+        maxH: 26
       });
     }
 
@@ -74,15 +78,28 @@ export class PauseScene extends Phaser.Scene {
     };
 
     if (this.conferma) {
-      const si = makeButton(this, cfg, 512, 332, 'Sì, esci', { scale: 0.8, depth: 10 });
+      const si = makeButton(this, cfg, 512, 332, 'Sì, esci', {
+        scale: 0.8,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
       si.onTap(esci);
-      const no = makeButton(this, cfg, 512, 420, 'No, torna al gioco', { scale: 0.8, depth: 10 });
+      const no = makeButton(this, cfg, 512, 420, 'No, torna al gioco', {
+        scale: 0.8,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
       no.onTap(riprendi);
     } else {
-      const continua = makeButton(this, cfg, 512, 332, 'Continua', { scale: 0.8, depth: 10 });
+      const continua = makeButton(this, cfg, 512, 332, 'Continua', {
+        scale: 0.8,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
       continua.onTap(riprendi);
       const titolo = makeButton(this, cfg, 512, 420, 'Esci dalla partita', {
         scale: 0.8,
+        maxTargetScale: 1.02,
         depth: 10
       });
       // Non esce subito: prima chiede conferma, nella stessa scheda.

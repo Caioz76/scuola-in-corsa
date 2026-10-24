@@ -24,16 +24,19 @@ export class ResultsScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
     const { packId, levelId, correct, total } = data;
 
-    makeText(this, 512, 90, 'Tappa completata!', cfg, {
-      size: 40,
+    makeText(this, 512, 86, 'Tappa completata!', cfg, {
+      size: 38,
       bold: true,
       color: '#1d6fb8',
+      wrap: 720,
+      maxH: 46,
       outline: true
     });
 
-    makeText(this, 512, 170, `${correct} su ${total}`, cfg, {
-      size: 28,
-      color: '#2f3b4c'
+    makeText(this, 512, 162, `${correct} su ${total}`, cfg, {
+      size: 26,
+      color: '#2f3b4c',
+      maxH: 34
     });
 
     const stelle =
@@ -70,32 +73,42 @@ export class ResultsScene extends Phaser.Scene {
     world.setProgress(total, total);
 
     if (pack && idx >= 0) {
-      makeText(this, 512, 322, pack.levels[idx].title, cfg, { size: 15, color: '#5f7186' });
+      makeText(this, 512, 322, pack.levels[idx].title, cfg, {
+        size: 15,
+        color: '#5f7186',
+        wrap: 720,
+        maxH: 24
+      });
     }
 
     const xs = [512 - 130, 512, 512 + 130];
     xs.forEach((x, i) => {
-      const star = this.add.image(x, 260, 'star').setScale(1.8);
+      const star = this.add.image(x, 256, 'star').setScale(1.8);
       if (i >= stelle) {
         star.setAlpha(0.2);
       }
     });
 
-    const rigioca = makeButton(this, cfg, 376, prossima ? 475 : 470, 'Rigioca', {
-      scale: prossima ? 0.76 : 0.8
+    const rigioca = makeButton(this, cfg, 356, prossima ? 476 : 470, 'Rigioca', {
+      scale: prossima ? 0.74 : 0.78,
+      maxTargetScale: 1.02
     });
     rigioca.onTap(() => this.scene.start('Game'));
 
     if (prossima) {
-      const avanti = makeButton(this, cfg, 512, 390, 'Tappa successiva', { scale: 0.9 });
+      const avanti = makeButton(this, cfg, 512, 390, 'Tappa successiva', {
+        scale: 0.86,
+        maxTargetScale: 1.02
+      });
       avanti.onTap(() => {
         setLevel(prossima.id);
         this.scene.start('Game');
       });
     }
 
-    const titolo = makeButton(this, cfg, 648, prossima ? 475 : 470, 'Torna al titolo', {
-      scale: prossima ? 0.76 : 0.8
+    const titolo = makeButton(this, cfg, 668, prossima ? 476 : 470, 'Torna al titolo', {
+      scale: prossima ? 0.74 : 0.78,
+      maxTargetScale: 1.02
     });
     titolo.onTap(() => this.scene.start('Title'));
   }

@@ -41,13 +41,15 @@ export class GameScene extends Phaser.Scene {
 
     makeText(
       this,
-      512,
-      26,
+      500,
+      20,
       `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`,
       cfg,
       {
-        size: 16,
-        color: '#5f7186'
+        size: 14,
+        color: '#5f7186',
+        wrap: 520,
+        maxH: 24
       }
     );
 
@@ -68,17 +70,21 @@ export class GameScene extends Phaser.Scene {
     world.setProgress(0, rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
-    const contatore = makeText(this, treD && runner ? 700 : 888, 26, '', cfg, {
+    const contatore = makeText(this, treD && runner ? 700 : 888, 20, '', cfg, {
       size: 14,
-      color: '#1f8a4c'
+      color: '#1f8a4c',
+      wrap: 180,
+      maxH: 24
     });
 
     // Regola BES `mascotGuide`: Pico accompagna lo studente passo per passo.
     const guidaPico = cfg.mascotGuide
-      ? makeText(this, 248, 548, '', cfg, {
-          size: 14,
+      ? makeText(this, 248, 550, '', cfg, {
+          size: 13,
           bold: true,
           color: '#1d6fb8',
+          wrap: 420,
+          maxH: 22,
           outline: true
         })
       : null;

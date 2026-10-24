@@ -29,6 +29,7 @@ import { mostraComandiRunner, nascondiComandi } from '../ui/runner-controls';
 import {
   MAX_ATTEMPTS,
   fitOptions,
+  fitTextToBox,
   flashCue,
   fontSpec,
   makeButton,
@@ -95,7 +96,8 @@ function makeSign(
       letterSpacing: spec.spacing
     })
     .setOrigin(0.5);
-  const h = Math.max(70, Math.round(text.height) + 28);
+  fitTextToBox(text, w - 30, 82, 12);
+  const h = Math.min(110, Math.max(70, Math.round(text.height) + 26));
 
   const card = scene.add.graphics();
   const draw = (kind: Kind): void => {
@@ -215,11 +217,14 @@ export class RunnerChallenge implements Challenge {
     this.options = fitOptions(round.options, cfg.maxOptions);
 
     // ── Domanda ──
-    this.promptText = makeText(scene, 512, 64, testoSemplice(round.prompt, cfg), cfg, {
-      size: 26,
+    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptWrap = cfg.repeatPrompt ? 640 : 780;
+    this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
+      size: 25,
       bold: true,
       color: T.body,
-      wrap: 800,
+      wrap: promptWrap,
+      maxH: 54,
       outline: true
     });
     if (round.hint && cfg.showHintUpfront) this.showHintNow();
@@ -228,7 +233,7 @@ export class RunnerChallenge implements Challenge {
     if (round.type === 'image') {
       const key = `icon-${round.icon}`;
       if (scene.textures.exists(key)) {
-        this.objects.push(scene.add.image(512, 186, key).setScale(1.7).setDepth(8));
+        this.objects.push(scene.add.image(512, 184, key).setScale(1.55).setDepth(8));
       }
     }
 
@@ -265,7 +270,11 @@ export class RunnerChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 872, 112, 'Rileggi', { scale: 0.58, depth: 12 });
+      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+        scale: 0.52,
+        maxTargetScale: 1.04,
+        depth: 12
+      });
       this.reBtn.onTap(() => {
         const banner = showBanner(scene, cfg, round.prompt, null, 'ok', { y: 186 });
         this.schedule(() => banner.dispose(), 2200);
@@ -600,10 +609,11 @@ export class RunnerChallenge implements Challenge {
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
     this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
-      size: 15,
+      size: 14,
       color: '#c96a12',
       italic: true,
-      wrap: 760
+      wrap: 740,
+      maxH: 24
     });
   }
 
