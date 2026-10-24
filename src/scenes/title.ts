@@ -33,5 +33,8 @@ export class TitleScene extends Phaser.Scene {
       depth: 10
     });
     impostazioni.onTap(() => this.scene.start('Settings'));
+
+    const progressi = makeButton(this, cfg, 872, 44, 'Progressi', { scale: 0.55, depth: 10 });
+    progressi.onTap(() => this.scene.start('Progress'));
   }
 }

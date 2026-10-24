@@ -65,11 +65,12 @@ export function makeText(
 ): Phaser.GameObjects.Text {
   const spec = fontSpec(cfg);
   const size = Math.round((o.size ?? 22) * cfg.fontScale);
+  const colore = cfg.highContrast ? hcColor(o.color ?? '#20222f') : (o.color ?? '#20222f');
   const t = scene.add.text(x, y, str, {
     fontFamily: spec.family,
     fontSize: `${size}px`,
     fontStyle: o.bold ? 'bold' : 'normal',
-    color: o.color ?? '#20222f',
+    color: colore,
     align: o.align ?? 'center',
     wordWrap: { width: o.wrap ?? 820, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
@@ -77,7 +78,17 @@ export function makeText(
   }).setOrigin(0.5);
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.outline) t.setShadow(0, 0, '#ffffff', Math.max(2, Math.round(size * 0.09)), true, false);
+  // Alto contrasto: bordo nero attorno al testo, così resta leggibile anche
+  // sopra i bottoni colorati.
+  if (cfg.highContrast) t.setStroke('#000000', Math.max(2, Math.round(size * 0.07)));
   return t;
+}
+
+/** Colori tenui → bianco puro quando è attivo l'alto contrasto. */
+const HC_TENUI = new Set(['#b8c4e0', '#5a6484', '#8b93ad', '#cfd6e4', '#20222f', '#e8ecf7']);
+
+function hcColor(c: string): string {
+  return HC_TENUI.has(c.toLowerCase()) ? '#ffffff' : c;
 }
 
 export type BtnKind = 'normal' | 'correct' | 'wrong' | 'disabled';
@@ -355,7 +366,7 @@ export function makeToggle(
   on: boolean,
   onTap: () => void
 ): void {
-  const h = 38;
+  const h = 36;
   const spec = fontSpec(cfg);
   const g = scene.add.graphics().setDepth(10);
   g.fillStyle(on ? 0x1f4d36 : 0x242a44, 0.95);
@@ -367,7 +378,7 @@ export function makeToggle(
     .text(x - w / 2 + 12, y, label, {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: '#e8ecf7'
+      color: cfg.highContrast ? '#ffffff' : '#e8ecf7'
     })
     .setOrigin(0, 0.5)
     .setDepth(11);
@@ -375,7 +386,7 @@ export function makeToggle(
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: on ? '#8fe3b0' : '#8b93ad',
+      color: on ? '#8fe3b0' : cfg.highContrast ? '#ffffff' : '#8b93ad',
       fontStyle: 'bold'
     })
     .setOrigin(1, 0.5)

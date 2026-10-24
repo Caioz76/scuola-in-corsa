@@ -62,6 +62,45 @@ async function toccaTesto(page: import('@playwright/test').Page, label: string):
   return true;
 }
 
+test('alto contrasto: i testi tenui diventano bianchi (prima e dopo il profilo)', async ({ page }) => {
+  await page.goto('/');
+  await expect.poll(() => scena(page)).toBe('Title');
+
+  const leggi = async (): Promise<Record<string, string>> =>
+    page.evaluate(() => {
+      const g = (window as unknown as {
+        __GIOCO__?: { scenaAttiva?: { children: { list: unknown[] } } | null };
+      }).__GIOCO__;
+      const s = g?.scenaAttiva;
+      const out: Record<string, string> = {};
+      const walk = (o: unknown): void => {
+        const n = o as {
+          type?: string;
+          text?: string;
+          style?: { color?: string };
+          list?: unknown[];
+        };
+        if (!n) return;
+        if (n.type === 'Text' && n.text) out[String(n.text).trim()] = n.style?.color ?? '';
+        if (n.list) n.list.forEach(walk);
+      };
+      s?.children.list.forEach(walk);
+      return out;
+    });
+
+  // Senza profilo il sottotitolo è grigio-azzurro.
+  expect((await leggi())['Scegli la materia e corri!']).toBe('#b8c4e0');
+
+  await page.evaluate(() => {
+    localStorage.setItem('sic.settings', JSON.stringify({ profileId: 'dislessia', overrides: {} }));
+  });
+  await page.reload();
+  await expect.poll(() => scena(page)).toBe('Title');
+
+  // Con Dislessia (highContrast) lo stesso testo è bianco puro.
+  expect((await leggi())['Scegli la materia e corri!']).toBe('#ffffff');
+});
+
 test('accendo "Pausa quando serve" senza profilo e il gioco la mostra', async ({ page }) => {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');

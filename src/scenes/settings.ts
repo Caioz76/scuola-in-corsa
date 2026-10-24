@@ -29,7 +29,8 @@ const REGOLE_UI = [
   'clearProgress',
   'musicOff',
   'soundCues',
-  'visualInsteadOfAudio'
+  'visualInsteadOfAudio',
+  'highContrast'
 ];
 
 let pagina: 'profili' | 'regole' = 'profili';
@@ -121,13 +122,13 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     voci.forEach((regola, i) => {
-      const colonna = i < 8 ? 0 : 1;
-      const riga = i % 8;
+      const colonna = i < 9 ? 0 : 1;
+      const riga = i % 9;
       makeToggle(
         this,
         cfg,
         colonna === 0 ? 268 : 756,
-        140 + riga * 44,
+        130 + riga * 40,
         460,
         regola.label,
         cfg.rules[regola.id] === true,

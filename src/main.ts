@@ -7,6 +7,7 @@ import { ResultsScene } from './scenes/results';
 import { SettingsScene } from './scenes/settings';
 import { LevelsScene } from './scenes/levels';
 import { PauseScene } from './scenes/pause';
+import { ProgressScene } from './scenes/progress';
 import { getMateria } from './scenes/shared';
 import { initAudio } from './audio/apply';
 import { synth } from './audio/synth';
@@ -24,7 +25,7 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BootScene, TitleScene, SubjectScene, LevelsScene, GameScene, ResultsScene, SettingsScene, PauseScene]
+  scene: [BootScene, TitleScene, SubjectScene, LevelsScene, GameScene, ResultsScene, SettingsScene, PauseScene, ProgressScene]
 });
 
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────
