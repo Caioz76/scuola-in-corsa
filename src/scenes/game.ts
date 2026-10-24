@@ -15,7 +15,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    const cfg = resolveConfig(loadSettings());
+    const impostazioni = loadSettings();
+    const cfg = resolveConfig(impostazioni);
+    const mode = impostazioni.mode ?? 'quiz';
     const pack = allPacks().find((p) => p.subject === getMateria());
     const level = pack?.levels.find((l) => l.id === getLevel()) ?? pack?.levels[0];
 
@@ -35,7 +37,12 @@ export class GameScene extends Phaser.Scene {
 
     // Il mondo: scenografia della materia, pista e Pico che corre.
     // I checkpoint in basso sono le prove della tappa.
-    const world = addWorld(this, themeFor(pack.subject), cfg, { track: true, speed: 38 });
+    // In modalità Runner Pico non avanza da solo: salta lui verso i cartelli.
+    const world = addWorld(this, themeFor(pack.subject), cfg, {
+      track: true,
+      speed: 38,
+      advance: mode === 'quiz'
+    });
     world.setProgress(0, level.rounds.length);
 
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
@@ -115,7 +122,7 @@ export class GameScene extends Phaser.Scene {
             this.time.delayedCall(2600 * ritmo, () => next());
           }
         }
-      });
+      }, { mode, world });
     };
 
     next();

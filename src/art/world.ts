@@ -25,6 +25,11 @@ export interface WorldOpts {
   track?: boolean;
   /** Velocità di scorrimento in px/s quando il mondo è animato. */
   speed?: number;
+  /**
+   * Se `false`, superare una prova non sposta Pico lungo la pista: serve alla
+   * modalità Runner, dove è il salto verso il cartello a muoverlo.
+   */
+  advance?: boolean;
 }
 
 export interface World {
@@ -32,6 +37,8 @@ export interface World {
   setProgress(done: number, total: number): void;
   /** Scatto in avanti: il mondo accelera, Pico salta. */
   dash(): void;
+  /** Salto verso un punto (il cartello scelto in modalità Runner). */
+  leap(x: number, y: number): void;
   /** Inciampo: Pico diventa rosso per un attimo. */
   stumble(): void;
   destroy(): void;
@@ -97,6 +104,9 @@ export function addWorld(
       .setName('pico');
     oggetti.push(pico);
   }
+  // Da dove parte e dove torna dopo un salto (modalità Runner).
+  const CASA_X = 66;
+  const CASA_Y = H - 50;
 
   const passo = scene.time.addEvent({
     delay: 130,
@@ -147,7 +157,7 @@ export function addWorld(
 
   /** Porta Pico al checkpoint raggiunto (o alla partenza se non ha ancora corso). */
   const portaPico = (compiuti: number): void => {
-    if (!pico) return;
+    if (!pico || opts.advance === false) return;
     const target = compiuti <= 0 ? PARTENZA_X : xCheckpoint(Math.min(compiuti, totali) - 1);
     if (!animato) {
       pico.x = target;
@@ -211,6 +221,40 @@ export function addWorld(
       if (!pico) return;
       pico.setTint(0xff8787);
       scene.time.delayedCall(280, () => pico?.clearTint());
+    },
+    leap(x: number, y: number): void {
+      if (!pico) return;
+      // Un salto alla volta; se ne arriva un altro, riparte da dove si trova.
+      scene.tweens.killTweensOf(pico);
+      saltoInCorso = true;
+      inCorsa = true;
+      const bersaglioX = Phaser.Math.Clamp(x, 150, W - 150);
+      const bersaglioY = Phaser.Math.Clamp(y, 300, CASA_Y - 40);
+      pico.setTexture('pico-jump');
+      scene.tweens.add({
+        targets: pico,
+        x: bersaglioX,
+        y: bersaglioY,
+        duration: animato ? 240 : 0,
+        ease: 'Quad.easeOut',
+        onComplete: () => {
+          // Un attimo di sospensione sulla testata, poi giù sul prato.
+          scene.time.delayedCall(animato ? 170 : 0, () => {
+            if (!pico) return;
+            scene.tweens.add({
+              targets: pico,
+              x: CASA_X,
+              y: CASA_Y,
+              duration: animato ? 300 : 0,
+              ease: 'Quad.easeIn',
+              onComplete: () => {
+                saltoInCorso = false;
+                if (pico && modoPico === 'run') pico.setTexture('pico-run1');
+              }
+            });
+          });
+        }
+      });
     },
     destroy(): void {
       distruggi();

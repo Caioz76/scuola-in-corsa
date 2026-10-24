@@ -1,4 +1,4 @@
-# RIPRESA — stato al 24/10/2026, 03:55
+# RIPRESA — stato al 24/10/2026, 04:20
 
 Punto di ripresa reale. Se qualcosa non torna, **fidati dei comandi**, non di
 questo file: in fondo ci sono le tre verifiche che dicono la verità.
@@ -9,7 +9,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
 | `npm test` (vitest) | **39/39** |
-| `npx playwright test` | **21/21** |
+| `npx playwright test` | **26/26** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
@@ -19,11 +19,14 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
 | Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
 | Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
+| Modalità di gioco | **Quiz** (bottoni) o **Runner** (cartelli sulla pista), scelta in Impostazioni |
+| Telefono | layout a tutto schermo senza scroll; in verticale invita a ruotare; provato su iPhone 13 emulato |
 | Progressi | dal titolo: stelle di ogni tappa e totale, senza rigiocare |
 | Mondo di gioco | scenografia parallax per materia, Pico che corre, pista con checkpoint |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit di codice: **`54beed4`** — “progressi e alto contrasto” (poi mondo di gioco, in commit).
+Ultimo commit di codice: leggi `git log -1 --oneline` (un hash scritto a mano
+invecchia subito).
 
 ## Com'è fatto il codice oggi
 
@@ -132,8 +135,46 @@ Regole BES collegate: `noDecoration` toglie la scenografia (resta la pista),
 terreno scorra davvero, che Pico salti alla risposta giusta e che le due regole
 spengano ciò che devono.
 
-La domanda resta un quiz: la corsa è il contesto, non un platformer. Se si vuole
-un gioco d'azione vero (saltare ostacoli), è un'altra scelta di prodotto.
+### Due modi di giocare: Quiz e Runner (24/10)
+
+La modalità si sceglie in **Impostazioni → Modalità: Quiz / Runner** e viene
+salvata in `sic.settings.mode` (default `quiz`). Non è una regola BES: è una
+scelta di prodotto, quindi resta anche cambiando profilo.
+
+- **Quiz** — le prove a scelta sono bottoni in basso; Pico avanza di checkpoint
+  in checkpoint.
+- **Runner** — le stesse prove diventano **cartelli piantati sulla pista**, che
+  entrano da destra e si fermano davanti a Pico. Toccando un cartello, Pico
+  salta e lo testa: se è giusto esplode in stelline, se è sbagliato il cartello
+  cade e si riprova (3 tentativi, come nel quiz). Pico torna al suo posto a ogni
+  salto, mentre il mondo continua a scorrere.
+
+Riordino e abbinamento restano uguali nelle due modalità: non hanno un
+equivalente onesto in corsa e fingere il contrario sarebbe peggio.
+
+I cartelli usano gli stessi aiuti BES dei bottoni: numero di opzioni, font e
+scala del testo, alto contrasto, suggerimento, "Rileggi", ritmo lento. Non c'è
+timer in nessuna delle due modalità.
+
+`tests/e2e/runner.spec.ts` verifica la scelta salvata, la sostituzione dei
+bottoni con i cartelli, il salto di Pico verso la risposta giusta,
+`fewerOptions` → 2 cartelli e che tre errori non blocchino la corsa.
+`tests/e2e/tappa.spec.ts` continua a giocare una tappa intera in modalità Quiz.
+
+### Telefono e pubblicazione (24/10)
+
+- `src/style.css`: il gioco occupa tutto lo schermo, niente scroll né zoom;
+- in verticale compare un avviso "Ruota il telefono per giocare" (non
+  intercetta i tocchi), in orizzontale sparisce;
+- `index.html` usa `viewport-fit=cover` per i telefoni con notch;
+- verificato con iPhone 13 emulato in landscape (tap Title → Subject → Game) e
+  sulla build single-file servita da sottocartella, senza errori console.
+
+`.github/workflows/deploy.yml` costruisce e pubblica su GitHub Pages a ogni push
+su `main`: typecheck, test unitari, build, deploy di `dist/ScuolaInCorsa`. La
+build è un solo `index.html`, quindi funziona anche sotto `/<repo>/`. Serve però
+un repository **pubblico** (piano GitHub free) e un'identità GitHub autenticata:
+sulla macchina non c'è né `gh` né una chiave SSH.
 
 ### Stile grafico: ispirazione Wii, non copia (24/10)
 
@@ -254,8 +295,7 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 | Cosa | PID | Note |
 |---|---|---|
 | dashboard `--watch 300` | 18276 | rigenera `dashboard.html` ogni 5 min |
-| Vite di collaudo, porta 5210 | 56652 | serve il codice vero |
-| Sessione B (`opencode run`) | — | **idle**, ultima chiusura 22:38:19 |
+| Vite di collaudo, porta 5211 | 68119 | `--host`, raggiungibile in LAN su `http://192.168.1.188:5211/` |
 
 ## Verifica in tre comandi
 
@@ -263,7 +303,7 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
 npx vitest run 2>&1 | grep -E "Tests"        # → 39 passed
-npx playwright test 2>&1 | tail -2           # → 21 passed
+npx playwright test 2>&1 | tail -2           # → 26 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`
@@ -281,22 +321,25 @@ Misure: C7 **91 s** · pilota contenuti **113 s** · hook **77 s** · hit-area
 
 ## Prossimi passi, in ordine di valore
 
-1. **Revisione umana dei due piloti** (`mat-7-9-l2`, `ita-8-10-l2`): è il
-   cancello. Senza approvazione i contenuti non entrano in `src/content/`.
-2. **Audio**: `src/audio/synth.ts` è già chiamato dalle prove; manca la prova
-   che l'`AudioContext` parta al primo gesto e un interruttore.
-3. **Scelta del livello**: `GameScene` usa `levels[0]`; con più tappe serve una
-   schermata di scelta.
-4. **Interruttori BES individuali**: oggi si scelgono i 9 profili; gli override
-   per singola regola sono previsti dal resolver ma non hanno UI.
-5. **Contenuti**: dopo l'approvazione, generare i pacchetti mancanti (2 minuti
-   l'uno con le corsie) e integrarli in `src/content/packs.ts`.
+1. **Pubblicazione su GitHub Pages**: il workflow è pronto e la build è un solo
+   file. Serve un'identità GitHub autenticata (`brew install gh && gh auth
+   login`) e un repo **pubblico**; poi `git remote add origin …`, push su `main`
+   e attivazione di Pages (Settings → Pages → GitHub Actions).
+2. **Revisione umana delle 6 bozze** in `content/drafts/`: è il cancello. Senza
+   approvazione i contenuti non entrano in `src/content/`.
+3. **Regole BES ancora dichiarate**: `shorterText`/`simpleLanguage` (testi più
+   brevi e semplici) e `mascotGuide` (Pico che suggerisce). O si implementano o
+   si tolgono dai profili.
+4. **Contenuti mancanti**: scienze e storia hanno una sola tappa; matematica e
+   italiano ne hanno due.
+5. **Collaudo in classe**: la modalità Runner va provata con i bambini; il
+   giudizio vero è lì, non negli screenshot.
 
 ## Problemi noti (veri, non ipotetici)
 
 - **B è lento**: 13–30 min per patch. Il collo di bottiglia è il modello locale.
 - **Content Factory** usa lo stesso LM Studio di B (`:1234`, `parallel=1`): non
   può girare in parallelo a B.
-- **Un solo livello per materia**: `GameScene` usa `levels[0]`; la scelta del
-  livello non esiste ancora.
+- **Copertura dei contenuti diseguale**: matematica e italiano hanno 2 tappe,
+  scienze e storia 1 sola; le bozze per le seconde tappe aspettano revisione.
 - **La dashboard** mostra i numeri dell'ultimo giro, non è in tempo reale.

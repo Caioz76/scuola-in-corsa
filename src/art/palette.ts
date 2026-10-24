@@ -81,6 +81,8 @@ export const T = {
   title: '#1d6fb8',
   /** conferme e progressi */
   ok: '#1f8a4c',
+  /** errori e avvisi forti */
+  bad: '#b83c3c',
   /** avvisi e suggerimenti */
   warn: '#c96a12',
   /** stelle guadagnate (leggibili su chiaro) */

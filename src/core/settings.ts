@@ -13,7 +13,8 @@ export function loadSettings(): BesSettings {
   const s = storage.get<BesSettings>(K, DEFAULT_SETTINGS);
   return {
     profileId: s.profileId ?? null,
-    overrides: s.overrides ?? {}
+    overrides: s.overrides ?? {},
+    mode: s.mode === 'runner' ? 'runner' : 'quiz'
   };
 }
 

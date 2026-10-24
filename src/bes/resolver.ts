@@ -45,14 +45,23 @@ export interface EffectiveConfig {
   repeatPrompt: boolean;
 }
 
+/**
+ * Come si gioca: `quiz` (bottoni) o `runner` (cartelli sulla pista).
+ * Non è una regola BES: è una scelta di prodotto, salvata con le impostazioni.
+ */
+export type GiocoMode = 'quiz' | 'runner';
+
 export interface BesSettings {
   profileId: string | null;
   overrides: Record<string, boolean>;
+  /** Modalità scelta; se assente vale `quiz`. */
+  mode?: GiocoMode;
 }
 
 export const DEFAULT_SETTINGS: BesSettings = {
   profileId: null,
-  overrides: {}
+  overrides: {},
+  mode: 'quiz'
 };
 
 export function resolveConfig(settings: BesSettings): EffectiveConfig {

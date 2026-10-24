@@ -53,10 +53,16 @@ funziona offline una volta caricato.
 ## Come si gioca
 
 1. Il bambino sceglie (o l'insegnante imposta) un **profilo BES** — oppure nessuno.
-2. Sceglie una **materia**: matematica, italiano, scienze o storia.
-3. Percorre il livello: il personaggio scorre, a ogni checkpoint compare una sfida.
-4. Risponde; il gioco dà un **riscontro immediato** (positivo o con spiegazione).
-5. Il progresso viene salvato in locale: si può riprendere da dove si era rimasti.
+2. In **Impostazioni** si sceglie anche la **modalità**: *Quiz* (risposte con i
+   bottoni) o *Runner* (le risposte sono cartelli piantati sulla pista e Pico
+   salta su quello scelto). La scelta resta salvata sul dispositivo.
+3. Sceglie una **materia**: matematica, italiano, scienze o storia.
+4. Percorre il livello: il personaggio scorre, a ogni checkpoint compare una sfida.
+5. Risponde; il gioco dà un **riscontro immediato** (positivo o con spiegazione).
+6. Il progresso viene salvato in locale: si può riprendere da dove si era rimasti.
+
+Su telefono si gioca in orizzontale: il gioco occupa tutto lo schermo e, se il
+telefono è in verticale, un avviso invita a ruotarlo.
 
 ---
 

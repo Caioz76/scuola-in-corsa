@@ -97,10 +97,13 @@ function makeSign(
 
   const root = scene.add.container(x, y, [card, text]).setDepth(20).setName('segno');
   const margine = cfg.permissiveTouch ? 20 : 8;
-  root.setInteractive(
-    new Phaser.Geom.Rectangle(-w / 2 - margine, -h / 2 - margine, w + margine * 2, h + margine * 2),
-    Phaser.Geom.Rectangle.Contains
+  const hit = new Phaser.Geom.Rectangle(
+    -w / 2 - margine,
+    -h / 2 - margine,
+    w + margine * 2,
+    h + margine * 2
   );
+  root.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
   return {
@@ -127,7 +130,7 @@ function makeSign(
     },
     setEnabled(b: boolean): void {
       enabled = b;
-      if (b) root.setInteractive();
+      if (b) root.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
       else root.disableInteractive();
     },
     onTap(cb: () => void): void {

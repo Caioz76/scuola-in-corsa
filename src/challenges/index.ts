@@ -8,20 +8,30 @@ import type { Round } from '../content/types';
 import { ChoiceChallenge } from './choice';
 import { MatchChallenge } from './match';
 import { OrderChallenge } from './order';
+import { RunnerChallenge, type RunnerWorld } from './runner';
+import type { GiocoMode } from '../bes/resolver';
 import type { Challenge, ChallengeCallbacks } from './ui';
 
 export * from './ui';
 export * from './choice';
 export * from './order';
 export * from './match';
+export * from './runner';
 
 /** Crea e mostra la challenge per il round. La scena gestisce banner e avanzamento. */
 export function showChallenge(
   scene: Phaser.Scene,
   round: Round,
   cfg: EffectiveConfig,
-  cb: ChallengeCallbacks
+  cb: ChallengeCallbacks,
+  opts: { mode?: GiocoMode; world?: RunnerWorld | null } = {}
 ): Challenge {
+  // In modalità Runner le prove a scelta diventano cartelli sulla pista.
+  // Le altre (riordino, abbinamento) restano come sono: non hanno un
+  // equivalente onesto in corsa, e fingersi uguali sarebbe peggio.
+  if (opts.mode === 'runner' && (round.type === 'quiz' || round.type === 'image')) {
+    return new RunnerChallenge(scene, round, cfg, cb, opts.world ?? null);
+  }
   switch (round.type) {
     case 'quiz':
     case 'image':
