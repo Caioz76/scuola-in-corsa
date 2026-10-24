@@ -20,7 +20,7 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit: **`dbdd4ff`** — “BES: pausa, contatore e ritmo applicati”.
+Ultimo commit: **`8a09903`** — “BES: pausa, contatore e ritmo applicati”.
 
 ## Com'è fatto il codice oggi
 
