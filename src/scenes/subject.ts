@@ -23,6 +23,10 @@ export class SubjectScene extends Phaser.Scene {
       outline: true
     });
 
+    // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
+    const tappe = makeButton(this, cfg, 872, 44, 'Tutte le tappe', { scale: 0.55, depth: 10 });
+    tappe.onTap(() => this.scene.start('Levels'));
+
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
       { id: 'matematica', label: 'Matematica', x: w / 2 - 190, y: h / 2 - 40 },
       { id: 'italiano', label: 'Italiano', x: w / 2 + 190, y: h / 2 - 40 },

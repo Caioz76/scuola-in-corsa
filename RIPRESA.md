@@ -8,17 +8,18 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **32/32** |
-| `npx playwright test` | **11/11** |
-| Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`) |
+| `npm test` (vitest) | **34/34** |
+| `npx playwright test` | **12/12** |
+| Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
 | Audio | si sblocca al primo gesto; profilo Sordità = zero suoni e zero contesto |
 | Contenuti in gioco | 4 materie; **matematica e italiano con 2 tappe** (12 esercizi revisionati) |
 | Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
+| Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit: **`46ebd69`** — “contenuti: seconda tappa di matematica e italiano”.
+Ultimo commit: **`8f9ff50`** — “tappe: scelta diretta di ogni tappa”.
 
 ## Com'è fatto il codice oggi
 
@@ -27,7 +28,8 @@ src/main.ts             creazione gioco + gancio di test + avvio audio
 src/scenes/shared.ts    tipo Materia + get/set (nessun import circolare)
 src/scenes/boot.ts      texture UI + icone → Title
 src/scenes/title.ts     titolo, "Gioca" → Subject
-src/scenes/subject.ts   4 materie → Game
+src/scenes/subject.ts   4 materie → Game (+ "Tutte le tappe" → Levels)
+src/scenes/levels.ts    scelta diretta di ogni tappa, con le stelle
 src/scenes/game.ts      prove reali, avanzamento, 3 errori → si prosegue
 src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
 src/scenes/settings.ts  9 profili BES, salvataggio immediato
@@ -61,7 +63,6 @@ falso, dopo è vero e la musica suona; con Sordità resta tutto falso anche dopo
 il tocco.
 
 ## Seconda tappa: contenuti approvati e raggiungibili (24/10)
-
 I due piloti (matematica 7-9 e italiano 8-10, 6 prove ciascuno) sono stati
 revisionati dall'umano e sono ora **dentro** `src/content/packs.ts` come
 `mat-7-9-l2` e `ita-8-10-l2`. Due suggerimenti sono stati corretti prima
@@ -76,6 +77,15 @@ prima se non è valida (es. cambio materia). L'e2e gioca la tappa 1, tocca
 
 Le bozze restano in `content/drafts/` come traccia della revisione; il test
 `tests/content-drafts.test.ts` continua a validarle.
+
+### Accesso diretto per l'insegnante
+
+`src/scenes/levels.ts` ("Tutte le tappe") elenca le tappe di tutte le materie
+con le stelle già prese. Ogni bottone imposta materia e tappa e avvia il gioco,
+quindi non serve completare la prima per provare la seconda. Si apre dal
+pulsante in alto a destra in `Subject`. Il percorso del bambino resta
+`Materia → prima tappa` (un tocco in meno), ma l'insegnante arriva a qualsiasi
+tappa in due tocchi.
 
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
@@ -112,8 +122,8 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 32 passed
-npx playwright test 2>&1 | tail -2           # → 11 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 34 passed
+npx playwright test 2>&1 | tail -2           # → 12 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`

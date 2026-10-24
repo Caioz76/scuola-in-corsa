@@ -364,7 +364,7 @@ const SCI: Pack = {
           id: 'sci-5', type: 'dragdrop', mode: 'match',
           prompt: 'Abbina l\'organo alla sua funzione.',
           leftItems: ['Cuore', 'Polmoni', 'Cervello'],
-          rightItems: ['Pensa', 'Batta il sangue', 'Respira'],
+          rightItems: ['Pensa', 'Pompa il sangue', 'Respira'],
           pairs: [[0, 1], [1, 2], [2, 0]],
           hint: 'Ogni organo ha un compito speciale.',
           explanation: 'Il cuore pompa il sangue, i polmoni respirano, il cervello pensa.'
