@@ -61,6 +61,13 @@ describe('BES resolver', () => {
     expect(cfg.visualAudioCues).toBe(true);
   });
 
+  it('slowPace: esposto come regola derivata, indipendente da reduceMotion', () => {
+    expect(resolveConfig({ profileId: 'adhd', overrides: {} }).slowPace).toBe(true);
+    expect(resolveConfig(DEFAULT_SETTINGS).slowPace).toBe(false);
+    // disprassia riduce il movimento ma non chiede un ritmo più lento
+    expect(resolveConfig({ profileId: 'disprassia', overrides: {} }).slowPace).toBe(false);
+  });
+
   it('ogni regola è raggiungibile da almeno un profilo o dal default', () => {
     // sanity: nessuna regola orfana (nessun profilo la tocca e default false → ok solo se intenzionale)
     const touched = new Set<string>();

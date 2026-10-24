@@ -24,6 +24,7 @@ export interface EffectiveConfig {
   fontScale: number;
   highContrast: boolean;
   motion: 'full' | 'reduced' | 'off';
+  slowPace: boolean;
   decoration: boolean;
   dragEnabled: boolean;
   targetScale: number;
@@ -81,6 +82,7 @@ export function resolveConfig(settings: BesSettings): EffectiveConfig {
     fontScale: has('largerText') ? 1.25 : 1.0,
     highContrast: has('highContrast'),
     motion: has('reduceMotion') ? 'off' : has('slowPace') ? 'reduced' : 'full',
+    slowPace: has('slowPace'),
     decoration: !has('noDecoration'),
     dragEnabled: !has('tapInsteadOfDrag'),
     targetScale: has('largerTargets') ? 1.3 : 1.0,

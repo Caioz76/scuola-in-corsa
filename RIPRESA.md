@@ -8,8 +8,8 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Controllo | Valore |
 |---|---|
 | `npx tsc --noEmit` | **0 errori** |
-| `npm test` (vitest) | **34/34** |
-| `npx playwright test` | **12/12** |
+| `npm test` (vitest) | **35/35** |
+| `npx playwright test` | **14/14** |
 | Flusso in browser | `Boot → Title → Subject → Game → Results` (+ `Settings`, `Levels`) |
 | Una tappa intera | giocata dal test e2e in **14,8 s**, 6/6 |
 | Stelle | 3 piene, salvate in `localStorage` come `sic.progress` |
@@ -17,9 +17,10 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Contenuti in gioco | 4 materie; **matematica e italiano con 2 tappe** (12 esercizi revisionati) |
 | Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
+| Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
 | `window.__GIOCO__` | `{ scena, materia, scenaAttiva, audio }` |
 
-Ultimo commit: **`8f9ff50`** — “tappe: scelta diretta di ogni tappa”.
+Ultimo commit: **`dbdd4ff`** — “BES: pausa, contatore e ritmo applicati”.
 
 ## Com'è fatto il codice oggi
 
@@ -87,6 +88,22 @@ pulsante in alto a destra in `Subject`. Il percorso del bambino resta
 `Materia → prima tappa` (un tocco in meno), ma l'insegnante arriva a qualsiasi
 tappa in due tocchi.
 
+### Pausa, progresso e ritmo (regole BES che ora agiscono)
+
+Tre regole erano dichiarate ma senza effetto:
+
+- **`pauseAllowed`** (ADHD, ansia): in `Game` compare "Pausa"; apre `PauseScene`,
+  mette davvero in pausa timer, tween e input di `Game`, e "Continua" riprende
+  dalla stessa prova.
+- **`clearProgress`** (ADHD, autismo, disabilità intellettiva, ansia): in alto a
+  destra si legge "Prova 2 di 6".
+- **`slowPace`** (ADHD, autismo, discalculia, ansia): il feedback resta sullo
+  schermo 1,6 volte più a lungo (900→1440 ms, 2600→4160 ms). Ora è anche un
+  campo di `EffectiveConfig`, quindi verificabile dai test.
+
+`tests/e2e/pausa.spec.ts` verifica pausa e ripresa reale; senza profilo né il
+bottone né il contatore compaiono.
+
 ## I due difetti di input trovati stanotte (importante, non rifarli)
 
 1. **Aree cliccabili in coordinate sbagliate** — Phaser normalizza il punto
@@ -122,8 +139,8 @@ con `__GIOCO__.scenaAttiva`, prende le risposte dal pack vero
 ```bash
 cd /Users/caioz/scuola-in-corsa
 npx tsc --noEmit 2>&1 | grep -c "error TS"   # → 0
-npx vitest run 2>&1 | grep -E "Tests"        # → 34 passed
-npx playwright test 2>&1 | tail -2           # → 12 passed
+npx vitest run 2>&1 | grep -E "Tests"        # → 35 passed
+npx playwright test 2>&1 | tail -2           # → 14 passed
 ```
 
 ## Corsie parallele — `tools/lane.sh`
