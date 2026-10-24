@@ -1,7 +1,7 @@
 /**
- * Texture procedurali stile Nintendo Wii Sports / Wii Menu:
- * capsule bianco-porcellana con bordo luminoso Azzurro Wii (#00a2e8),
- * righe sottili da canale Wii, calotta glossy speculare, pista d'atletica
+ * Texture procedurali stile Edu Sports Arena / Menu Sportivo:
+ * capsule bianco-porcellana con bordo luminoso Azzurro Sport (#00a2e8),
+ * righe sottili da canale Sport, calotta glossy speculare, pista d'atletica
  * in tartan rosso con prato a strisce da stadio, bandierina a scacchi.
  */
 import type Phaser from 'phaser';
@@ -17,9 +17,9 @@ function lgrad(ctx: Ctx, x0: number, y0: number, x1: number, y1: number, stops: 
 }
 
 /**
- * Bottone iconico stile Nintendo Wii / Wii Sports:
+ * Bottone iconico stile Sport Console / Sport:
  * ombra morbida azzurra/ardesia, bordo esterno spesso e luminoso,
- * texture a micro-righe orizzontali stile canale Wii e calotta glossy.
+ * texture a micro-righe orizzontali stile canale Sport e calotta glossy.
  */
 function button(
   ctx: Ctx,
@@ -38,7 +38,7 @@ function button(
   ctx.fillStyle = 'rgba(0, 162, 232, 0.12)';
   ctx.beginPath(); ctx.roundRect(2, 6, w - 4, h - 8, r); ctx.fill();
 
-  // Bordo esterno spesso e luminoso stile Wii
+  // Bordo esterno spesso e luminoso stile Sport
   ctx.fillStyle = borderColor;
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, r); ctx.fill();
 
@@ -55,7 +55,7 @@ function button(
   ]);
   ctx.fillRect(4, 4, w - 8, h - 12);
 
-  // Sottilissime righe orizzontali stile Canale Wii (ogni 4px)
+  // Sottilissime righe orizzontali stile Canale Sport (ogni 4px)
   ctx.fillStyle = stripeRgba;
   for (let y = 8; y < h - 10; y += 4) {
     ctx.fillRect(6, y, w - 12, 1.5);
@@ -80,30 +80,30 @@ function button(
   ctx.beginPath(); ctx.roundRect(26, 6.5, w - 52, 3.5, 2); ctx.fill();
 }
 
-/** Pannello stile finestra di sistema Wii Sports con header azzurro lucido. */
+/** Pannello stile finestra di sistema Sport con header azzurro lucido. */
 function panel(ctx: Ctx, w: number, h: number): void {
   // Ombra morbida
   ctx.fillStyle = 'rgba(15, 65, 110, 0.16)';
   ctx.beginPath(); ctx.roundRect(6, 10, w - 12, h - 12, 26); ctx.fill();
 
-  // Corpo bianco porcellana Wii
+  // Corpo bianco porcellana Sport
   ctx.fillStyle = lgrad(ctx, 0, 2, 0, h - 8, [[0, '#ffffff'], [1, '#eef7ff']]);
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 24); ctx.fill();
 
-  // Righe sottili stile menu Wii sul fondo
+  // Righe sottili stile menu Sport sul fondo
   ctx.fillStyle = 'rgba(0, 162, 232, 0.03)';
   for (let y = 64; y < h - 16; y += 5) {
     ctx.fillRect(14, y, w - 28, 1.5);
   }
 
-  // Fascia d'intestazione azzurra Wii Sports
+  // Fascia d'intestazione azzurra Sport
   ctx.fillStyle = lgrad(ctx, 0, 10, 0, 58, [[0, '#e6f6ff'], [1, '#c8ebff']]);
   ctx.beginPath(); ctx.roundRect(12, 12, w - 24, 46, 16); ctx.fill();
   ctx.strokeStyle = 'rgba(0, 162, 232, 0.35)';
   ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.roundRect(12, 12, w - 24, 46, 16); ctx.stroke();
 
-  // Bordo esterno Azzurro Wii + filetto interno bianco
+  // Bordo esterno Azzurro Sport + filetto interno bianco
   ctx.strokeStyle = '#38b6ff';
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 24); ctx.stroke();
@@ -160,9 +160,9 @@ function heart(ctx: Ctx, s: number): void {
   ctx.beginPath(); ctx.ellipse(17*u, 19*u, 3.6*u, 2.3*u, -0.6, 0, 7); ctx.fill();
 }
 
-/** Bandiera del traguardo in stile Wii Sports (asta bianca/argento, pomello d'oro, scacchi). */
+/** Bandiera del traguardo in stile Sport (asta bianca/argento, pomello d'oro, scacchi). */
 function flag(ctx: Ctx, _w: number, h: number): void {
-  // Base sportiva bianca e azzurra Wii
+  // Base sportiva bianca e azzurra Sport
   ctx.fillStyle = '#00a2e8';
   ctx.beginPath(); ctx.roundRect(24, h - 14, 24, 12, 5); ctx.fill();
   ctx.fillStyle = '#ffffff';
@@ -182,14 +182,14 @@ function flag(ctx: Ctx, _w: number, h: number): void {
   ctx.fillStyle = '#fff3a1';
   ctx.beginPath(); ctx.arc(34.5, 5.5, 2, 0, 7); ctx.fill();
 
-  // Drappo sportivo con bordo azzurro Wii e scacchi bianchi/azzurri + punta corallo
+  // Drappo sportivo con bordo azzurro Sport e scacchi bianchi/azzurri + punta corallo
   ctx.fillStyle = '#00a2e8';
   ctx.beginPath();
   ctx.roundRect(39, 10, 30, 22, 4);
   ctx.fill();
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(41, 12, 26, 18);
-  // Scacchiera Wii Sports
+  // Scacchiera Sport
   ctx.fillStyle = '#00a2e8';
   const cw = 6.5;
   const ch = 6;
@@ -204,13 +204,13 @@ function flag(ctx: Ctx, _w: number, h: number): void {
 
 /**
  * Tile di terra tileabile (128×96):
- * vera pista d'atletica / stadio Wii Sports!
+ * vera pista d'atletica / stadio Sport!
  * Fascia superiore di prato da stadio a strisce verdi brillanti,
- * cordolo sportivo bianco e azzurro Wii, e corsia in tartan rosso/terracotta
+ * cordolo sportivo bianco e azzurro Sport, e corsia in tartan rosso/terracotta
  * con linee di corsia bianche tratteggiate su cui corre Pico.
  */
 function ground(ctx: Ctx, w: number, h: number): void {
-  // 1. Fascia superiore: prato da golf/stadio Wii Sports a bande verticali
+  // 1. Fascia superiore: prato da golf/stadio Sport a bande verticali
   ctx.fillStyle = '#6ee268';
   ctx.fillRect(0, 10, w, 24);
   ctx.fillStyle = '#58cc52';
@@ -226,7 +226,7 @@ function ground(ctx: Ctx, w: number, h: number): void {
     ctx.fill();
   }
 
-  // 2. Cordolo sportivo bianco e Azzurro Wii (#00a2e8)
+  // 2. Cordolo sportivo bianco e Azzurro Sport (#00a2e8)
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 32, w, 6);
   ctx.fillStyle = '#00a2e8';
@@ -236,7 +236,7 @@ function ground(ctx: Ctx, w: number, h: number): void {
   ctx.fillStyle = 'rgba(0,0,0,0.10)';
   ctx.fillRect(0, 38, w, 2);
 
-  // 3. Corsia d'atletica in tartan rosso/terracotta Wii Sports
+  // 3. Corsia d'atletica in tartan rosso/terracotta Sport
   ctx.fillStyle = lgrad(ctx, 0, 40, 0, h - 10, [
     [0, '#ee7354'],
     [0.5, '#e05d3c'],
@@ -263,13 +263,13 @@ function ground(ctx: Ctx, w: number, h: number): void {
   ctx.fillRect(0, h - 11, w, 11);
 }
 
-/** Scheda bianca porcellana stile Wii Sports con doppio bordo celeste/argento e riflesso. */
+/** Scheda bianca porcellana stile Sport con doppio bordo celeste/argento e riflesso. */
 function card(ctx: Ctx, w: number, h: number): void {
   // Ombra morbida azzurra/ardesia
   ctx.fillStyle = 'rgba(15, 65, 110, 0.16)';
   ctx.beginPath(); ctx.roundRect(4, 8, w - 8, h - 10, 20); ctx.fill();
 
-  // Bordo esterno celeste Wii (#38b6ff)
+  // Bordo esterno celeste Sport (#38b6ff)
   ctx.fillStyle = '#38b6ff';
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 10, 19); ctx.fill();
 
@@ -277,7 +277,7 @@ function card(ctx: Ctx, w: number, h: number): void {
   ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 10, [[0, '#ffffff'], [0.65, '#f7fbff'], [1, '#e6f4ff']]);
   ctx.beginPath(); ctx.roundRect(5, 5, w - 10, h - 16, 16); ctx.fill();
 
-  // Sottili righe orizzontali stile Wii
+  // Sottili righe orizzontali stile Sport
   ctx.fillStyle = 'rgba(0, 162, 232, 0.035)';
   for (let y = 10; y < h - 14; y += 4) {
     ctx.fillRect(10, y, w - 20, 1.5);
@@ -293,7 +293,7 @@ function card(ctx: Ctx, w: number, h: number): void {
   ctx.beginPath(); ctx.roundRect(5.5, 5.5, w - 11, h - 17, 15.5); ctx.stroke();
 }
 
-/** Slot vuoto (bordo tratteggiato azzurro Wii) per le prove di riordino. */
+/** Slot vuoto (bordo tratteggiato azzurro Sport) per le prove di riordino. */
 function slot(ctx: Ctx, w: number, h: number): void {
   ctx.fillStyle = 'rgba(235, 248, 255, 0.72)';
   ctx.beginPath(); ctx.roundRect(4, 4, w - 8, h - 8, 18); ctx.fill();
@@ -304,7 +304,7 @@ function slot(ctx: Ctx, w: number, h: number): void {
   ctx.setLineDash([]);
 }
 
-/** Bottone tondo piccolo stile icona Wii Menu (HUD: pausa, audio). */
+/** Bottone tondo piccolo stile icona Menu Sportivo (HUD: pausa, audio). */
 function roundbtn(ctx: Ctx, s: number): void {
   ctx.fillStyle = 'rgba(15, 65, 110, 0.16)';
   ctx.beginPath(); ctx.arc(s / 2, s / 2 + 2, s / 2 - 2, 0, 7); ctx.fill();
@@ -317,12 +317,12 @@ function roundbtn(ctx: Ctx, s: number): void {
 }
 
 /**
- * Oggetti di bordo pista in stile stadio Wii Sports (512×64):
- * transenne sportive bianche/azzurre Wii, cartelli metrici (50m, 100m),
+ * Oggetti di bordo pista in stile stadio Sport (512×64):
+ * transenne sportive bianche/azzurre Sport, cartelli metrici (50m, 100m),
  * cespugli sferici curati e bandierine sportive.
  */
 function propsRow(ctx: Ctx, _w: number, h: number): void {
-  // Cespuglio sferico stile Wii Sports Golf
+  // Cespuglio sferico stile Sport Golf
   const bush = (x: number, s: number): void => {
     ctx.fillStyle = '#3eb848';
     ctx.beginPath();
@@ -337,24 +337,24 @@ function propsRow(ctx: Ctx, _w: number, h: number): void {
     ctx.fill();
   };
 
-  // Transenna sportiva bassa bianca e Azzurro Wii
+  // Transenna sportiva bassa bianca e Azzurro Sport
   const barrier = (x: number): void => {
     // Piedini
     ctx.fillStyle = '#5f7186';
     ctx.fillRect(x - 22, h - 8, 5, 8);
     ctx.fillRect(x + 17, h - 8, 5, 8);
-    // Pannello bianco con bordo azzurro Wii
+    // Pannello bianco con bordo azzurro Sport
     ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.roundRect(x - 26, h - 24, 52, 17, 4); ctx.fill();
     ctx.strokeStyle = '#00a2e8';
     ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.roundRect(x - 26, h - 24, 52, 17, 4); ctx.stroke();
-    // Striscia centrale azzurra Wii
+    // Striscia centrale azzurra Sport
     ctx.fillStyle = '#00a2e8';
     ctx.fillRect(x - 20, h - 18, 40, 5);
   };
 
-  // Cartello chilometrico / distanza Wii Sports ("50m" / "100m")
+  // Cartello chilometrico / distanza Sport ("50m" / "100m")
   const signPost = (x: number, label: string): void => {
     ctx.fillStyle = '#c9d6e4';
     ctx.fillRect(x - 2, h - 14, 4, 14);
@@ -401,11 +401,11 @@ export function ensureUI(scene: Phaser.Scene): void {
     draw(cv.getContext());
     cv.refresh();
   };
-  // btn-blue: l'iconico bottone principale Wii (bianco-porcellana + bordo Azzurro Wii #00a2e8)
+  // btn-blue: l'iconico bottone principale Sport (bianco-porcellana + bordo Azzurro Sport #00a2e8)
   make('btn-blue', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
   );
-  // btn-green: attivo / risposta corretta (verde menta brillante Wii Sports)
+  // btn-green: attivo / risposta corretta (verde menta brillante Sport)
   make('btn-green', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#ebfff2', '#82eba8', '#42c472', '#1e964c', 'rgba(30, 150, 76, 0.05)')
   );
@@ -413,15 +413,15 @@ export function ensureUI(scene: Phaser.Scene): void {
   make('btn-orange', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#fff6e8', '#ffc478', '#f59838', '#c96a12', 'rgba(201, 106, 18, 0.05)')
   );
-  // btn-red: errore (corallo acceso Wii)
+  // btn-red: errore (corallo acceso Sport)
   make('btn-red', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#fff0f0', '#ff9696', '#e65555', '#c22e2e', 'rgba(194, 46, 46, 0.05)')
   );
-  // btn-yellow: oro Wii Sports
+  // btn-yellow: oro Sport
   make('btn-yellow', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#fffbe6', '#ffe47a', '#f2c438', '#c49200', 'rgba(196, 146, 0, 0.05)')
   );
-  // btn-gray: disabilitato / neutro argento Wii
+  // btn-gray: disabilitato / neutro argento Sport
   make('btn-gray', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#ffffff', '#eef3f8', '#dce4ee', '#9eb0c4', 'rgba(95, 113, 134, 0.04)')
   );
@@ -454,7 +454,7 @@ export function ensureIcons(scene: Phaser.Scene): void {
     const cv = scene.textures.createCanvas(key, 96, 96);
     if (!cv) continue;
     const ctx = cv.getContext();
-    // Fondo medaglione bianco porcellana Wii con bordo celeste
+    // Fondo medaglione bianco porcellana Sport con bordo celeste
     ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.beginPath(); ctx.roundRect(2, 2, 92, 92, 16); ctx.fill();
     ctx.strokeStyle = '#38b6ff'; ctx.lineWidth = 2.5;

@@ -21,6 +21,7 @@ import type { ThemeKey } from './backgrounds';
 import type { World } from './world';
 import { synth } from '../audio/synth';
 import { aggiornaHudRunner } from '../ui/runner-hud';
+import { create3DCelebration, type Celebration3D } from './celebration';
 
 export interface Gate3D {
   /** Il cancello è arrivato e la barra delle risposte si può abilitare. */
@@ -412,6 +413,7 @@ class Mondo3D implements World3D {
   private frenoT = 0;
   private ostacoli: Ostacolo[] = [];
   private raccoglibili: StellaRacc[] = [];
+  private festa3d: Celebration3D | null = null;
 
   private matCono = new THREE.MeshStandardMaterial({ color: 0xffa94d, roughness: 0.6 });
   private matBianco = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
@@ -448,6 +450,7 @@ class Mondo3D implements World3D {
     // In verticale il canvas Phaser (16:9) va in alto, sotto la barra di
     // navigazione: così la domanda non finisce sopra il cancello.
     document.body.classList.add('con-3d');
+    this.scene.scale.refresh();
 
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: false });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -973,6 +976,13 @@ class Mondo3D implements World3D {
     const px = p ? p.position.x : 0;
     this.avviaSalto(0.72);
     this.stelline(c.gruppo.position.x + px, 2.45, c.gruppo.position.z + (p?.position.z ?? 0));
+    if (!this.festa3d) {
+      this.festa3d = create3DCelebration(this.mondo);
+      setTimeout(() => {
+        this.festa3d?.dispose();
+        this.festa3d = null;
+      }, 3500);
+    }
     this.setSpeed(560);
     c.uscita = true;
     const partenza = c.gruppo.position.x;
@@ -1226,12 +1236,14 @@ class Mondo3D implements World3D {
     const distanza = largo >= 1.2 ? 1 : Math.min(1.55, 1.2 / largo);
     this.camera.position.z = 7.4 * distanza;
     this.camera.updateProjectionMatrix();
+    this.scene.scale.refresh();
   }
 
   private aggiorna = (_t: number, deltaMs: number): void => {
     const dt = Math.min(deltaMs, 50) / 1000;
     this.tempo += dt;
     this.sincronizza();
+    this.festa3d?.update(dt);
 
     // velocità con accelerazione e frenata morbide
     if (this.spinta > 0) this.spinta -= dt;
@@ -1426,6 +1438,8 @@ class Mondo3D implements World3D {
     window.removeEventListener('resize', this.onResize);
     this.chiudiCancello();
     this.svuotaPercorso();
+    this.festa3d?.dispose();
+    this.festa3d = null;
     this.geoStella.dispose();
     this.matCono.dispose();
     this.matBianco.dispose();

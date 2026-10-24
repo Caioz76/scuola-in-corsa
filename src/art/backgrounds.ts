@@ -252,13 +252,13 @@ function wuhuLighthouse(ctx: Ctx, x: number, y: number, s: number): void {
   ctx.translate(x, y);
   ctx.scale(s, s);
 
-  // Promontorio roccioso/erboso di Wuhu Island
+  // Promontorio roccioso/erboso di Isola dell Atleta
   ctx.fillStyle = '#7cd973';
   ctx.beginPath();
   ctx.ellipse(0, 38, 62, 18, 0, Math.PI, 0);
   ctx.fill();
 
-  // Torre del faro (bianca con fasce rosse stile Wuhu Island)
+  // Torre del faro (bianca con fasce rosse stile Isola dell Atleta)
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.moveTo(-14, 24);
@@ -293,12 +293,12 @@ function wuhuLighthouse(ctx: Ctx, x: number, y: number, s: number): void {
   ctx.restore();
 }
 
-function wiiStadiumArch(ctx: Ctx, x: number, y: number, s: number): void {
+function stadiumArch(ctx: Ctx, x: number, y: number, s: number): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
 
-  // Grande arco bianco aerodinamico dello Stadio Wii Sports sullo sfondo
+  // Grande arco bianco aerodinamico dello Stadio Sport sullo sfondo
   ctx.strokeStyle = 'rgba(255,255,255,0.85)';
   ctx.lineWidth = 8;
   ctx.beginPath();
@@ -325,9 +325,9 @@ function wiiStadiumArch(ctx: Ctx, x: number, y: number, s: number): void {
 }
 
 function hills(ctx: Ctx, t: Theme, s: ThemeKey): void {
-  // Grande arco dello stadio Wii Sports e faro di Wuhu Island dietro la prima collina
-  wiiStadiumArch(ctx, 520, 326, 0.95);
-  wiiStadiumArch(ctx, 1544, 326, 0.95);
+  // Grande arco dello stadio Sport e faro di Isola dell Atleta dietro la prima collina
+  stadiumArch(ctx, 520, 326, 0.95);
+  stadiumArch(ctx, 1544, 326, 0.95);
   wuhuLighthouse(ctx, 880, 292, 0.85);
   wuhuLighthouse(ctx, 1904, 292, 0.85);
 

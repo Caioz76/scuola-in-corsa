@@ -1,7 +1,7 @@
 /**
  * Palette "giorno di scuola": chiara, morbida, arrotondata.
  *
- * Ispirazione: la sensazione delle console di casa Nintendo (Wii) — superfici
+ * Ispirazione: la sensazione delle console di casa Edu (Sport) — superfici
  * bianche, colori pastello, ombre leggere, niente contorni neri pesanti.
  * È solo un riferimento di atmosfera: forme, colori e personaggi sono nostri.
  *

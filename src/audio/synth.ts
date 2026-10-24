@@ -198,6 +198,29 @@ class SynthEngine {
     }
   }
 
+  get muted(): boolean {
+    return !this.sfxOn && !this.musicOn;
+  }
+
+  setMuted(m: boolean): void {
+    this.sfxOn = !m;
+    this.musicOn = !m;
+    if (m) {
+      this.stopMusic();
+      if (this.master) this.master.gain.value = 0;
+    } else {
+      if (this.master) this.master.gain.value = 0.9;
+      this.startMusic();
+    }
+    window.dispatchEvent(new CustomEvent('sic:audio-mute', { detail: { muted: m } }));
+  }
+
+  toggleMute(): boolean {
+    const next = !this.muted;
+    this.setMuted(next);
+    return next;
+  }
+
   stopMusic(): void {
     if (this.musicTimer !== null) {
       window.clearInterval(this.musicTimer);

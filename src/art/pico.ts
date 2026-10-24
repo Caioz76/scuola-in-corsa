@@ -1,8 +1,8 @@
 /**
- * Pico — il Mii-Robot Atleta di Scuola in Corsa (stile Nintendo Wii Sports).
- * Scocca bianco-perla e giallo solare, maglia sportiva Azzurro Wii (#00a2e8)
+ * Pico — il Robot Atleta di Scuola in Corsa (stile Edu Sports Arena).
+ * Scocca bianco-perla e giallo solare, maglia sportiva Azzurro Sport (#00a2e8)
  * con colletto a V bianco, fascia antisudore (sweatband), mani sferiche
- * fluttuanti stile Mii, visiera espressiva e ruote high-tech Wii.
+ * fluttuanti atletiche, visiera espressiva e ruote high-tech Sport.
  * Frame procedurali (idle, corsa, salto, festa) su canvas 96×96.
  */
 import type Phaser from 'phaser';
@@ -16,12 +16,12 @@ export interface PicoOpts {
   mouth: 'smile' | 'open' | 'o';
 }
 
-/** Disegna una mano sferica fluttuante stile Mii con polsino sportivo. */
-function drawMiiHand(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, u: number): void {
+/** Disegna una mano sferica fluttuante atletiche con polsino sportivo. */
+function drawAthleteHand(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, u: number): void {
   // Ombra morbida
   ctx.fillStyle = 'rgba(43,66,94,0.22)';
   ctx.beginPath(); ctx.arc(x, y + 1.4 * u, r, 0, 7); ctx.fill();
-  // Sfera bianca porcellana Mii
+  // Sfera bianca porcellana Atleta
   ctx.fillStyle = '#ffffff';
   ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
   ctx.strokeStyle = '#00a2e8';
@@ -43,7 +43,7 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.rotate(o.tilt);
   ctx.translate(-48 * u, -54 * u);
 
-  // Antenna high-tech con sfera luminosa Azzurro Wii / Oro
+  // Antenna high-tech con sfera luminosa Azzurro Sport / Oro
   ctx.strokeStyle = '#3b4a5a';
   ctx.lineWidth = 3 * u;
   ctx.lineCap = 'round';
@@ -53,27 +53,27 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.fillStyle = '#ffffff';
   ctx.beginPath(); ctx.arc(46.6 * u, 5.4 * u, 1.6 * u, 0, 7); ctx.fill();
 
-  // Braccia sportive + mani sferiche fluttuanti stile Mii
+  // Braccia sportive + mani sferiche fluttuanti atletiche
   if (o.armsUp) {
     // Braccio sinistro alzato
     ctx.fillStyle = '#00a2e8';
     ctx.beginPath(); ctx.arc(16 * u, 44 * u, 4.8 * u, 0, 7); ctx.fill();
-    drawMiiHand(ctx, 10 * u, 33 * u, 6.2 * u, u);
+    drawAthleteHand(ctx, 10 * u, 33 * u, 6.2 * u, u);
     // Braccio destro alzato
     ctx.fillStyle = '#00a2e8';
     ctx.beginPath(); ctx.arc(80 * u, 44 * u, 4.8 * u, 0, 7); ctx.fill();
-    drawMiiHand(ctx, 86 * u, 33 * u, 6.2 * u, u);
+    drawAthleteHand(ctx, 86 * u, 33 * u, 6.2 * u, u);
   } else {
-    // Spalle/maniche corte Wii Sports
+    // Spalle/maniche corte Sport
     ctx.fillStyle = '#00a2e8';
     ctx.beginPath(); ctx.arc(16 * u, 49 * u, 5 * u, 0, 7); ctx.fill();
     ctx.beginPath(); ctx.arc(80 * u, 49 * u, 5 * u, 0, 7); ctx.fill();
-    // Mani sferiche fluttuanti Mii
-    drawMiiHand(ctx, 12 * u, 61 * u, 6 * u, u);
-    drawMiiHand(ctx, 84 * u, 61 * u, 6 * u, u);
+    // Mani sferiche fluttuanti Atleta
+    drawAthleteHand(ctx, 12 * u, 61 * u, 6 * u, u);
+    drawAthleteHand(ctx, 84 * u, 61 * u, 6 * u, u);
   }
 
-  // Corpo principale: guscio superiore giallo solare + maglia atletica Wii Sports in basso
+  // Corpo principale: guscio superiore giallo solare + maglia atletica Sport in basso
   ctx.fillStyle = C.ink;
   ctx.beginPath(); ctx.roundRect(18 * u, 17 * u, 60 * u, 59 * u, 17 * u); ctx.fill();
 
@@ -86,10 +86,10 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.fillStyle = C.pico;
   ctx.fillRect(18 * u, 17 * u, 60 * u, 42 * u);
 
-  // Parte bassa: divisa sportiva Azzurro Wii (#00a2e8) con bordo bianco
+  // Parte bassa: divisa sportiva Azzurro Sport (#00a2e8) con bordo bianco
   ctx.fillStyle = '#00a2e8';
   ctx.fillRect(18 * u, 55 * u, 60 * u, 22 * u);
-  // Colletto / striscia sportiva bianca a V stile polo Wii Sports
+  // Colletto / striscia sportiva bianca a V stile polo Sport
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 3 * u;
   ctx.beginPath();
@@ -112,13 +112,13 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.beginPath(); ctx.roundRect(26 * u, 19.5 * u, 44 * u, 5 * u, 3 * u); ctx.fill();
 
-  // Visiera luminosa stile schermo Mii
+  // Visiera luminosa stile schermo Atleta
   ctx.fillStyle = '#1f3347';
   ctx.beginPath(); ctx.roundRect(26.5 * u, 30.5 * u, 43 * u, 26 * u, 11 * u); ctx.fill();
   ctx.fillStyle = '#d9f2ff';
   ctx.beginPath(); ctx.roundRect(28 * u, 32 * u, 40 * u, 23 * u, 9.5 * u); ctx.fill();
 
-  // Sopracciglia espressive stile Mii
+  // Sopracciglia espressive atletiche
   ctx.strokeStyle = '#2f3b4c';
   ctx.lineWidth = 2.2 * u;
   ctx.lineCap = 'round';
@@ -126,7 +126,7 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.beginPath(); ctx.moveTo(33 * u, browY); ctx.quadraticCurveTo(37 * u, browY - 2 * u, 41 * u, browY); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(55 * u, browY); ctx.quadraticCurveTo(59 * u, browY - 2 * u, 63 * u, browY); ctx.stroke();
 
-  // Occhi Mii
+  // Occhi Atleta
   if (o.blink) {
     ctx.strokeStyle = C.picoEye;
     ctx.lineWidth = 2.6 * u;
@@ -164,7 +164,7 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
     ctx.beginPath(); ctx.arc(48 * u, 50.5 * u, 2.6 * u, 0, 7); ctx.fill();
   }
 
-  // Guance rosate Mii
+  // Guance rosate Atleta
   ctx.fillStyle = C.picoCheek;
   ctx.beginPath(); ctx.ellipse(31.5 * u, 48.5 * u, 2.8 * u, 1.8 * u, 0, 0, 7); ctx.fill();
   ctx.beginPath(); ctx.ellipse(64.5 * u, 48.5 * u, 2.8 * u, 1.8 * u, 0, 0, 7); ctx.fill();
@@ -175,7 +175,7 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.fillStyle = '#0078b8';
   ctx.fillRect(44 * u, 65.5 * u, 8 * u, 3 * u);
 
-  // Ruote sportive con cerchione Azzurro Wii
+  // Ruote sportive con cerchione Azzurro Sport
   for (const [wx, wy] of [[32, 78], [64, 78]] as const) {
     ctx.fillStyle = C.ink;
     ctx.beginPath(); ctx.arc(wx * u, wy * u, 8.5 * u, 0, 7); ctx.fill();
@@ -217,7 +217,7 @@ export function ensurePico(scene: Phaser.Scene): void {
   ensurePicoSide(scene);
 }
 
-/** Pico di profilo, per la corsa: una ruota sportiva, visiera frontale e mano Mii. */
+/** Pico di profilo, per la corsa: una ruota sportiva, visiera frontale e mano Atleta. */
 interface SideOpts {
   wheelAngle: number;
   tilt: number;
@@ -236,7 +236,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.rotate(o.tilt);
   ctx.translate(-46 * u, -78 * u);
 
-  // Zainetto sportivo aerodinamico (bianco e Azzurro Wii)
+  // Zainetto sportivo aerodinamico (bianco e Azzurro Sport)
   ctx.fillStyle = '#0078b8';
   ctx.beginPath(); ctx.roundRect(8 * u, 37 * u, 15 * u, 25 * u, 6 * u); ctx.fill();
   ctx.fillStyle = '#ffffff';
@@ -244,7 +244,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.fillStyle = '#00a2e8';
   ctx.fillRect(10 * u, 46 * u, 11 * u, 5 * u);
 
-  // Ruota sportiva Wii con cerchione bianco e raggio azzurro
+  // Ruota sportiva Sport con cerchione bianco e raggio azzurro
   ctx.fillStyle = C.ink;
   ctx.beginPath(); ctx.arc(46 * u, 78 * u, 12.5 * u, 0, 7); ctx.fill();
   ctx.fillStyle = '#ffffff';
@@ -260,7 +260,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.fillStyle = C.ink;
   ctx.beginPath(); ctx.arc(46 * u, 78 * u, 2.2 * u, 0, 7); ctx.fill();
 
-  // Corpo di profilo: testa giallo solare + maglia sportiva Azzurro Wii
+  // Corpo di profilo: testa giallo solare + maglia sportiva Azzurro Sport
   ctx.fillStyle = C.ink;
   ctx.beginPath(); ctx.roundRect(19 * u, 25 * u, 55 * u, 48 * u, 15 * u); ctx.fill();
 
@@ -272,7 +272,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.fillStyle = C.pico;
   ctx.fillRect(19 * u, 25 * u, 55 * u, 33 * u);
 
-  // Maglia atletica Azzurro Wii nella parte bassa del busto
+  // Maglia atletica Azzurro Sport nella parte bassa del busto
   ctx.fillStyle = '#00a2e8';
   ctx.fillRect(19 * u, 56 * u, 55 * u, 17 * u);
   ctx.fillStyle = '#ffffff';
@@ -304,7 +304,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.fillStyle = '#d9f2ff';
   ctx.beginPath(); ctx.roundRect(49 * u, 37 * u, 22 * u, 16.5 * u, 7.5 * u); ctx.fill();
 
-  // Sopracciglio determinato Mii
+  // Sopracciglio determinato Atleta
   ctx.strokeStyle = '#2f3b4c';
   ctx.lineWidth = 2.2 * u;
   ctx.lineCap = 'round';
@@ -331,7 +331,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.fillStyle = C.picoCheek;
   ctx.beginPath(); ctx.ellipse(53 * u, 53.5 * u, 2.6 * u, 1.7 * u, 0, 0, 7); ctx.fill();
 
-  // Braccio + mano sferica Mii in primo piano (oscilla con il passo)
+  // Braccio + mano sferica Atleta in primo piano (oscilla con il passo)
   const handPos: [number, number] =
     o.arm === 'forward'
       ? [64 * u, 56 * u]
@@ -343,7 +343,7 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   // Spalla azzurra
   ctx.fillStyle = '#0078b8';
   ctx.beginPath(); ctx.arc(44 * u, 54 * u, 4.5 * u, 0, 7); ctx.fill();
-  drawMiiHand(ctx, handPos[0], handPos[1], 6 * u, u);
+  drawAthleteHand(ctx, handPos[0], handPos[1], 6 * u, u);
 
   // Antenna inclinata per la velocità
   ctx.strokeStyle = '#3b4a5a';

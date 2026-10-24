@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { type Materia, setMateria, setLevel } from './shared';
-import { drawWiiChannelFrame, makeButton, makeText } from '../challenges/ui';
+import { drawSportChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks, defaultLevelForYear } from '../content/packs';
@@ -18,7 +18,7 @@ export class SubjectScene extends Phaser.Scene {
     const h = this.scale.gameSize.height;
 
     addWorld(this, 'scuola', cfg, { speed: 44 });
-    drawWiiChannelFrame(this, cfg, { x: 108, y: 36, w: 808, h: 432, headerH: 112 });
+    drawSportChannelFrame(this, cfg, { x: 108, y: 36, w: 808, h: 432, headerH: 112 });
 
     makeText(this, w / 2, 82, 'Scegli la materia', cfg, {
       size: 36,

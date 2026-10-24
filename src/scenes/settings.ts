@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { drawWiiChannelFrame, makeButton, makeText, makeToggle } from '../challenges/ui';
+import { drawSportChannelFrame, makeButton, makeText, makeToggle } from '../challenges/ui';
 import {
   ANNI_SCOLASTICI,
   ANNO_BY_ID,
@@ -10,14 +10,8 @@ import { BES_PROFILES } from '../bes/profiles';
 import { RULE_BY_ID } from '../bes/rules';
 import { loadSettings, saveSettings } from '../core/settings';
 import { addWorld } from '../art/world';
+import { synth } from '../audio/synth';
 
-/**
- * Impostazioni BES, modalità, grafica e anno scolastico:
- * - Profili pronti + regole una per una (tutte le 22 regole con effetto reale)
- * - Selezione per anno scolastico: Scuola Primaria (1ª–5ª) e Scuola
- *   Secondaria di primo grado (1ª–3ª) per modellare difficoltà, ritmo e
- *   bacino di domande.
- */
 const REGOLE_UI = [
   'pauseAllowed',
   'slowPace',
@@ -55,8 +49,13 @@ export class SettingsScene extends Phaser.Scene {
     const cfg = resolveConfig(impostazioni);
     const w = this.scale.gameSize.width;
 
+    document.body.dataset.settingsPage = pagina;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      delete document.body.dataset.settingsPage;
+    });
+
     addWorld(this, 'scuola', cfg, { pico: false, speed: 20 });
-    drawWiiChannelFrame(this, cfg, { x: 24, y: 8, w: 976, h: 536, headerH: 86 });
+    drawSportChannelFrame(this, cfg, { x: 24, y: 8, w: 976, h: 536, headerH: 86 });
 
     if (pagina === 'regole') {
       this.creaRegole(cfg, w);
@@ -67,12 +66,13 @@ export class SettingsScene extends Phaser.Scene {
       return;
     }
 
-    makeText(this, w / 2, 30, 'Impostazioni', cfg, {
-      size: 28,
+    // ── Header Superiore ──
+    makeText(this, 160, 22, 'Impostazioni', cfg, {
+      size: 24,
       bold: true,
-      color: '#1d6fb8',
-      wrap: 620,
-      maxH: 34,
+      color: '#ffffff',
+      wrap: 240,
+      maxH: 26,
       outline: true
     });
 
@@ -80,25 +80,43 @@ export class SettingsScene extends Phaser.Scene {
     const infoAnno = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
     makeText(
       this,
-      w / 2,
-      58,
-      `Anno scolastico: ${infoAnno.label} · Difficoltà ${infoAnno.difficulty}/3 · Domande casuali ${impostazioni.randomQuestions !== false ? 'attive' : 'fisse'}`,
+      160,
+      48,
+      `Classe: ${infoAnno.label} · Difficoltà: ${infoAnno.difficulty}/3`,
       cfg,
       {
-        size: 13,
-        color: '#5f7186',
-        wrap: 880,
+        size: 12,
+        bold: true,
+        color: '#e6f4fc',
+        wrap: 270,
         maxH: 20
       }
     );
-    makeText(this, w / 2, 84, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
+
+    makeText(this, 512, 84, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
       size: 14,
       color: scelto ? '#1f8a4c' : '#8a99ad',
       wrap: 860,
       maxH: 24
     });
 
-    // ── Modalità di gioco (scelta di prodotto, non regola BES) ──
+    // ── Bottone Audio (Spegnimento/Attivazione) ──
+    const btnAudio = makeButton(
+      this,
+      cfg,
+      882,
+      28,
+      synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
+      { scale: 0.44, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnAudio.setKind(synth.muted ? 'disabled' : 'correct');
+    btnAudio.onTap(() => {
+      const muto = synth.toggleMute();
+      btnAudio.setLabel(muto ? '🔇 Audio OFF' : '🔊 Audio ON');
+      btnAudio.setKind(muto ? 'disabled' : 'correct');
+    });
+
+    // ── Modalità di gioco (Quiz bottoni vs Runner cartelli) ──
     const mode = impostazioni.mode ?? 'quiz';
     makeText(this, 260, 126, 'Modalità:', cfg, {
       size: 15,
@@ -118,7 +136,8 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.02,
         depth: 10
       });
-      if (mode === id) b.setKind('correct');
+      // Acceso (selected / verde) vs Spento (unselected / blu)
+      b.setKind(mode === id ? 'selected' : 'unselected');
       b.onTap(() => {
         if (mode === id) return;
         saveSettings({ ...impostazioni, mode: id });
@@ -126,7 +145,7 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    // ── Grafica (indipendente dalla modalità: Quiz e Runner in 2D o 3D) ──
+    // ── Grafica (2D vs 3D) ──
     const grafica = impostazioni.graphics ?? '2d';
     makeText(this, 260, 168, 'Grafica:', cfg, {
       size: 15,
@@ -146,7 +165,7 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.02,
         depth: 10
       });
-      if (grafica === id) b.setKind('correct');
+      b.setKind(grafica === id ? 'selected' : 'unselected');
       b.onTap(() => {
         if (grafica === id) return;
         saveSettings({ ...impostazioni, graphics: id });
@@ -154,7 +173,7 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    // ── Pulsante rapido per aprire la scheda Anno scolastico ──
+    // ── Pulsante Anno scolastico ──
     const btnAnno = makeButton(this, cfg, 882, 147, 'Anno scolastico', {
       scale: 0.52,
       maxTargetScale: 1.02,
@@ -165,7 +184,7 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    // Griglia 3×3: 9 profili, bottoni larghi abbastanza per le etichette lunghe.
+    // ── Griglia Profili BES (3×3) ──
     const xs = [200, 512, 824];
     const ys = [232, 314, 396];
     BES_PROFILES.forEach((p, i) => {
@@ -174,7 +193,8 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.0,
         depth: 10
       });
-      if (p.id === impostazioni.profileId) b.setKind('correct');
+      const isSel = p.id === impostazioni.profileId;
+      b.setKind(isSel ? 'selected' : 'unselected');
       b.onTap(() => {
         saveSettings({ ...impostazioni, profileId: p.id, overrides: {} });
         this.scene.restart();
@@ -196,7 +216,8 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.0,
         depth: 10
       });
-      if (anno.id === infoAnno.id) b.setKind('correct');
+      const isSel = anno.id === infoAnno.id;
+      b.setKind(isSel ? 'selected' : 'unselected');
       b.onTap(() => {
         if (anno.id === infoAnno.id) return;
         saveSettings({ ...impostazioni, schoolYear: anno.id });
@@ -204,11 +225,13 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
+    // ── Barra Inferiore: Nessun profilo, Regole Custom, Torna al titolo ──
     const nessuno = makeButton(this, cfg, 250, 504, 'Nessun profilo', {
       scale: 0.62,
       maxTargetScale: 1.02,
       depth: 10
     });
+    nessuno.setKind(impostazioni.profileId === null ? 'selected' : 'unselected');
     nessuno.onTap(() => {
       saveSettings({ ...impostazioni, profileId: null, overrides: {} });
       this.scene.restart();
@@ -282,7 +305,7 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.0,
         depth: 10
       });
-      if (anno.id === attivo.id) b.setKind('correct');
+      b.setKind(anno.id === attivo.id ? 'selected' : 'unselected');
       b.onTap(() => {
         saveSettings({ ...impostazioni, schoolYear: anno.id });
         this.scene.restart();
@@ -305,9 +328,38 @@ export class SettingsScene extends Phaser.Scene {
         maxTargetScale: 1.0,
         depth: 10
       });
-      if (anno.id === attivo.id) b.setKind('correct');
+      b.setKind(anno.id === attivo.id ? 'selected' : 'unselected');
       b.onTap(() => {
         saveSettings({ ...impostazioni, schoolYear: anno.id });
+        this.scene.restart();
+      });
+    });
+
+    // ── Regolazione Velocità Corsa Runner ──
+    makeText(this, w / 2, 386, 'Velocità di scorrimento Runner 3D:', cfg, {
+      size: 15,
+      bold: true,
+      color: '#2f3b4c',
+      wrap: 760,
+      maxH: 22
+    });
+
+    const velocitaOpzioni: Array<{ id: 'slow' | 'normal' | 'fast'; label: string; x: number }> = [
+      { id: 'slow', label: 'Lenta (Rilassata)', x: 330 },
+      { id: 'normal', label: 'Normale', x: 512 },
+      { id: 'fast', label: 'Veloce', x: 694 }
+    ];
+
+    const currentVel = impostazioni.runnerSpeedMultiplier ?? 'normal';
+    velocitaOpzioni.forEach((v) => {
+      const b = makeButton(this, cfg, v.x, 422, v.label, {
+        scale: 0.52,
+        maxTargetScale: 1.0,
+        depth: 10
+      });
+      b.setKind(currentVel === v.id ? 'selected' : 'unselected');
+      b.onTap(() => {
+        saveSettings({ ...impostazioni, runnerSpeedMultiplier: v.id });
         this.scene.restart();
       });
     });
@@ -318,7 +370,7 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      418,
+      468,
       540,
       'Domande casuali ad ogni partita (consigliato)',
       casuali,
@@ -329,7 +381,7 @@ export class SettingsScene extends Phaser.Scene {
       }
     );
 
-    const indietro = makeButton(this, cfg, 512, 505, 'Torna ai profili', {
+    const indietro = makeButton(this, cfg, 380, 516, 'Torna ai profili', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
@@ -338,18 +390,28 @@ export class SettingsScene extends Phaser.Scene {
       pagina = 'profili';
       this.scene.restart();
     });
+
+    const titolo = makeButton(this, cfg, 644, 516, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    titolo.onTap(() => {
+      pagina = 'profili';
+      this.scene.start('Title');
+    });
   }
 
   private creaRegole(cfg: ReturnType<typeof resolveConfig>, w: number): void {
-    makeText(this, w / 2, 36, 'Regole una per una', cfg, {
-      size: 28,
+    makeText(this, w / 2, 36, 'Personalizza regole (Custom)', cfg, {
+      size: 26,
       bold: true,
       color: '#1d6fb8',
       wrap: 720,
       maxH: 34,
       outline: true
     });
-    makeText(this, w / 2, 70, 'Tocca una regola per accenderla o spegnerla. Il profilo scelto resta.', cfg, {
+    makeText(this, w / 2, 70, 'Regole una per una: personalizza video, audio, caratteri e facilitazioni.', cfg, {
       size: 13,
       color: '#5f7186',
       wrap: 860,
@@ -382,7 +444,7 @@ export class SettingsScene extends Phaser.Scene {
       );
     });
 
-    const indietro = makeButton(this, cfg, 512, 526, 'Torna ai profili', {
+    const indietro = makeButton(this, cfg, 380, 526, 'Torna ai profili', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
@@ -390,6 +452,16 @@ export class SettingsScene extends Phaser.Scene {
     indietro.onTap(() => {
       pagina = 'profili';
       this.scene.restart();
+    });
+
+    const titolo = makeButton(this, cfg, 644, 526, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    titolo.onTap(() => {
+      pagina = 'profili';
+      this.scene.start('Title');
     });
   }
 }

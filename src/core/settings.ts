@@ -17,7 +17,8 @@ export function loadSettings(): BesSettings {
     mode: s.mode === 'runner' ? 'runner' : 'quiz',
     graphics: s.graphics === '3d' ? '3d' : '2d',
     schoolYear: normalizzaAnno(s.schoolYear),
-    randomQuestions: s.randomQuestions !== false
+    randomQuestions: s.randomQuestions !== false,
+    runnerSpeedMultiplier: s.runnerSpeedMultiplier === 'slow' || s.runnerSpeedMultiplier === 'fast' ? s.runnerSpeedMultiplier : 'normal'
   };
 }
 

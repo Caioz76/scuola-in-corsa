@@ -4,6 +4,7 @@ import { makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld } from '../art/world';
+import { add3DWorld } from '../art/three-world';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -16,59 +17,64 @@ export class TitleScene extends Phaser.Scene {
     const w = this.scale.gameSize.width;
     const h = this.scale.gameSize.height;
 
-    addWorld(this, 'scuola', cfg, { speed: 58 });
+    const treD = (settings.graphics ?? '2d') === '3d' && !cfg.highContrast;
+    if (treD) {
+      add3DWorld(this, 'scuola', cfg, 48);
+    } else {
+      addWorld(this, 'scuola', cfg, { speed: 58 });
+    }
 
     const scenografia = cfg.decoration && !cfg.highContrast;
     const animato = scenografia && cfg.motion !== 'off';
 
-    // ── Pannello centrale "Hero" in stile Nintendo Wii Sports ──
+    // ── Pannello centrale "Hero" in stile Edu Sports Arena ──
     const card = this.add.graphics().setDepth(2);
     if (scenografia) {
-      // Ombra morbida stratificata stile console Wii
+      // Ombra morbida stratificata stile console Sport
       card.fillStyle(0x005b8f, 0.15);
       card.fillRoundedRect(w / 2 - 318, 92, 636, 412, 34);
       card.fillStyle(0x005b8f, 0.08);
       card.fillRoundedRect(w / 2 - 312, 88, 624, 410, 32);
 
-      // Corpo principale bianco porcellana Wii
+      // Corpo principale bianco porcellana Sport
       card.fillStyle(0xffffff, 0.9);
       card.fillRoundedRect(w / 2 - 308, 84, 616, 404, 30);
 
-      // Scanline orizzontali tipiche del menu Nintendo Wii
+      // Scanline orizzontali tipiche del menu Sport Console
       card.fillStyle(0x00a2e8, 0.038);
       for (let sy = 98; sy < 476; sy += 6) {
         card.fillRect(w / 2 - 294, sy, 588, 2);
       }
 
-      // Fascia luminosa superiore (effetto glossy Wii Sports)
+      // Fascia luminosa superiore (effetto glossy Sport)
       card.fillStyle(0xe6f5ff, 0.88);
       card.fillRoundedRect(w / 2 - 296, 94, 592, 122, 24);
       card.fillStyle(0xffffff, 0.78);
       card.fillRoundedRect(w / 2 - 284, 98, 568, 42, 18);
 
-      // Swoosh sportivi diagonali Azzurro Wii (#00a2e8) e Arancio Sport (#ff9f1c)
+      // Swoosh sportivi diagonali Azzurro Sport (#00a2e8) e Arancio Sport (#ff9f1c)
       card.fillStyle(0x00a2e8, 0.22);
       card.fillTriangle(w / 2 - 294, 96, w / 2 - 196, 96, w / 2 - 294, 168);
       card.fillStyle(0xff9f1c, 0.24);
       card.fillTriangle(w / 2 + 294, 96, w / 2 + 196, 96, w / 2 + 294, 168);
 
-      // Filetto divisorio Azzurro Wii sotto il titolo
+      // Filetto divisorio Azzurro Sport sotto il titolo
       card.lineStyle(2.5, 0x00a2e8, 0.55);
       card.lineBetween(w / 2 - 240, 216, w / 2 + 240, 216);
 
-      // Doppia cornice luminosa Azzurro Wii (#00a2e8) + bianco speculare
+      // Doppia cornice luminosa Azzurro Sport (#00a2e8) + bianco speculare
       card.lineStyle(3.5, 0x00a2e8, 0.85);
       card.strokeRoundedRect(w / 2 - 308, 84, 616, 404, 30);
       card.lineStyle(2, 0xffffff, 0.98);
       card.strokeRoundedRect(w / 2 - 303, 89, 606, 394, 27);
 
-      // Pillola informativa stile canale Wii sotto il sottotitolo
+      // Pillola informativa stile canale Sport sotto il sottotitolo
       card.fillStyle(0xe8f6ff, 0.98);
       card.fillRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
       card.lineStyle(2, 0x00a2e8, 0.85);
       card.strokeRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
 
-      // Badge delle 4 materie ai lati della card (medaglioni lucidi Wii Sports)
+      // Badge delle 4 materie ai lati della card (medaglioni lucidi Sport)
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
         { icon: 'icon-abaco', x: 116, y: 184, ring: 0x00a2e8, bg: 0xe6f6ff },
         { icon: 'icon-pergamena', x: 908, y: 184, ring: 0xff9f1c, bg: 0xfff5e6 },

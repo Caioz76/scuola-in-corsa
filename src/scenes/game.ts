@@ -4,7 +4,7 @@ import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks, defaultLevelForYear, selectRoundsForGame } from '../content/packs';
 import type { Round } from '../content/types';
 import type { RoundOutcome } from '../core/state';
-import { drawWiiChannelFrame, showBanner, makeText } from '../challenges/ui';
+import { drawSportChannelFrame, showBanner, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld, themeFor } from '../art/world';
@@ -39,24 +39,72 @@ export class GameScene extends Phaser.Scene {
     const rounds = selectRoundsForGame(pack, level, impostazioni);
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
 
-    makeText(
-      this,
-      500,
-      20,
-      `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`,
-      cfg,
-      {
-        size: 14,
-        color: '#5f7186',
-        wrap: 520,
-        maxH: 24
-      }
-    );
-
     // Il mondo: scenografia della materia, pista e Pico che corre.
     const runner = mode === 'runner';
     const runSpeed = cfg.runnerSpeed > 0 ? cfg.runnerSpeed : 480;
     const treD = (impostazioni.graphics ?? '2d') === '3d' && !cfg.highContrast;
+
+    // Barra superiore e quadro domanda in stile Sport (solo in 2D con decorazioni attive)
+    if (!treD) {
+      drawSportChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 30, depth: -10 });
+    }
+
+    // Intestazione in alto: materia, tappa, livello scolastico e contatore prove.
+    // Progettata per separare nettamente le aree di testo ed evitare qualsiasi sovrapposizione.
+    const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
+    let contatore: Phaser.GameObjects.Text;
+
+    if (treD && runner) {
+      // Runner 3D: HUD e turbo in alto a destra, navigazione a sinistra.
+      // Titolo e contatore avanzamento disposti al centro su due righe distinte (nessun urto).
+      makeText(this, 460, 15, testoTitolo, cfg, {
+        size: 13,
+        bold: true,
+        color: '#1b3650',
+        wrap: 440,
+        maxH: 18,
+        outline: true,
+        originX: 0.5,
+        originY: 0.5
+      });
+      contatore = makeText(this, 460, 35, '', cfg, {
+        size: 13,
+        bold: true,
+        color: '#1f8a4c',
+        wrap: 240,
+        maxH: 18,
+        outline: true,
+        originX: 0.5,
+        originY: 0.5
+      });
+    } else {
+      // 2D e Quiz 3D: titolo a sinistra dentro la cornice, contatore a destra.
+      const startX = treD ? 230 : 124;
+      const wrapTitolo = treD ? 480 : 540;
+      makeText(this, startX, 21, testoTitolo, cfg, {
+        size: 14,
+        bold: true,
+        color: treD ? '#1b3650' : '#49617b',
+        align: 'left',
+        wrap: wrapTitolo,
+        maxH: 22,
+        outline: treD,
+        originX: 0,
+        originY: 0.5
+      });
+      contatore = makeText(this, 904, 21, '', cfg, {
+        size: 14,
+        bold: true,
+        color: '#1f8a4c',
+        align: 'right',
+        wrap: 180,
+        maxH: 22,
+        outline: treD,
+        originX: 1,
+        originY: 0.5
+      });
+    }
+
     const world = treD
       ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? runSpeed : 38)
       : addWorld(this, themeFor(pack.subject), cfg, {
@@ -68,17 +116,6 @@ export class GameScene extends Phaser.Scene {
           props: runner
         });
     world.setProgress(0, rounds.length);
-
-    // Barra superiore e quadro domanda in stile Wii Sports (solo in 2D con decorazioni attive)
-    if (!treD) {
-      drawWiiChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 30, depth: -10 });
-    }
-    const contatore = makeText(this, treD && runner ? 700 : 888, 20, '', cfg, {
-      size: 14,
-      color: '#1f8a4c',
-      wrap: 180,
-      maxH: 24
-    });
 
     // Regola BES `mascotGuide`: Pico accompagna lo studente passo per passo.
     const guidaPico = cfg.mascotGuide

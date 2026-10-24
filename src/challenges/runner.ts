@@ -107,16 +107,16 @@ function makeSign(
       kind === 'correct' ? 0x22b55b : kind === 'wrong' ? 0xe04848 : kind === 'dim' ? 0xc9d3e0 : 0x00a2e8;
     const corpo =
       kind === 'correct' ? 0xe6fff0 : kind === 'wrong' ? 0xffe6e6 : 0xffffff;
-    // ombra morbida stile Wii Sports
+    // ombra morbida stile Sport
     card.fillStyle(0x005b8f, 0.16);
     card.fillRoundedRect(-w / 2 + 3, -h / 2 + 6, w, h, 20);
-    // scheda porcellana Wii
+    // scheda porcellana Sport
     card.fillStyle(corpo, 0.98);
     card.fillRoundedRect(-w / 2, -h / 2, w, h, 20);
     // riflesso superiore glossy
     card.fillStyle(kind === 'normal' ? 0xeaf7ff : 0xffffff, 0.72);
     card.fillRoundedRect(-w / 2 + 6, -h / 2 + 5, w - 12, Math.round(h * 0.36), 14);
-    // doppia ghiera Wii (Azzurro Wii esterno + bianco interno)
+    // doppia ghiera Sport (Azzurro Sport esterno + bianco interno)
     card.lineStyle(3.5, bordo, 1);
     card.strokeRoundedRect(-w / 2, -h / 2, w, h, 20);
     card.lineStyle(1.5, 0xffffff, 0.95);
@@ -338,7 +338,7 @@ export class RunnerChallenge implements Challenge {
     const fondo = 120;
 
     const struttura = scene.add.graphics();
-    // pali da stadio Wii Sports (bianco porcellana con bande Azzurro Wii)
+    // pali da stadio Sport (bianco porcellana con bande Azzurro Sport)
     struttura.fillStyle(0x005b8f, 0.15);
     struttura.fillEllipse(-half - 17, fondo + 3, 34, 10);
     struttura.fillEllipse(half + 17, fondo + 3, 34, 10);
@@ -348,7 +348,7 @@ export class RunnerChallenge implements Challenge {
     struttura.lineStyle(2, 0x00a2e8, 0.85);
     struttura.strokeRoundedRect(-half - 23, crossY, 12, fondo - crossY, 6);
     struttura.strokeRoundedRect(half + 11, crossY, 12, fondo - crossY, 6);
-    // traversa superiore stile portale Wii Sports (bianco + Azzurro Wii + oro)
+    // traversa superiore stile portale Sport (bianco + Azzurro Sport + oro)
     struttura.fillStyle(0x005b8f, 0.16);
     struttura.fillRoundedRect(-half - 30, crossY + 5, 2 * (half + 30), 18, 9);
     struttura.fillStyle(0x00a2e8, 1);
@@ -357,7 +357,7 @@ export class RunnerChallenge implements Challenge {
     struttura.fillRoundedRect(-half - 24, crossY - 3, 2 * (half + 24), 7, 4);
     struttura.lineStyle(2.5, 0xffffff, 0.95);
     struttura.strokeRoundedRect(-half - 30, crossY - 5, 2 * (half + 30), 18, 9);
-    // medaglione centrale "?" stile Wii Sports
+    // medaglione centrale "?" stile Sport
     struttura.fillStyle(0xffffff, 1);
     struttura.fillCircle(0, crossY + 4, 22);
     struttura.lineStyle(4, 0x00a2e8, 1);

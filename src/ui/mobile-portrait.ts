@@ -7,9 +7,9 @@
  * Su display verticali (`window.innerHeight > window.innerWidth`):
  *  - NON divide lo schermo in due e NON duplica i menu: nasconde i testi,
  *    i pannelli e i bottoni duplicati dentro il canvas Phaser, lasciando nel
- *    canvas Phaser SOLO il mondo animato a fondo schermo (cielo, Wuhu Island,
+ *    canvas Phaser SOLO il mondo animato a fondo schermo (cielo, Isola dell Atleta,
  *    pista d'atletica, checkpoint e Pico che corre/salta);
- *  - mostra UN UNICO menu / quiz in stile Nintendo Wii Sports a tutto schermo
+ *  - mostra UN UNICO menu / quiz in stile Edu Sports Arena a tutto schermo
  *    (`#mobile-deck`), con il titolo, le domande, le icone e i pulsanti grandi
  *    perfettamente impaginati per lo schermo verticale.
  */
@@ -18,6 +18,7 @@ import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { GAME_NAME } from '../core/constants';
+import { toggleFullscreen } from './fullscreen';
 
 interface TextEntry {
   text: string;
@@ -165,7 +166,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
       return;
     }
 
-    // Nascondiamo i menu/testi duplicati dal canvas Phaser, lasciando solo il mondo e Pico!
+    // In verticale mostriamo l'interfaccia card touch per smartphone
     sincronizzaVisibilitaCanvas(scena, true);
     deck.style.display = 'flex';
 
@@ -177,6 +178,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     const items = getMobileItems(scena);
     const testi = raccogliTesti(scena);
     const iconaUrl = key === 'Game' ? estraiIconaProva(scena) : null;
+    const pageTab = document.body.dataset.settingsPage ?? '';
 
     const firmaItems = items
       .map(
@@ -185,7 +187,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
       )
       .join('|');
     const firmaTesti = testi.map((t) => `${t.text}@${Math.round(t.y)}`).join('|');
-    const chiaveAttuale = `${key}::${cfg.font}::${cfg.highContrast}::${cfg.fontScale}::${Boolean(iconaUrl)}::${firmaItems}::${firmaTesti}`;
+    const chiaveAttuale = `${key}::${pageTab}::${cfg.font}::${cfg.highContrast}::${cfg.fontScale}::${Boolean(iconaUrl)}::${firmaItems}::${firmaTesti}`;
 
     if (chiaveAttuale === ultimaChiave) return;
     ultimaChiave = chiaveAttuale;
@@ -214,7 +216,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
 
   window.addEventListener('resize', aggiorna);
   window.addEventListener('orientationchange', aggiorna);
-  window.setInterval(aggiorna, 100);
+  window.setInterval(aggiorna, 150);
   aggiorna();
 }
 
@@ -222,10 +224,10 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
   const card = document.createElement('div');
   card.className = 'm-card m-card-title';
 
-  // Badge superiore stile Wii Sports
+  // Badge superiore stile Sport
   const badgeTop = document.createElement('div');
-  badgeTop.className = 'm-wii-tag';
-  badgeTop.textContent = '★ WII SPORTS EDU EDITION ★';
+  badgeTop.className = 'm-sport-tag';
+  badgeTop.textContent = '★ EDIZIONE EDU SPORTIVA ★';
   card.appendChild(badgeTop);
 
   // Titolo principale unico (non duplicato)
@@ -272,6 +274,16 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
   if (imp) row.appendChild(creaBtnDom(imp, 'm-btn-secondary'));
   if (prog) row.appendChild(creaBtnDom(prog, 'm-btn-secondary'));
   card.appendChild(row);
+
+  const fsBtn = document.createElement('button');
+  fsBtn.type = 'button';
+  fsBtn.className = 'm-btn m-btn-fullscreen';
+  fsBtn.innerHTML = '⛶ A tutto schermo (Web App)';
+  fsBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    toggleFullscreen().catch(() => undefined);
+  });
+  card.appendChild(fsBtn);
 
   const copy = document.createElement('div');
   copy.className = 'm-copy';
@@ -388,17 +400,36 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   const card = document.createElement('div');
   card.className = 'm-card';
 
-  const toggles = items.filter((i) => i.kind === 'toggle');
   const buttons = items.filter((i) => i.kind === 'button');
+  const toggles = items.filter((i) => i.kind === 'toggle');
 
-  if (toggles.length > 5) {
+  const page =
+    document.body.dataset.settingsPage ||
+    (buttons.some((b) => b.label() === 'Torna ai profili') && toggles.length <= 2
+      ? 'classe'
+      : toggles.length > 2
+        ? 'regole'
+        : 'profili');
+
+  if (page === 'regole') {
+    // ── Regole Custom (una per una) ──
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Regole BES una per una';
+    h.textContent = 'Personalizza regole (Custom)';
     card.appendChild(h);
 
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Attiva o disattiva le facilitazioni per adattare il gioco al bambino:';
+    card.appendChild(sub);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
     const indietro = buttons.find((b) => b.label() === 'Torna ai profili');
-    if (indietro) card.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
 
     const list = document.createElement('div');
     list.className = 'm-toggle-list';
@@ -421,13 +452,28 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     return;
   }
 
-  if (toggles.length === 1) {
+  if (page === 'classe') {
+    // ── Anno scolastico e difficoltà ──
     const h = document.createElement('div');
     h.className = 'm-header';
     h.textContent = 'Anno scolastico e difficoltà';
     card.appendChild(h);
 
-    const desc = testi.find((t) => t.y > 95 && t.y < 125);
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Calibra le domande, la difficoltà (1-3) e la velocità di corsa:';
+    card.appendChild(sub);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
+    const indietro = buttons.find((b) => b.label() === 'Torna ai profili');
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
+
+    // Pillola con descrizione della classe attiva
+    const desc = testi.find((t) => t.y > 90 && t.y < 130);
     if (desc) {
       const pill = document.createElement('div');
       pill.className = 'm-pill';
@@ -435,11 +481,12 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
       card.appendChild(pill);
     }
 
+    // Scuola Primaria (1ª – 5ª)
     const primaria = buttons.filter((b) => b.label().includes('Primaria'));
     if (primaria.length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'm-group-title';
-      lbl.textContent = 'Scuola Primaria (1ª – 5ª)';
+      lbl.textContent = 'Scuola Primaria (1ª – 5ª · Difficoltà 1-2)';
       card.appendChild(lbl);
       const g = document.createElement('div');
       g.className = 'm-grid-3';
@@ -447,11 +494,12 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
       card.appendChild(g);
     }
 
+    // Scuola Secondaria I grado (1ª – 3ª)
     const secondaria = buttons.filter((b) => b.label().includes('Secondaria'));
     if (secondaria.length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'm-group-title';
-      lbl.textContent = 'Scuola Secondaria I grado (1ª – 3ª)';
+      lbl.textContent = 'Scuola Secondaria I grado (1ª – 3ª · Difficoltà 3)';
       card.appendChild(lbl);
       const g = document.createElement('div');
       g.className = 'm-grid-3';
@@ -459,32 +507,49 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
       card.appendChild(g);
     }
 
-    const t = toggles[0];
-    const tb = document.createElement('button');
-    tb.type = 'button';
-    const on = t.state() === 'on';
-    tb.className = `m-toggle-row ${on ? 'is-on' : 'is-off'}`;
-    tb.innerHTML = `<span class="m-toggle-lbl">${t.label()}</span><span class="m-toggle-badge">${
-      on ? 'ON' : 'OFF'
-    }</span>`;
-    tb.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      t.trigger();
-    });
-    card.appendChild(tb);
+    // Velocità Runner 3D
+    const velButtons = buttons.filter((b) =>
+      ['Lenta (Rilassata)', 'Normale', 'Veloce'].includes(b.label())
+    );
+    if (velButtons.length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'm-group-title';
+      lbl.textContent = 'Velocità di corsa Runner 3D';
+      card.appendChild(lbl);
+      const vg = document.createElement('div');
+      vg.className = 'm-grid-3';
+      velButtons.forEach((b) => vg.appendChild(creaBtnDom(b, 'm-btn-compact')));
+      card.appendChild(vg);
+    }
 
-    const indietro = buttons.find((b) => b.label() === 'Torna ai profili');
-    if (indietro) card.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    // Toggle domande casuali
+    const tCasuali = toggles.find((t) => t.label().includes('casuali'));
+    if (tCasuali) {
+      const tb = document.createElement('button');
+      tb.type = 'button';
+      const on = tCasuali.state() === 'on';
+      tb.className = `m-toggle-row ${on ? 'is-on' : 'is-off'}`;
+      tb.innerHTML = `<span class="m-toggle-lbl">${tCasuali.label()}</span><span class="m-toggle-badge">${
+        on ? 'ON' : 'OFF'
+      }</span>`;
+      tb.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        tCasuali.trigger();
+      });
+      card.appendChild(tb);
+    }
 
     deck.appendChild(card);
     return;
   }
 
+  // ── Schermata Principale Impostazioni (profili) ──
   const h = document.createElement('div');
   h.className = 'm-header';
   h.textContent = 'Impostazioni';
   card.appendChild(h);
 
+  // Barra Navigazione Principale in Alto: Torna al titolo, Anno scolastico, Regole Custom
   const navTop = document.createElement('div');
   navTop.className = 'm-grid-3';
   ['Torna al titolo', 'Anno scolastico', 'Regole una per una'].forEach((lbl) => {
@@ -493,6 +558,17 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(navTop);
 
+  // Pulsante Audio (ON / OFF)
+  const btnAudio = buttons.find((b) => b.label().includes('Audio'));
+  if (btnAudio) {
+    const audioWrap = document.createElement('div');
+    audioWrap.className = 'm-group';
+    audioWrap.style.marginTop = '10px';
+    audioWrap.appendChild(creaBtnDom(btnAudio, 'm-btn-compact'));
+    card.appendChild(audioWrap);
+  }
+
+  // Modalità (Quiz / Runner) e Grafica (2D / 3D)
   const modeRow = document.createElement('div');
   modeRow.className = 'm-grid-4';
   ['Quiz (bottoni)', 'Runner (cartelli)', '2D', '3D'].forEach((lbl) => {
@@ -501,7 +577,10 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(modeRow);
 
-  const classi = buttons.filter((b) => Math.abs(b.y() - 452) < 15);
+  // Classe attiva e barra rapida
+  const classi = buttons.filter((b) =>
+    ['1ªP', '2ªP', '3ªP', '4ªP', '5ªP', '1ªS', '2ªS', '3ªS'].includes(b.label())
+  );
   if (classi.length > 0) {
     const lbl = document.createElement('div');
     lbl.className = 'm-group-title';
@@ -513,7 +592,12 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     card.appendChild(cg);
   }
 
-  const profili = buttons.filter((b) => b.y() >= 210 && b.y() <= 415);
+  // Profili BES (FILTRATI RIGOROSAMENTE PER NOME PROFILO, MAI PER COORDINATE Y!)
+  const BES_LABELS = [
+    'ADHD', 'Autismo', 'Dislessia', 'Discalculia',
+    'Disgrafia', 'Disprassia', 'Sordità', 'DSA / Ansia'
+  ];
+  const profili = buttons.filter((b) => BES_LABELS.includes(b.label()));
   const nessuno = buttons.find((b) => b.label() === 'Nessun profilo');
   if (profili.length > 0) {
     const lbl = document.createElement('div');
@@ -525,6 +609,16 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     profili.forEach((b) => pg.appendChild(creaBtnDom(b, 'm-btn-compact')));
     if (nessuno) pg.appendChild(creaBtnDom(nessuno, 'm-btn-compact m-btn-secondary'));
     card.appendChild(pg);
+  }
+
+  // Descrizione del profilo attivo
+  const desc = testi.find((t) => t.y === 84 || (t.y > 70 && t.y < 100 && t.text.length > 15));
+  if (desc) {
+    const pBox = document.createElement('div');
+    pBox.className = 'm-pill';
+    pBox.style.marginTop = '12px';
+    pBox.textContent = desc.text;
+    card.appendChild(pBox);
   }
 
   deck.appendChild(card);

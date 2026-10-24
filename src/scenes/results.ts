@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { drawWiiChannelFrame, makeText, makeButton } from '../challenges/ui';
+import { drawSportChannelFrame, makeText, makeButton } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { setStars, pushResult } from '../core/progress';
@@ -7,8 +7,11 @@ import { allPacks } from '../content/packs';
 import { setLevel } from './shared';
 import type { RoundOutcome } from '../core/state';
 import { addWorld, themeFor } from '../art/world';
+import { start2DCelebration } from '../art/celebration';
 
 export class ResultsScene extends Phaser.Scene {
+  private stopCelebration?: () => void;
+
   constructor() {
     super('Results');
   }
@@ -23,21 +26,6 @@ export class ResultsScene extends Phaser.Scene {
   }): void {
     const cfg = resolveConfig(loadSettings());
     const { packId, levelId, correct, total } = data;
-
-    makeText(this, 512, 86, 'Tappa completata!', cfg, {
-      size: 38,
-      bold: true,
-      color: '#1d6fb8',
-      wrap: 720,
-      maxH: 46,
-      outline: true
-    });
-
-    makeText(this, 512, 162, `${correct} su ${total}`, cfg, {
-      size: 26,
-      color: '#2f3b4c',
-      maxH: 34
-    });
 
     const stelle =
       correct === total
@@ -71,46 +59,114 @@ export class ResultsScene extends Phaser.Scene {
     // Traguardo: Pico esulta, la pista è tutta accesa.
     const world = addWorld(this, themeFor(pack?.subject), cfg, { pico: 'cheer', track: true, speed: 28 });
     world.setProgress(total, total);
-    drawWiiChannelFrame(this, cfg, { x: 152, y: 36, w: 720, h: 318, headerH: 82 });
+
+    // ── Scheda solida bianca ad alta leggibilità (senza trasparenze sbiadite) ──
+    const cardBg = this.add.graphics().setDepth(2);
+    // Ombra morbida
+    cardBg.fillStyle(0x005b8f, 0.16);
+    cardBg.fillRoundedRect(140, 32, 744, 332, 30);
+    // Fondo solido porcellana
+    cardBg.fillStyle(0xffffff, 0.98);
+    cardBg.fillRoundedRect(144, 28, 736, 328, 28);
+    // Doppia cornice azzurro sportivo
+    cardBg.lineStyle(3.5, 0x00a2e8, 0.95);
+    cardBg.strokeRoundedRect(144, 28, 736, 328, 28);
+    cardBg.lineStyle(1.5, 0xffffff, 0.95);
+    cardBg.strokeRoundedRect(147, 31, 730, 322, 25);
+
+    // Fascia d'intestazione superiore lucida
+    cardBg.fillStyle(0x00a2e8, 0.92);
+    cardBg.fillRoundedRect(150, 34, 724, 74, 22);
+
+    // Effetto coriandoli celebrativi in caduta libera!
+    this.stopCelebration = start2DCelebration(this);
+
+    // ── Testi ad altissimo contrasto sopra la scheda (depth: 10) ──
+    makeText(this, 512, 72, 'Tappa completata!', cfg, {
+      size: 34,
+      bold: true,
+      color: '#ffffff',
+      wrap: 700,
+      maxH: 42,
+      outline: true
+    });
+
+    makeText(this, 512, 134, 'Risposte corrette:', cfg, {
+      size: 20,
+      bold: true,
+      color: '#0f2942',
+      maxH: 26
+    });
+
+    makeText(this, 512, 162, `${correct} su ${total}`, cfg, {
+      size: 26,
+      bold: true,
+      color: '#0284c7',
+      maxH: 32
+    });
 
     if (pack && idx >= 0) {
-      makeText(this, 512, 322, pack.levels[idx].title, cfg, {
-        size: 15,
-        color: '#5f7186',
-        wrap: 720,
+      makeText(this, 512, 186, `${pack.title} — ${pack.levels[idx].title}`, cfg, {
+        size: 16,
+        bold: true,
+        color: '#0066a4',
+        wrap: 700,
         maxH: 24
       });
     }
 
-    const xs = [512 - 130, 512, 512 + 130];
+    // Stelle dorate grandi e luminose
+    const xs = [512 - 120, 512, 512 + 120];
     xs.forEach((x, i) => {
-      const star = this.add.image(x, 256, 'star').setScale(1.8);
+      const star = this.add.image(x, 268, 'star').setScale(2.1).setDepth(10);
       if (i >= stelle) {
-        star.setAlpha(0.2);
+        star.setAlpha(0.24).setTint(0x94a3b8);
+      } else {
+        star.setTint(0xffc83b);
+        // Leggera animazione pulsante per le stelle vinte
+        this.tweens.add({
+          targets: star,
+          scale: 2.25,
+          duration: 900 + i * 200,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
       }
     });
 
-    const rigioca = makeButton(this, cfg, 356, prossima ? 476 : 470, 'Rigioca', {
+    const rigioca = makeButton(this, cfg, 356, prossima ? 476 : 466, 'Rigioca', {
       scale: prossima ? 0.74 : 0.78,
-      maxTargetScale: 1.02
+      maxTargetScale: 1.02,
+      depth: 10
     });
-    rigioca.onTap(() => this.scene.start('Game'));
+    rigioca.onTap(() => {
+      this.stopCelebration?.();
+      this.scene.start('Game');
+    });
 
     if (prossima) {
-      const avanti = makeButton(this, cfg, 512, 390, 'Tappa successiva', {
-        scale: 0.86,
-        maxTargetScale: 1.02
+      const avanti = makeButton(this, cfg, 512, 396, 'Tappa successiva', {
+        scale: 0.88,
+        maxTargetScale: 1.02,
+        depth: 10
       });
+      avanti.setKind('correct');
       avanti.onTap(() => {
+        this.stopCelebration?.();
         setLevel(prossima.id);
         this.scene.start('Game');
       });
     }
 
-    const titolo = makeButton(this, cfg, 668, prossima ? 476 : 470, 'Torna al titolo', {
+    const titolo = makeButton(this, cfg, 668, prossima ? 476 : 466, 'Torna al titolo', {
       scale: prossima ? 0.74 : 0.78,
-      maxTargetScale: 1.02
+      maxTargetScale: 1.02,
+      depth: 10
     });
-    titolo.onTap(() => this.scene.start('Title'));
+    titolo.onTap(() => {
+      this.stopCelebration?.();
+      this.scene.start('Title');
+    });
   }
 }

@@ -11,6 +11,9 @@
  * e lascia il posto ai bottoni della schermata di pausa.
  */
 
+import { toggleFullscreen } from './fullscreen';
+import { synth } from '../audio/synth';
+
 export interface AzioniNav {
   onPausa: () => void;
   onEsci: () => void;
@@ -30,10 +33,25 @@ const SVG_ESCI =
   'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>' +
   '</svg>';
 
+const SVG_FULLSCREEN =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>' +
+  '</svg>';
+
+const SVG_AUDIO_ON =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
+  '</svg>';
+
+const SVG_AUDIO_OFF =
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
+  '</svg>';
+
 let barra: HTMLDivElement | null = null;
 
 function creaBottone(
-  azione: 'pausa' | 'esci',
+  azione: 'pausa' | 'esci' | 'fullscreen' | 'audio',
   icona: string,
   testo: string,
   aria: string,
@@ -61,9 +79,26 @@ export function mostraNav(azioni: AzioniNav): void {
   el.id = 'nav-gioco';
   el.setAttribute('role', 'toolbar');
   el.setAttribute('aria-label', 'Comandi della partita');
+
+  const btnAudio = creaBottone(
+    'audio',
+    synth.muted ? SVG_AUDIO_OFF : SVG_AUDIO_ON,
+    synth.muted ? 'Muto' : 'Audio',
+    'Attiva o disattiva audio',
+    () => {
+      const muto = synth.toggleMute();
+      btnAudio.querySelector('.nav-icona')!.innerHTML = muto ? SVG_AUDIO_OFF : SVG_AUDIO_ON;
+      btnAudio.querySelector('.nav-testo')!.textContent = muto ? 'Muto' : 'Audio';
+    }
+  );
+
   el.append(
     creaBottone('pausa', SVG_PAUSA, 'Pausa', 'Metti la partita in pausa', azioni.onPausa),
-    creaBottone('esci', SVG_ESCI, 'Esci', 'Esci dalla partita', azioni.onEsci)
+    creaBottone('esci', SVG_ESCI, 'Esci', 'Esci dalla partita', azioni.onEsci),
+    btnAudio,
+    creaBottone('fullscreen', SVG_FULLSCREEN, 'Schermo intero', 'Attiva schermo intero', () => {
+      toggleFullscreen().catch(() => undefined);
+    })
   );
   document.body.appendChild(el);
   barra = el;

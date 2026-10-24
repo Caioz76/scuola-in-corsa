@@ -269,57 +269,78 @@ test.describe('Impostazioni BES', () => {
     await verificaNessunaSovrapposizione('Game');
   });
 
-  test('interfaccia mobile verticale (portrait 390×844): #mobile-deck si adatta e permette di giocare', async ({
+  test('interfaccia mobile: in verticale mostra la schermata di rotazione e in orizzontale permette di giocare a tutto schermo', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    // 1. In verticale (portrait 390×844) appare la schermata #ruota
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => localStorage.clear());
+    await page.goto('/');
+    await expect(page.locator('#ruota')).toBeVisible();
+    await expect(page.locator('#ruota')).toContainText('Ruota lo schermo');
+
+    // 2. Ruotando il dispositivo in orizzontale (landscape 844×390) l'avviso sparisce e il gioco è pronto a tutto schermo
+    await page.setViewportSize({ width: 844, height: 390 });
+    await expect(page.locator('#ruota')).toBeHidden();
+    await expect.poll(async () => (await stato(page)).scena).toBe('Title');
+
+    // Il canvas di gioco copre l'area attiva
+    await expect(page.locator('#game canvas')).toBeVisible();
+  });
+
+  test('mobile: navigazione impostazioni, selezione anno scolastico e ritorno senza blocchi o schermate errate', async ({
     page
   }) => {
     test.setTimeout(90_000);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.addInitScript(() => localStorage.clear());
     await page.goto('/');
+
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
 
-    // L'avviso "ruota il telefono" deve essere nascosto e #mobile-deck visibile a tutto schermo (non diviso a metà)
-    await expect(page.locator('#ruota')).toBeHidden();
-    const deck = page.locator('#mobile-deck');
-    await expect(deck).toBeVisible();
-    const deckBox = await deck.boundingBox();
-    expect(deckBox).not.toBeNull();
-    expect(deckBox!.y).toBe(0);
-    expect(deckBox!.height).toBe(844);
-
-    // Verifica che la UI Phaser duplicata (depth > -13) sia nascosta (alpha <= 0.01) mentre il mondo animato resta visibile
-    const visibilitaCanvas = await page.evaluate(() => {
-      const g = (window as unknown as {
-        __GIOCO__?: { scenaAttiva?: { children: { list: Array<{ depth?: number; alpha?: number }> } } | null };
-      }).__GIOCO__;
-      const list = g?.scenaAttiva?.children.list ?? [];
-      const uiVisibili = list.filter((c) => (c.depth ?? 0) > -13 && (c.alpha ?? 1) > 0.05).length;
-      const mondoVisibili = list.filter((c) => (c.depth ?? 0) <= -13 && (c.alpha ?? 1) > 0.5).length;
-      return { uiVisibili, mondoVisibili };
-    });
-    expect(visibilitaCanvas.uiVisibili).toBe(0);
-    expect(visibilitaCanvas.mondoVisibili).toBeGreaterThan(0);
-
-    // Dal pannello mobile tocchiamo "Impostazioni", scegliamo una classe e torniamo al titolo
-    await deck.getByRole('button', { name: 'Impostazioni' }).click();
+    // Dalla schermata iniziale tocca Impostazioni
+    const btnImp = page.locator('#mobile-deck button').filter({ hasText: 'Impostazioni' }).first();
+    await expect(btnImp).toBeVisible();
+    await btnImp.click();
     await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
 
-    await deck.getByRole('button', { name: '1ª M' }).click();
-    await deck.getByRole('button', { name: 'Torna al titolo' }).click();
+    // Verifica schermata principale impostazioni
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Impostazioni');
+    await expect(page.locator('#mobile-deck')).toContainText('Profilo BES');
+
+    // Apre Anno scolastico
+    const btnAnno = page.locator('#mobile-deck button').filter({ hasText: 'Anno scolastico' }).first();
+    await expect(btnAnno).toBeVisible();
+    await btnAnno.click();
+
+    // La schermata deve essere "Anno scolastico e difficoltà", NON deve mostrare "Profilo BES"
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Anno scolastico e difficoltà');
+    await expect(page.locator('#mobile-deck')).not.toContainText('Profilo BES');
+
+    // Seleziona un anno scolastico (es. 2ª Secondaria)
+    const btnS2 = page.locator('#mobile-deck button').filter({ hasText: '2ª Secondaria' }).first();
+    await expect(btnS2).toBeVisible();
+    await btnS2.click();
+
+    // Resta nella schermata Anno scolastico con 2ª Secondaria evidenziata come selezionata
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Anno scolastico e difficoltà');
+    await expect(btnS2).toHaveClass(/m-state-selected/);
+
+    // Torna ai profili
+    const btnTornaProfili = page.locator('#mobile-deck button').filter({ hasText: 'Torna ai profili' }).first();
+    await expect(btnTornaProfili).toBeVisible();
+    await btnTornaProfili.click();
+
+    // Torna alla schermata principale Impostazioni: ora Profilo BES è presente e la classe aggiornata
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Impostazioni');
+    await expect(page.locator('#mobile-deck')).toContainText('Profilo BES');
+
+    // Torna al titolo
+    const btnTitolo = page.locator('#mobile-deck button').filter({ hasText: 'Torna al titolo' }).first();
+    await expect(btnTitolo).toBeVisible();
+    await btnTitolo.click();
+
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
-
-    // Avviamo la partita da #mobile-deck in verticale
-    await deck.getByRole('button', { name: 'Gioca' }).click();
-    await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
-
-    await deck.getByRole('button', { name: /Matematica/ }).click();
-    await expect.poll(async () => (await stato(page)).scena).toBe('Game');
-
-    // Verifichiamo che i bottoni di risposta nel pannello mobile siano grandi e cliccabili
-    const btnRisposta = deck.locator('.m-btn-answer').first();
-    await expect(btnRisposta).toBeVisible();
-    const box = await btnRisposta.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(48);
   });
 });

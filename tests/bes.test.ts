@@ -81,7 +81,7 @@ describe('BES resolver', () => {
     for (const r of BES_RULES) {
       if (!r.enabled && !touched.has(r.id)) {
         // regole opzionali non coperte da nessun profilo: le elenchiamo per revisione
-        expect(['slowPace'].includes(r.id)).toBe(true);
+        expect(['slowPace', 'highContrast'].includes(r.id)).toBe(true);
       }
     }
     expect(RULE_BY_ID.size).toBeGreaterThanOrEqual(28);

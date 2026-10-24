@@ -60,7 +60,6 @@ export const BES_PROFILES: BesProfile[] = [
     rules: {
       dyslexiaFont: true,
       largerText: true,
-      highContrast: true,
       shorterText: true,
       simpleLanguage: true,
       extraTime: true,

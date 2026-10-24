@@ -985,7 +985,7 @@ html = f"""<!doctype html>
       <div class="ag-card">
         <div class="ag-top">
           <span class="ag-title">🎨 Level-up Grafico Homepage</span>
-          <span class="pill ok">✅ Stile Wii Pastello</span>
+          <span class="pill ok">✅ Stile Sport Pastello</span>
         </div>
         <div class="ag-desc">Schermata <code>Title</code> luminosa e accogliente con scenografia animata, Pico in corsa e accesso rapido a Gioca, Impostazioni e Progressi.</div>
       </div>

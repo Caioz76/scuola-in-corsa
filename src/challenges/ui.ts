@@ -57,6 +57,8 @@ export interface TextOpts {
   maxH?: number;
   /** Contorno bianco leggero (leggibilità su sfondi vari). */
   outline?: boolean;
+  originX?: number;
+  originY?: number;
 }
 
 /**
@@ -101,7 +103,7 @@ export function makeText(
     wordWrap: { width: wrapW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
     lineSpacing: lineGap
-  }).setOrigin(0.5);
+  }).setOrigin(o.originX ?? 0.5, o.originY ?? 0.5);
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.maxH !== undefined && o.maxH > 0) {
     fitTextToBox(t, wrapW, o.maxH, 11);
@@ -123,7 +125,7 @@ function hcColor(_c: string): string {
   return '#000000';
 }
 
-export type BtnKind = 'normal' | 'correct' | 'wrong' | 'disabled';
+export type BtnKind = 'normal' | 'correct' | 'wrong' | 'disabled' | 'selected' | 'unselected';
 
 export type MobileItemState =
   | 'normal'
@@ -131,6 +133,7 @@ export type MobileItemState =
   | 'wrong'
   | 'disabled'
   | 'selected'
+  | 'unselected'
   | 'on'
   | 'off';
 
@@ -146,6 +149,7 @@ export interface MobileItem {
 }
 
 const mobileRegistry = new WeakMap<Phaser.Scene, MobileItem[]>();
+const shutdownAttached = new WeakSet<Phaser.Scene>();
 let nextMobileId = 1;
 
 export function registerMobileItem(
@@ -156,7 +160,10 @@ export function registerMobileItem(
   if (!list) {
     list = [];
     mobileRegistry.set(scene, list);
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+  }
+  if (!shutdownAttached.has(scene)) {
+    shutdownAttached.add(scene);
+    scene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
       mobileRegistry.set(scene, []);
     });
   }
@@ -176,12 +183,12 @@ export function getMobileItems(scene: Phaser.Scene | null | undefined): MobileIt
 }
 
 /**
- * Cornice grafica in stile **Nintendo Wii Sports / Wii Menu**:
+ * Cornice grafica in stile **Sport Arena**:
  * pannello porcellana semitrasparente con scanline orizzontali leggere,
- * doppia ghiera Azzurro Wii (`#00a2e8`) + bianco speculare e dettagli sportivi.
+ * doppia ghiera Azzurro Sport (`#00a2e8`) + bianco speculare e dettagli dinamici.
  * Rispetta automaticamente le regole BES: sparisce con `noDecoration` o `highContrast`.
  */
-export function drawWiiChannelFrame(
+export function drawSportChannelFrame(
   scene: Phaser.Scene,
   cfg: EffectiveConfig,
   opts: {
@@ -192,6 +199,7 @@ export function drawWiiChannelFrame(
     headerH?: number;
     depth?: number;
     swoosh?: boolean;
+    solid?: boolean;
   } = {}
 ): Phaser.GameObjects.Graphics | null {
   if (!cfg.decoration || cfg.highContrast) return null;
@@ -208,28 +216,28 @@ export function drawWiiChannelFrame(
   g.fillStyle(0x005b8f, 0.07);
   g.fillRoundedRect(x + 2, y + 4, w, h, 28);
 
-  // Corpo principale bianco porcellana Wii
-  g.fillStyle(0xffffff, 0.82);
+  // Corpo principale bianco porcellana sportiva (opaco per massima leggibilità se solid)
+  g.fillStyle(0xffffff, opts.solid ? 0.98 : 0.88);
   g.fillRoundedRect(x, y, w, h, 26);
 
-  // Righe scanline orizzontali tipiche dei canali Nintendo Wii
+  // Righe scanline orizzontali leggere
   g.fillStyle(0x00a2e8, 0.035);
   for (let sy = y + 14; sy < y + h - 14; sy += 6) {
     g.fillRect(x + 12, sy, w - 24, 2);
   }
 
-  // Fascia superiore glossy (Header del canale Wii Sports)
+  // Fascia superiore glossy
   if (headerH > 0) {
-    g.fillStyle(0xe8f6ff, 0.9);
+    g.fillStyle(0xe8f6ff, 0.94);
     g.fillRoundedRect(x + 8, y + 8, w - 16, headerH, 20);
-    g.fillStyle(0xffffff, 0.72);
+    g.fillStyle(0xffffff, 0.8);
     g.fillRoundedRect(x + 14, y + 11, w - 28, Math.round(headerH * 0.45), 14);
-    // Filetto divisorio Azzurro Wii sotto l'header
+    // Filetto divisorio Azzurro Sport sotto l'header
     g.lineStyle(2, 0x00a2e8, 0.45);
     g.lineBetween(x + 24, y + 8 + headerH, x + w - 24, y + 8 + headerH);
   }
 
-  // Strisce dinamiche diagonali Wii Sports negli angoli superiori
+  // Strisce dinamiche diagonali negli angoli superiori
   if (opts.swoosh !== false) {
     g.fillStyle(0x00a2e8, 0.18);
     g.fillTriangle(x + 18, y + 12, x + 78, y + 12, x + 18, y + 54);
@@ -237,7 +245,7 @@ export function drawWiiChannelFrame(
     g.fillTriangle(x + w - 18, y + 12, x + w - 78, y + 12, x + w - 18, y + 54);
   }
 
-  // Doppia cornice: ghiera esterna Azzurro Wii (#00a2e8) + filetto interno bianco
+  // Doppia cornice: ghiera esterna Azzurro Sport (#00a2e8) + filetto interno bianco
   g.lineStyle(3, 0x00a2e8, 0.78);
   g.strokeRoundedRect(x, y, w, h, 26);
   g.lineStyle(1.5, 0xffffff, 0.96);
@@ -245,6 +253,8 @@ export function drawWiiChannelFrame(
 
   return g;
 }
+
+export const drawWiiChannelFrame = drawSportChannelFrame;
 
 export interface Btn {
   root: Phaser.GameObjects.Container;
@@ -263,8 +273,10 @@ export const BTN_H = 84;
 const KIND_TEX: Record<BtnKind, string> = {
   normal: 'btn-blue',
   correct: 'btn-green',
+  selected: 'btn-green',
   wrong: 'btn-red',
-  disabled: 'btn-gray'
+  disabled: 'btn-gray',
+  unselected: 'btn-blue'
 };
 
 /**
@@ -324,6 +336,7 @@ export function makeButton(
       if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
     }
   });
+  root.once(Phaser.GameObjects.Events.DESTROY, unregister);
   return {
     root,
     text,
@@ -335,8 +348,13 @@ export function makeButton(
     setKind(kKind: BtnKind): void {
       currentKind = kKind;
       if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
-      if (kKind === 'disabled') text.setStyle({ color: T.faint });
-      else text.setStyle({ color: T.body });
+      if (kKind === 'disabled' || kKind === 'unselected') {
+        text.setStyle({ color: '#64748b' });
+      } else if (kKind === 'selected' || kKind === 'correct') {
+        text.setStyle({ color: '#ffffff' });
+      } else {
+        text.setStyle({ color: T.body });
+      }
     },
     setEnabled(b: boolean): void {
       enabled = b;
@@ -434,6 +452,7 @@ export function makeChip(
       if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
     }
   });
+  root.once(Phaser.GameObjects.Events.DESTROY, unregister);
   return {
     root,
     text,
@@ -608,7 +627,7 @@ export function makeToggle(
   const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
   zona.setDepth(12);
   zona.on('pointerup', onTap);
-  registerMobileItem(scene, {
+  const unregister = registerMobileItem(scene, {
     kind: 'toggle',
     label: () => label,
     state: () => (on ? 'on' : 'off'),
@@ -619,6 +638,7 @@ export function makeToggle(
       if (zona.active) onTap();
     }
   });
+  zona.once(Phaser.GameObjects.Events.DESTROY, unregister);
 }
 
 /**

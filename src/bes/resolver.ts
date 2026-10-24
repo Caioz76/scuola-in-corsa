@@ -52,6 +52,8 @@ export interface EffectiveConfig {
   targetDifficulty: 1 | 2 | 3;
   /** Velocità di crociera del Runner (px/s) calibrata su anno e regole BES. */
   runnerSpeed: number;
+  /** Selettore velocità Runner: 'slow' | 'normal' | 'fast' */
+  runnerSpeedMultiplier: 'slow' | 'normal' | 'fast';
 }
 
 /**
@@ -199,6 +201,8 @@ export interface BesSettings {
   schoolYear?: AnnoScolastico;
   /** Se vero (default), estrae e mescola le domande dal bacino dell'anno/materia. */
   randomQuestions?: boolean;
+  /** Velocità runner: 'slow' | 'normal' | 'fast' (default 'normal'). */
+  runnerSpeedMultiplier?: 'slow' | 'normal' | 'fast';
 }
 
 export const DEFAULT_SETTINGS: BesSettings = {
@@ -207,7 +211,8 @@ export const DEFAULT_SETTINGS: BesSettings = {
   mode: 'quiz',
   graphics: '2d',
   schoolYear: 'P3',
-  randomQuestions: true
+  randomQuestions: true,
+  runnerSpeedMultiplier: 'normal'
 };
 
 export function resolveConfig(settings: BesSettings): EffectiveConfig {
@@ -263,11 +268,13 @@ export function resolveConfig(settings: BesSettings): EffectiveConfig {
     schoolYear,
     schoolCycle: infoAnno.ciclo,
     targetDifficulty: infoAnno.difficulty,
+    runnerSpeedMultiplier: settings.runnerSpeedMultiplier ?? 'normal',
     runnerSpeed: has('reduceMotion')
       ? 0
-      : has('slowPace')
-        ? Math.round(infoAnno.runnerSpeed * 0.78)
-        : infoAnno.runnerSpeed
+      : Math.round(
+          (has('slowPace') ? infoAnno.runnerSpeed * 0.78 : infoAnno.runnerSpeed) *
+            (settings.runnerSpeedMultiplier === 'slow' ? 0.68 : settings.runnerSpeedMultiplier === 'fast' ? 1.25 : 1.0)
+        )
   };
 }
 
