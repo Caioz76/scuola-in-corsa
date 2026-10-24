@@ -63,4 +63,195 @@ body {
   #ruota {
     display: block;
   }
+
+  /* Le risposte stanno già in basso: l'avviso non serve e sarebbe coperto. */
+  body.risposte-aperte #ruota {
+    display: none;
+  }
+
+  /* Runner 3D in verticale: il canvas Phaser 16:9 si aggancia in alto, sotto
+     la barra "Pausa / Esci". La domanda resta lassù, il cancello e Pico al
+     centro, le risposte in basso: niente sovrapposizioni. */
+  body.con-3d #game canvas {
+    position: fixed !important;
+    top: calc(env(safe-area-inset-top, 0px) + 64px) !important;
+    left: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Barra di navigazione della partita (pausa / esci).
+   Fuori dal canvas: resta grande e leggibile anche quando il gioco è scalato.
+   Non copre le risposte: sta in alto a sinistra, dentro la safe area. */
+#nav-gioco {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: calc(env(safe-area-inset-left, 0px) + 10px);
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+#nav-gioco .nav-bottone {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px 0 13px;
+  border: 2px solid #c9d3e0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #2f3b4c;
+  box-shadow: 0 4px 14px rgba(59, 74, 90, 0.18);
+  font: 700 16px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+#nav-gioco .nav-bottone:hover {
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(59, 74, 90, 0.22);
+}
+
+#nav-gioco .nav-bottone:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(59, 74, 90, 0.2);
+}
+
+#nav-gioco .nav-bottone:focus-visible {
+  outline: 3px solid #5fade3;
+  outline-offset: 2px;
+}
+
+#nav-gioco .nav-icona {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  color: #1d6fb8;
+}
+
+#nav-gioco .nav-icona svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+#nav-gioco .nav-testo {
+  white-space: nowrap;
+}
+
+/* Risposte del Runner 3D: barra in basso, sotto Pico.
+   Fuori dal canvas per restare leggibile e toccabile su telefono. */
+#risposte-runner {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  transform: translateX(-50%);
+  z-index: 35;
+  width: min(780px, calc(100vw - 20px));
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+  gap: 10px;
+  pointer-events: none;
+}
+
+#risposte-runner .risposta-runner {
+  pointer-events: auto;
+  min-height: 58px;
+  padding: 8px 14px;
+  border: 3px solid #5fade3;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #2f3b4c;
+  box-shadow: 0 5px 16px rgba(59, 74, 90, 0.2);
+  font: 700 clamp(18px, 2.6vw, 26px) / 1.15 'Arial Rounded MT Bold', 'Trebuchet MS',
+    'Segoe UI', Verdana, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+#risposte-runner .risposta-runner:hover:not(:disabled) {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+#risposte-runner .risposta-runner:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+}
+
+#risposte-runner .risposta-runner:focus-visible {
+  outline: 3px solid #1d6fb8;
+  outline-offset: 2px;
+}
+
+#risposte-runner .risposta-runner:disabled {
+  opacity: 0.62;
+  cursor: default;
+}
+
+#risposte-runner .risposta-runner.giusto {
+  border-color: #3aa564;
+  background: #dff6e7;
+}
+
+#risposte-runner .risposta-runner.sbagliato {
+  border-color: #e05a5a;
+  background: #ffe1e1;
+  animation: risposta-scuoti 280ms ease;
+}
+
+#risposte-runner .risposta-runner.spento {
+  opacity: 0.42;
+}
+
+@keyframes risposta-scuoti {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Schermi stretti (telefono in verticale): due colonne, terza risposta larga. */
+@media (max-width: 560px) {
+  #risposte-runner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #risposte-runner .risposta-runner {
+    min-height: 56px;
+    border-radius: 16px;
+  }
+
+  #risposte-runner .risposta-runner:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 360px) {
+  #nav-gioco {
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    left: calc(env(safe-area-inset-left, 0px) + 6px);
+    gap: 6px;
+  }
+
+  #nav-gioco .nav-bottone {
+    min-height: 44px;
+    padding: 0 12px 0 10px;
+    font-size: 15px;
+  }
 }

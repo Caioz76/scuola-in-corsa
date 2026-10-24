@@ -17,7 +17,8 @@ questo file: in fondo ci sono le tre verifiche che dicono la verità.
 | Contenuti in gioco | 4 materie; **matematica e italiano con 2 tappe** (12 esercizi revisionati) |
 | Tappa successiva | da `Results` si passa alla tappa 2, senza tornare al titolo |
 | Tutte le tappe | da `Subject` (in alto a destra) si sceglie direttamente qualsiasi tappa |
-| Pausa e progresso | col profilo BES: "Prova 2 di 6" e pausa che riprende dallo stesso punto |
+| Navigazione in partita | barra **Pausa / Esci** sempre visibile (HTML sopra il canvas, safe area, ≥44 px); pausa reale e ripresa dallo stesso punto; uscita con conferma |
+| Profilo BES e pausa | col profilo: "Prova 2 di 6"; "Pausa quando serve" ferma la partita da sola se si cambia app o si nasconde la pagina |
 | Regole una per una | 19 regole con effetto reale, salvate subito in `sic.settings.overrides` |
 | Modalità di gioco | **Quiz** (bottoni) o **Runner** (cartelli sulla pista), scelta in Impostazioni |
 | Grafica | **2D** o **3D** (terza persona, Three.js), scelta separata dalla modalità |
@@ -44,7 +45,9 @@ src/scenes/results.ts   punteggio, 3 stelle, salvataggio, Rigioca/Titolo
 src/scenes/settings.ts  9 profili BES + 19 regole singole, salvataggio immediato
 src/scenes/progress.ts  stelle per tappa + ultima partita (solo per l'insegnante)
 src/art/world.ts        scenografia, Pico, pista e checkpoint (livello visivo 2D)
-src/art/three-world.ts  mondo 3D in terza persona (Three.js) e cancello toccabile
+src/art/three-world.ts  mondo 3D in terza persona (Three.js) e cancello con porte
+src/ui/nav.ts           barra HTML Pausa/Esci, sempre disponibile
+src/ui/runner-answers.ts  risposte HTML in basso per il Runner 3D
 src/art/backgrounds.ts  cieli/colline delle materie (texture in Boot)
 src/art/pico.ts         frame di Pico (idle, corsa, salto, festa)
 src/core/settings.ts    loadSettings/saveSettings su localStorage (+ evento)
@@ -105,17 +108,20 @@ tappa in due tocchi.
 
 Tre regole erano dichiarate ma senza effetto:
 
-- **`pauseAllowed`** (ADHD, ansia): in `Game` compare "Pausa"; apre `PauseScene`,
-  mette davvero in pausa timer, tween e input di `Game`, e "Continua" riprende
-  dalla stessa prova.
+- **`pauseAllowed`** (ADHD, ansia): la pausa manuale c'è sempre per tutti; con
+  questa regola la partita si mette in pausa **da sola** se il bambino esce
+  dalla pagina o cambia app, così al ritorno ritrova la prova dov'era.
 - **`clearProgress`** (ADHD, autismo, disabilità intellettiva, ansia): in alto a
   destra si legge "Prova 2 di 6".
 - **`slowPace`** (ADHD, autismo, discalculia, ansia): il feedback resta sullo
   schermo 1,6 volte più a lungo (900→1440 ms, 2600→4160 ms). Ora è anche un
   campo di `EffectiveConfig`, quindi verificabile dai test.
 
-`tests/e2e/pausa.spec.ts` verifica pausa e ripresa reale; senza profilo né il
-bottone né il contatore compaiono.
+La barra **Pausa / Esci** è HTML (`src/ui/nav.ts`) e non Phaser: così resta
+grande e toccabile anche quando il canvas è scalato su un telefono. "Esci" non
+butta via la tappa per un tocco sbagliato: chiede conferma. `tests/e2e/pausa.spec.ts`
+verifica pausa, ripresa, uscita con conferma e pausa automatica; senza profilo
+il contatore non compare, ma la barra sì.
 
 ### Il mondo: una corsa, non un quiz su fondo nero (24/10)
 
@@ -178,10 +184,16 @@ Sta in `sic.settings.graphics` (default `2d`), normalizzata in
   Il canvas 3D copre tutto lo schermo (anche i telefoni più larghi di 16:9);
   Phaser resta sopra, trasparente, e continua a gestire input, testi e prove.
 
-In **Runner 3D** la domanda è un cancello Three.js con pannelli disegnati su
-canvas: arriva da davanti, frena e si ferma. I pannelli si toccano con un
-raycast sul canvas Phaser; la risposta giusta li illumina, Pico salta, parte
-un burst di stelline e il cancello esce di lato. In **Quiz 3D** i bottoni
+In **Runner 3D** la domanda è un cancello Three.js: le **porte** sono
+riferimenti visivi colorati e trasparenti, senza etichette, basse abbastanza da
+lasciare visibili Pico, la sua antenna e il badge "?". Le **risposte** stanno
+in una barra HTML in basso, fuori dal canvas e sotto il personaggio
+(`src/ui/runner-answers.ts`): si abilitano solo quando il cancello è fermo, si
+nascondono in pausa e non coprono il simbolo della domanda. Si risponde in due
+modi equivalenti: toccando il bottone in basso, oppure allineando Pico alla
+porta e saltando. La risposta giusta illumina la porta di verde, fa saltare
+Pico e parte un burst di stelline; quella sbagliata la fa tremare e si riprova;
+dopo 3 errori la porta giusta si apre da sola. In **Quiz 3D** i bottoni
 restano l'interfaccia Phaser: il 3D è il mondo, non un modo diverso di
 rispondere. Riordino e abbinamento restano 2D e fermano il mondo.
 
@@ -189,19 +201,25 @@ Regole BES: con **alto contrasto** il 3D si spegne e si torna al 2D (fondo
 chiaro uniforme e testi neri); con **riduci i movimenti** il mondo resta fermo
 e il cancello si presenta subito; `noDecoration` toglie la scenografia.
 
-`tests/e2e/runner.spec.ts` verifica che in 3D il cancello arrivi, che un tocco
-sbagliato venga registrato senza cambiare domanda, che quello giusto porti al
-cancello successivo, che il Quiz 3D mostri i bottoni e che l'alto contrasto
-spenga il canvas 3D.
+`tests/e2e/runner.spec.ts` verifica che in 3D il cancello arrivi, che le
+risposte siano nella metà bassa dello schermo e non davanti a Pico, che un
+tocco sbagliato venga registrato senza cambiare domanda, che quello giusto
+porti al cancello successivo, che il Quiz 3D mostri i bottoni e che l'alto
+contrasto spenga il canvas 3D.
 
 ### Telefono e pubblicazione (24/10)
 
 - `src/style.css`: il gioco occupa tutto lo schermo, niente scroll né zoom;
-- in verticale compare un avviso "Ruota il telefono per giocare" (non
-  intercetta i tocchi), in orizzontale sparisce;
+- la barra **Pausa / Esci** e le risposte del Runner 3D sono HTML, con
+  `env(safe-area-inset-*)` e bottoni da almeno 46 px reali;
+- in verticale il canvas Phaser 16:9 si aggancia in alto sotto la barra
+  (`body.con-3d`), così la domanda non finisce sopra il cancello; le risposte
+  restano in basso e l'avviso "Ruota il telefono" si nasconde quando sono
+  aperte;
 - `index.html` usa `viewport-fit=cover` per i telefoni con notch;
-- verificato con iPhone 13 emulato in landscape (tap Title → Subject → Game) e
-  sulla build single-file servita da sottocartella, senza errori console.
+- verificato con iPhone 13 emulato in landscape **e** in verticale (tap Title →
+  Subject → Game, cancello fermo, pausa, conferma uscita), senza errori
+  console.
 
 `.github/workflows/deploy.yml` costruisce e pubblica su GitHub Pages a ogni push
 su `main`: typecheck, test unitari, build, deploy di `dist/ScuolaInCorsa`. La
@@ -255,7 +273,7 @@ quali sono ancora solo dichiarate. Fonte: uso di `EffectiveConfig` in `src/`.
 
 | Regola | Effetto |
 |---|---|
-| `pauseAllowed` | ✅ pausa reale, ripresa dallo stesso punto |
+| `pauseAllowed` | ✅ pausa automatica quando la pagina viene nascosta (la pausa manuale è sempre disponibile) |
 | `clearProgress` | ✅ "Prova 2 di 6" |
 | `slowPace` | ✅ feedback 1,6× più lunghi |
 | `fewerOptions` | ✅ massimo 2 opzioni, la corretta resta |
@@ -288,7 +306,8 @@ tabella sopra).
 
 `makeToggle` in `src/challenges/ui.ts` disegna la riga e rende tutta la superficie
 toccabile (non solo il testo). `tests/e2e/override.spec.ts` accende "Pausa quando
-serve" senza profilo e verifica che il bottone "Pausa" compaia davvero in gioco.
+serve" senza profilo e verifica che la regola arrivi fino al gioco: la pagina
+nascosta mette la partita in pausa.
 
 ## Bozze di contenuto in attesa di revisione umana
 

@@ -1,13 +1,18 @@
 /**
  * Modalità Runner: la domanda è un **cancello** piantato sulla pista. Il mondo
- * scorre, il cancello arriva da destra e frena davanti a Pico; solo allora i
- * cartelli diventano toccabili.
+ * scorre, il cancello arriva da destra e frena davanti a Pico; solo allora si
+ * può rispondere.
+ *
+ * In 2D le risposte sono cartelli sul posto. In 3D le porte sono solo
+ * riferimenti visivi e le risposte stanno in una barra HTML in basso, sotto
+ * Pico (`src/ui/runner-answers.ts`), così non coprono il personaggio né il
+ * badge "?". Si risponde toccando la barra o allineando Pico e saltando.
  *
  * - risposta giusta → il cancello si illumina, Pico salta sulla testata, la
  *   corsa riparte e il cancello esce a sinistra;
- * - risposta sbagliata → il mondo resta fermo, il cartello trema, Pico
+ * - risposta sbagliata → il mondo resta fermo, la risposta trema, Pico
  *   inciampa e si riprova (fino a 3 tentativi, come nel quiz);
- * - nessun timer: chi ha bisogno di tempo può guardare i cartelli quanto vuole.
+ * - nessun timer: chi ha bisogno di tempo può guardare le risposte quanto vuole.
  *
  * Le regole BES restano rispettate: numero di opzioni, font, scala del testo,
  * alto contrasto, suggerimento, ripetizione della domanda, ritmo lento.
@@ -18,6 +23,7 @@ import type { ImageRound, Option, QuizRound } from '../content/types';
 import { synth } from '../audio/synth';
 import type { Gate3D, World3D } from '../art/three-world';
 import { T } from '../art/palette';
+import { mostraRisposteRunner, type RisposteRunner } from '../ui/runner-answers';
 import {
   MAX_ATTEMPTS,
   fitOptions,
@@ -169,6 +175,8 @@ export class RunnerChallenge implements Challenge {
   private gate: Phaser.GameObjects.Container | null = null;
   /** Cancello 3D (Three.js); in 2D resta null. */
   private gate3d: Gate3D | null = null;
+  /** Risposte del Runner 3D: barra HTML in basso, sotto Pico. */
+  private risposte3d: RisposteRunner | null = null;
   /** Larghezza totale della fila di cartelli. */
   private totale = 0;
   /** Dove si ferma il centro del cancello. */
@@ -218,21 +226,27 @@ export class RunnerChallenge implements Challenge {
     }
 
     // ── Il cancello ──
-    // In 3D lo disegna Three.js e i pannelli si toccano con il raycast.
+    // In 3D lo disegna Three.js: porte senza etichette, risposte HTML in basso.
     // In 2D è un container Phaser che entra da destra.
     const treD = this.world as World3D | null;
     if (treD?.openGate) {
-      const g = treD.openGate(this.options.map((o) => o.label));
+      const labels = this.options.map((o) => o.label);
+      const g = treD.openGate(labels);
       this.gate3d = g;
+      // Le etichette stanno in basso, sotto Pico: non coprono il personaggio
+      // né il simbolo "?" del cancello. Si abilitano solo a varco fermo.
+      this.risposte3d = mostraRisposteRunner(labels, (i) => this.onPick(i));
       g.onArrive(() => {
         this.arrivato = true;
+        this.risposte3d?.abilita();
       });
-      g.onPick((i) => this.onPick(i));
     } else {
       this.creaCancello2D();
     }
 
     scene.events.on(Phaser.Scenes.Events.UPDATE, this.aggiorna);
+    scene.events.on(Phaser.Scenes.Events.PAUSE, this.nascondiRisposte);
+    scene.events.on(Phaser.Scenes.Events.RESUME, this.mostraRisposte);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.pulizia);
 
     // ── Rileggi (regola repeatPrompt) ──
@@ -316,6 +330,14 @@ export class RunnerChallenge implements Challenge {
    * metri. Usare la velocità vera del mondo (non un timer) tiene sincronizzati
    * pista, cartelli e Pico: si fermano insieme.
    */
+  private nascondiRisposte = (): void => {
+    this.risposte3d?.nascondi();
+  };
+
+  private mostraRisposte = (): void => {
+    this.risposte3d?.mostra();
+  };
+
   private aggiorna = (_time: number, deltaMs: number): void => {
     // In 3D il cancello e la frenata li gestisce Three.js.
     if (this.gate3d) return;
@@ -354,8 +376,10 @@ export class RunnerChallenge implements Challenge {
 
     if (correct) {
       if (tre) {
-        // Three.js: pannello verde, salto, stelline, cancello che esce.
+        // Three.js: porta verde, salto, stelline, cancello che esce.
         tre.markCorrect(i);
+        this.risposte3d?.segna(i, 'giusto');
+        this.risposte3d?.disabilita();
       } else if (sign) {
         sign.setKind('correct');
         this.signs.forEach((s, j) => {
@@ -377,6 +401,8 @@ export class RunnerChallenge implements Challenge {
     this.attempts++;
     if (tre) {
       tre.markWrong(i);
+      this.risposte3d?.segna(i, 'sbagliato');
+      this.risposte3d?.disabilita();
     } else if (sign) {
       sign.setKind('wrong');
       this.shake(sign);
@@ -408,8 +434,13 @@ export class RunnerChallenge implements Challenge {
     }
     this.schedule(() => {
       if (this.revealed) return;
-      if (tre) tre.reset();
-      else sign?.setKind('normal');
+      if (tre) {
+        tre.reset();
+        this.risposte3d?.pulisci();
+        this.risposte3d?.abilita();
+      } else {
+        sign?.setKind('normal');
+      }
       this.locked = false;
     }, delay);
   }
@@ -482,6 +513,8 @@ export class RunnerChallenge implements Challenge {
   /** Stacca listener e timer (la scena può chiudersi in qualsiasi momento). */
   private pulizia = (): void => {
     this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.aggiorna);
+    this.scene.events.off(Phaser.Scenes.Events.PAUSE, this.nascondiRisposte);
+    this.scene.events.off(Phaser.Scenes.Events.RESUME, this.mostraRisposte);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.pulizia);
     this.timers.forEach((t) => t.remove(false));
     this.timers = [];
@@ -500,6 +533,8 @@ export class RunnerChallenge implements Challenge {
     if (this.gate3d) {
       const giusta = this.options.findIndex((o) => o.correct);
       this.gate3d.reveal(giusta);
+      this.risposte3d?.segna(giusta, 'giusto');
+      this.risposte3d?.disabilita();
       return;
     }
     this.signs.forEach((s, i) => {
@@ -513,6 +548,7 @@ export class RunnerChallenge implements Challenge {
     this.timers.forEach((t) => t.remove(false));
     this.timers = [];
     this.gate3d?.lock();
+    this.risposte3d?.disabilita();
     this.signs.forEach((s) => s.setEnabled(false));
   }
 
@@ -522,6 +558,8 @@ export class RunnerChallenge implements Challenge {
     this.pulizia();
     this.gate3d?.dispose();
     this.gate3d = null;
+    this.risposte3d?.dispose();
+    this.risposte3d = null;
     this.signs.forEach((s) => s.dispose());
     this.signs = [];
     this.gate?.destroy();

@@ -49,7 +49,7 @@ export const BES_RULES: BesRule[] = [
   {
     id: 'pauseAllowed',
     label: 'Pausa quando serve',
-    description: 'Si può fare una pausa senza perdere nulla.',
+    description: 'La partita si mette in pausa da sola se esci dalla pagina o cambi app.',
     category: 'tempo',
     enabled: false
   },

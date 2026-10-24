@@ -55,16 +55,24 @@ funziona offline una volta caricato.
 1. Il bambino sceglie (o l'insegnante imposta) un **profilo BES** — oppure nessuno.
 2. In **Impostazioni** si scelgono due cose indipendenti: la **modalità** —
    *Quiz* (risposte con i bottoni) o *Runner* (le risposte sono cartelli
-   piantati sulla pista e Pico salta su quello scelto) — e la **grafica**,
-   *2D* (disegno laterale) o *3D* (terza persona con Three.js). Entrambe
-   restano salvate sul dispositivo.
+   piantati sulla pista; in 3D compaiono in una barra in basso, sotto Pico,
+   e si può rispondere toccandoli o allineando Pico alla porta e saltando) —
+   e la **grafica**, *2D* (disegno laterale) o *3D* (terza persona con
+   Three.js). Entrambe restano salvate sul dispositivo.
 3. Sceglie una **materia**: matematica, italiano, scienze o storia.
 4. Percorre il livello: il personaggio scorre, a ogni checkpoint compare una sfida.
 5. Risponde; il gioco dà un **riscontro immediato** (positivo o con spiegazione).
-6. Il progresso viene salvato in locale: si può riprendere da dove si era rimasti.
+6. In alto a sinistra ci sono sempre **Pausa** ed **Esci**: la pausa ferma la
+   partita e riprende dallo stesso punto; l'uscita chiede conferma, perché la
+   tappa in corso non viene salvata.
+7. Il progresso viene salvato in locale: si può riprendere da dove si era rimasti.
 
-Su telefono si gioca in orizzontale: il gioco occupa tutto lo schermo e, se il
-telefono è in verticale, un avviso invita a ruotarlo.
+Su telefono il gioco si adatta a orizzontale e verticale: la barra
+**Pausa / Esci** e le risposte del Runner 3D sono HTML, fuori dal canvas, con
+aree toccabili grandi e `env(safe-area-inset-*)`. In verticale il canvas 16:9
+si aggancia in alto sotto la barra, la domanda resta lassù, Pico al centro e le
+risposte in basso. L'avviso "Ruota il telefono" suggerisce l'orizzontale ma non
+blocca il gioco.
 
 ---
 

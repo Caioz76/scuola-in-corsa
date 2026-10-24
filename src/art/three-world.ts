@@ -1,7 +1,9 @@
 /**
  * Modalità grafica 3D: un mondo Three.js in terza persona dietro l'interfaccia
  * Phaser. Pico corre su una pista pastello, la camera lo segue da dietro e le
- * domande arrivano come cancelli con pannelli toccabili.
+ * domande arrivano come cancelli con porte colorate. Le risposte, però, non
+ * stanno nel mondo: sono una barra HTML in basso (`src/ui/runner-answers.ts`),
+ * così non coprono Pico né il badge "?".
  *
  * Perché un canvas separato: Phaser resta il motore di input, testi e prove
  * (accessibilità, BES, testi grandi). Three.js disegna solo il mondo, sotto.
@@ -19,13 +21,13 @@ import type { ThemeKey } from './backgrounds';
 import type { World } from './world';
 
 export interface Gate3D {
-  /** Il cancello è arrivato e i pannelli sono toccabili. */
+  /** Il cancello è arrivato e la barra delle risposte si può abilitare. */
   onArrive(cb: () => void): void;
-  /** Un pannello è stato toccato (indice nell'ordine dei testi). */
+  /** Una porta è stata scelta (indice nell'ordine delle risposte). */
   onPick(cb: (i: number) => void): void;
   markCorrect(i: number): void;
   markWrong(i: number): void;
-  /** Riporta i pannelli allo stato normale dopo un errore. */
+  /** Riporta le porte allo stato normale dopo un errore. */
   reset(): void;
   reveal(correct: number): void;
   lock(): void;
@@ -43,13 +45,13 @@ export interface Stato3D {
   cancello: number | null;
   arrivato: boolean;
   velocita: number;
-  /** Centri dei pannelli in coordinate Phaser 1024×576 (per i test). */
+  /** @deprecated Le risposte non sono più nel mondo: resta vuoto per i test. */
   pannelli: Array<{ x: number; y: number }>;
-  /** Etichette dei pannelli, nello stesso ordine di `pannelli`. */
+  /** Etichette delle porte, nello stesso ordine della barra in basso. */
   etichette: string[];
   /** Errori toccati nel cancello corrente (si azzera a ogni cancello). */
   errori: number;
-  /** Come toccare il pannello i (per i test, senza passare dal mouse). */
+  /** Come scegliere la porta i (per i test, senza passare dal mouse). */
   pick: (i: number) => void;
 }
 
@@ -146,54 +148,23 @@ function textureCanvas(c: HTMLCanvasElement): THREE.CanvasTexture {
   return t;
 }
 
-/** Scheda bianca arrotondata con l'etichetta, per i pannelli del cancello. */
-function texturePannello(label: string): THREE.CanvasTexture {
-  const W = 512;
-  const H = 340;
-  const [c, ctx] = canvas(W, H);
-  ctx.clearRect(0, 0, W, H);
-  // ombra
-  ctx.fillStyle = 'rgba(59,74,90,0.18)';
+/**
+ * Porta del cancello: solo la cornice, senza etichetta. Il colore lo dà il
+ * materiale (pastello, verde quando è giusta, rosa quando è sbagliata), così
+ * le risposte possono stare in basso senza coprire Pico e il simbolo "?".
+ */
+function texturePorta(): THREE.CanvasTexture {
+  const [c, ctx] = canvas(256, 384);
+  ctx.clearRect(0, 0, 256, 384);
+  ctx.fillStyle = 'rgba(255,255,255,0.66)';
   ctx.beginPath();
-  ctx.roundRect(16, 24, W - 32, H - 40, 44);
+  ctx.roundRect(12, 12, 232, 360, 36);
   ctx.fill();
-  // scheda
-  ctx.fillStyle = '#ffffff';
+  ctx.lineWidth = 12;
+  ctx.strokeStyle = '#ffffff';
   ctx.beginPath();
-  ctx.roundRect(10, 10, W - 32, H - 40, 44);
-  ctx.fill();
-  ctx.lineWidth = 11;
-  ctx.strokeStyle = '#5fade3';
-  ctx.beginPath();
-  ctx.roundRect(10, 10, W - 32, H - 40, 44);
+  ctx.roundRect(12, 12, 232, 360, 36);
   ctx.stroke();
-
-  ctx.fillStyle = '#2f3b4c';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const maxW = W - 110;
-  let size = 96;
-  let righe: string[] = [];
-  for (; size >= 40; size -= 4) {
-    ctx.font = `bold ${size}px "Arial Rounded MT Bold", "Trebuchet MS", sans-serif`;
-    righe = [];
-    let riga = '';
-    for (const parola of label.split(' ')) {
-      const prova = riga ? `${riga} ${parola}` : parola;
-      if (ctx.measureText(prova).width > maxW && riga) {
-        righe.push(riga);
-        riga = parola;
-      } else {
-        riga = prova;
-      }
-    }
-    if (riga) righe.push(riga);
-    const alt = righe.length * size * 1.12;
-    if (righe.every((r) => ctx.measureText(r).width <= maxW) && alt <= H - 100) break;
-  }
-  const passo = size * 1.12;
-  const y0 = H / 2 - ((righe.length - 1) * passo) / 2 - 4;
-  righe.forEach((r, i) => ctx.fillText(r, W / 2, y0 + i * passo));
   return textureCanvas(c);
 }
 
@@ -293,7 +264,8 @@ interface Stella {
 
 interface Cancello {
   gruppo: THREE.Group;
-  pannelli: THREE.Mesh[];
+  /** Porte colorate del varco: riferimenti visivi, senza etichette. */
+  porte: THREE.Mesh[];
   materiali: THREE.MeshBasicMaterial[];
   etichette: string[];
   arrived: boolean;
@@ -333,8 +305,6 @@ class Mondo3D implements World3D {
   private polvere: Array<{ mesh: THREE.Mesh; vita: number }> = [];
 
   private cancello: Cancello | null = null;
-  private raycaster = new THREE.Raycaster();
-  private puntatore = new THREE.Vector2();
 
   private velocita: number;
   private bersaglio: number;
@@ -348,7 +318,6 @@ class Mondo3D implements World3D {
   private ultimoSync = '';
 
   private onResize = (): void => this.sincronizza();
-  private onPointer = (ev: PointerEvent): void => this.tocca(ev);
 
   constructor(scene: Phaser.Scene, theme: ThemeKey, cfg: EffectiveConfig, speed: number) {
     this.scene = scene;
@@ -362,6 +331,9 @@ class Mondo3D implements World3D {
     this.canvas.className = 'tre-d';
     this.canvas.setAttribute('aria-hidden', 'true');
     document.body.appendChild(this.canvas);
+    // In verticale il canvas Phaser (16:9) va in alto, sotto la barra di
+    // navigazione: così la domanda non finisce sopra il cancello.
+    document.body.classList.add('con-3d');
 
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: false });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -383,7 +355,6 @@ class Mondo3D implements World3D {
     this.creaPico();
 
     window.addEventListener('resize', this.onResize);
-    scene.game.canvas.addEventListener('pointerup', this.onPointer);
     scene.events.on(Phaser.Scenes.Events.UPDATE, this.aggiorna);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.distruggi);
 
@@ -706,25 +677,30 @@ class Mondo3D implements World3D {
     this.chiudiCancello();
     const gruppo = new THREE.Group();
     const materiali: THREE.MeshBasicMaterial[] = [];
-    const pannelli: THREE.Mesh[] = [];
+    const porte: THREE.Mesh[] = [];
     const n = labels.length;
     const disponibile = 10.2;
     const larghezza = Math.min(2.6, (disponibile - (n - 1) * 0.2) / n);
-    const altezza = larghezza / 1.5;
     const totale = n * larghezza + (n - 1) * 0.2;
+    const colori = [0x9fd8ff, 0xffd166, 0x9df0b8, 0xffb3b3];
+    const texPorta = texturePorta();
 
-    labels.forEach((label, i) => {
-      const tex = texturePannello(label);
+    labels.forEach((_label, i) => {
       const mat = new THREE.MeshBasicMaterial({
-        map: tex,
+        map: texPorta,
+        color: colori[i % colori.length],
         transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide,
+        depthWrite: false,
         toneMapped: false
       });
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(larghezza, altezza), mat);
-      mesh.position.set(-totale / 2 + larghezza / 2 + i * (larghezza + 0.2), 2.45, 0.06);
+      // Porta bassa e trasparente: Pico, l'antenna e il badge "?" restano visibili.
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(larghezza * 0.92, 2.5), mat);
+      mesh.position.set(-totale / 2 + larghezza / 2 + i * (larghezza + 0.2), 1.3, 0.06);
       gruppo.add(mesh);
       materiali.push(mat);
-      pannelli.push(mesh);
+      porte.push(mesh);
     });
 
     const matPalo = new THREE.MeshStandardMaterial({ color: 0x8a99ad, roughness: 0.9 });
@@ -751,7 +727,7 @@ class Mondo3D implements World3D {
 
     const c: Cancello = {
       gruppo,
-      pannelli,
+      porte,
       materiali,
       etichette: labels,
       arrived: false,
@@ -827,14 +803,11 @@ class Mondo3D implements World3D {
       this.stumble();
       return;
     }
-    // salto verso il pannello scelto, stelline, cancello che esce
-    const p = c.pannelli[i];
-    this.salta(p.position.x * 0.62, 0.72);
-    this.stelline(
-      c.gruppo.position.x + p.position.x,
-      2.45,
-      c.gruppo.position.z + p.position.z
-    );
+    // salto verso la porta scelta, stelline, cancello che esce
+    const p = c.porte[i];
+    const px = p ? p.position.x : 0;
+    this.salta(px * 0.62, 0.72);
+    this.stelline(c.gruppo.position.x + px, 2.45, c.gruppo.position.z + (p?.position.z ?? 0));
     this.setSpeed(560);
     c.uscita = true;
     const partenza = c.gruppo.position.x;
@@ -1065,7 +1038,7 @@ class Mondo3D implements World3D {
       cancello: c ? Math.max(0, STOP_Z - c.gruppo.position.z) : null,
       arrivato: Boolean(c?.arrived),
       velocita: this.velocita,
-      pannelli: c ? this.pannelliSchermo(c) : [],
+      pannelli: [],
       etichette: c ? c.etichette : [],
       errori: this.errori,
       pick: (i: number) => this.scegli(i)
@@ -1074,49 +1047,11 @@ class Mondo3D implements World3D {
     this.renderer.render(this.mondo, this.camera);
   };
 
-  /**
-   * Centri dei pannelli in coordinate Phaser 1024×576, anche se il canvas 3D
-   * copre un'area più grande (telefono in orizzontale).
-   */
-  private pannelliSchermo(c: Cancello): Array<{ x: number; y: number }> {
-    const v = new THREE.Vector3();
-    const schermo = this.canvas.getBoundingClientRect();
-    const gioco = this.scene.game.canvas.getBoundingClientRect();
-    return c.pannelli.map((p) => {
-      p.getWorldPosition(v);
-      v.project(this.camera);
-      const sx = (v.x * 0.5 + 0.5) * schermo.width + schermo.left;
-      const sy = (-v.y * 0.5 + 0.5) * schermo.height + schermo.top;
-      return {
-        x: ((sx - gioco.left) / Math.max(1, gioco.width)) * 1024,
-        y: ((sy - gioco.top) / Math.max(1, gioco.height)) * 576
-      };
-    });
-  }
-
-  private tocca(ev: PointerEvent): void {
-    const c = this.cancello;
-    if (!c || !c.arrived || !c.enabled || c.uscita) return;
-    // Il 3D può essere più grande del canvas Phaser: il raggio si calcola
-    // sul rettangolo del canvas 3D, dove il mondo è davvero disegnato.
-    const r = this.canvas.getBoundingClientRect();
-    this.puntatore.set(
-      ((ev.clientX - r.left) / Math.max(1, r.width)) * 2 - 1,
-      -((ev.clientY - r.top) / Math.max(1, r.height)) * 2 + 1
-    );
-    this.raycaster.setFromCamera(this.puntatore, this.camera);
-    const colpiti = this.raycaster.intersectObjects(c.pannelli, false);
-    if (colpiti.length === 0) return;
-    const i = c.pannelli.indexOf(colpiti[0].object as THREE.Mesh);
-    if (i >= 0) c.onPick?.(i);
-  }
-
   // ── Pulizia ────────────────────────────────────────────────────
 
   private distruggi = (): void => {
     this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.aggiorna);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.distruggi);
-    this.scene.game.canvas.removeEventListener('pointerup', this.onPointer);
     window.removeEventListener('resize', this.onResize);
     this.chiudiCancello();
     this.mondo.traverse((o) => {
@@ -1132,6 +1067,7 @@ class Mondo3D implements World3D {
     });
     this.renderer.dispose();
     this.canvas.remove();
+    document.body.classList.remove('con-3d');
     stato = VUOTO;
   };
 

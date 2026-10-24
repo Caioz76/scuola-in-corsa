@@ -147,6 +147,10 @@ Per chi si blocca davanti alla prova: nessun limite di tempo, possibilità di
 sospendere, nessuna pressione della "serie" da non interrompere. L'errore è
 occasione di spiegazione, non di penalità.
 
+In partita la barra **Pausa / Esci** è sempre disponibile, in alto a sinistra,
+anche senza profilo BES: la pausa ferma la partita e riprende dallo stesso
+punto; l'uscita chiede conferma perché la tappa in corso non viene salvata.
+
 ---
 
 ## Le regole, una per una
@@ -159,7 +163,7 @@ attivarle o disattivarle singolarmente, dopo aver scelto un profilo.
 | Regola | Cosa cambia in pratica |
 |---|---|
 | **Nessuna fretta** (`extraTime`) | Non c'è nessun limite di tempo per rispondere |
-| **Pausa quando serve** (`pauseAllowed`) | Si può sospendere senza perdere nulla |
+| **Pausa quando serve** (`pauseAllowed`) | La partita si mette in pausa da sola se si esce dalla pagina o si cambia app |
 | **Ritmo lento** (`slowPace`) | Animazioni e passaggi più lenti e prevedibili |
 
 ### Attenzione e carico

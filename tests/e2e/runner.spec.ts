@@ -428,22 +428,39 @@ test.describe('Modalità Runner', () => {
 });
 
 test.describe('Grafica 3D', () => {
-  test('Runner 3D: il cancello arriva, si tocca e la corsa riparte', async ({ page }) => {
-    test.setTimeout(60_000);
+  test('Runner 3D: risposte in basso sotto Pico, il varco arriva e la corsa riparte', async ({ page }) => {
+    test.setTimeout(90_000);
     await impostaGrafica(page, 'runner', '3d');
     await avviaMatematica(page);
 
     await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
     await expect(page.locator('canvas.tre-d')).toHaveCount(1);
 
-    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 12_000);
+    // Le risposte non sono più pannelli 3D davanti a Pico: sono una barra HTML
+    // in basso. Prima dell'arrivo si vedono ma non si possono toccare.
+    const risposte = page.locator('#risposte-runner .risposta-runner');
+    await expect(page.locator('#risposte-runner')).toBeVisible();
+    await expect(risposte.first()).toBeDisabled();
+
+    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
     expect(arrivato, 'il cancello 3D deve arrivare e fermarsi').toBe(true);
 
     const primo = (await treD(page))!;
     expect(primo.etichette.length).toBeGreaterThan(1);
-    expect(primo.pannelli.length).toBe(primo.etichette.length);
+    expect(primo.pannelli, 'niente risposte disegnate davanti al personaggio').toEqual([]);
     // La corsa finisce di frenare: a cancello fermo la velocità va a zero.
     await expect.poll(async () => (await treD(page))?.velocita ?? 999).toBeLessThan(5);
+
+    // Le etichette sono le stesse, ma in basso: sotto il centro dello schermo.
+    const etichette = (await risposte.allTextContents()).map((t) => t.trim());
+    expect(etichette).toEqual(primo.etichette);
+    const scatola = await risposte.first().boundingBox();
+    const viewport = page.viewportSize()!;
+    expect(scatola, 'la barra delle risposte deve essere visibile').not.toBeNull();
+    expect(scatola!.y, 'le risposte stanno nella metà bassa dello schermo').toBeGreaterThan(
+      viewport.height / 2
+    );
+    await expect(risposte.first()).toBeEnabled();
 
     const rounds = await prove(page);
     const giusta = rounds[0].options!.find((o) => o.correct)!.label;
@@ -451,16 +468,17 @@ test.describe('Grafica 3D', () => {
 
     // Tocco sbagliato: il gioco lo registra e resta sulla stessa domanda.
     const iSbagliata = primo.etichette.indexOf(sbagliata);
-    expect(iSbagliata, `il pannello "${sbagliata}" deve esistere`).toBeGreaterThanOrEqual(0);
-    await tocco(page, primo.pannelli[iSbagliata].x, primo.pannelli[iSbagliata].y, 300);
+    expect(iSbagliata, `la risposta "${sbagliata}" deve esistere`).toBeGreaterThanOrEqual(0);
+    await risposte.nth(iSbagliata).click();
     await expect.poll(async () => (await treD(page))?.errori ?? 0).toBe(1);
     expect((await treD(page))!.etichette).toEqual(primo.etichette);
+    await expect(risposte.nth(iSbagliata)).toHaveClass(/sbagliato/);
 
-    // Dopo il reset, il pannello giusto fa ripartire la corsa.
-    await page.waitForTimeout(1100);
+    // Dopo il reset, la risposta giusta fa ripartire la corsa.
     const iGiusta = primo.etichette.indexOf(giusta);
-    expect(iGiusta, `il pannello "${giusta}" deve esistere`).toBeGreaterThanOrEqual(0);
-    await tocco(page, primo.pannelli[iGiusta].x, primo.pannelli[iGiusta].y, 200);
+    expect(iGiusta, `la risposta "${giusta}" deve esistere`).toBeGreaterThanOrEqual(0);
+    await expect(risposte.nth(iGiusta)).toBeEnabled({ timeout: 5000 });
+    await risposte.nth(iGiusta).click();
 
     const cambiata = await attendi(page, async () => {
       const t = await treD(page);
@@ -468,8 +486,47 @@ test.describe('Grafica 3D', () => {
     }, 10_000);
     expect(cambiata, 'dopo la risposta giusta deve arrivare il cancello successivo').toBe(true);
 
-    const arrivo2 = await attendi(page, async () => (await treD(page))?.arrivato === true, 12_000);
+    const arrivo2 = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
     expect(arrivo2, 'anche il secondo cancello deve fermarsi davanti a Pico').toBe(true);
+  });
+
+  test('Runner 3D in verticale: domanda in alto, risposte in basso, avviso nascosto', async ({
+    page
+  }) => {
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 390, height: 664 });
+    await impostaGrafica(page, 'runner', '3d');
+    await avviaMatematica(page);
+
+    await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/con-3d/);
+
+    // Il canvas Phaser 16:9 non resta al centro dello schermo: si aggancia in
+    // alto sotto la barra, così la domanda non finisce sopra al cancello.
+    const tela = await page.locator('#game canvas').boundingBox();
+    expect(tela, 'il canvas Phaser deve essere visibile').not.toBeNull();
+    expect(tela!.y, 'la domanda sta sotto la barra Pausa/Esci').toBeGreaterThanOrEqual(60);
+
+    const nav = await page.locator('#nav-gioco').boundingBox();
+    expect(nav, 'la barra di navigazione deve essere visibile').not.toBeNull();
+    expect(nav!.height, 'i bottoni della barra restano toccabili').toBeGreaterThanOrEqual(44);
+
+    const arrivato = await attendi(page, async () => (await treD(page))?.arrivato === true, 20_000);
+    expect(arrivato, 'il cancello 3D deve arrivare anche in verticale').toBe(true);
+    await expect.poll(async () => (await treD(page))?.velocita ?? 999).toBeLessThan(5);
+
+    const risposte = page.locator('#risposte-runner .risposta-runner');
+    await expect(risposte.first()).toBeEnabled();
+    const scatola = await risposte.first().boundingBox();
+    const viewport = page.viewportSize()!;
+    expect(scatola, 'le risposte devono essere visibili').not.toBeNull();
+    expect(scatola!.y, 'le risposte stanno sotto il personaggio').toBeGreaterThan(
+      viewport.height / 2
+    );
+    expect(scatola!.height, 'le risposte restano toccabili').toBeGreaterThanOrEqual(44);
+
+    // L'avviso "Ruota il telefono" non deve restare dietro alle risposte.
+    await expect(page.locator('#ruota')).toBeHidden();
   });
 
   test('Quiz 3D: il mondo c\'è, i bottoni restano l\'interfaccia', async ({ page }) => {

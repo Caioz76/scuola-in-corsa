@@ -4,11 +4,12 @@ import { showChallenge, type Challenge } from '../challenges/index';
 import { allPacks } from '../content/packs';
 import type { Round } from '../content/types';
 import type { RoundOutcome } from '../core/state';
-import { showBanner, makeText, makeButton } from '../challenges/ui';
+import { showBanner, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
+import { mostraNav, nascondiNav } from '../ui/nav';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -59,14 +60,54 @@ export class GameScene extends Phaser.Scene {
     // Progresso esplicito: "Prova 2 di 6". Solo quando il profilo lo chiede.
     const contatore = makeText(this, 888, 26, '', cfg, { size: 14, color: '#1f8a4c' });
 
-    // Pausa: utile a chi ha bisogno di fermarsi senza perdere il punto.
-    if (cfg.pauseAllowed) {
-      const pausa = makeButton(this, cfg, 72, 40, 'Pausa', { scale: 0.5, depth: 20 });
-      pausa.onTap(() => {
-        this.scene.launch('Pause');
-        this.scene.pause();
-      });
-    }
+    // ── Navigazione sempre disponibile ──────────────────────────────
+    // Pausa e uscita non dipendono dal profilo BES: chiunque, in qualsiasi
+    // momento, deve potersi fermare o lasciare la partita. La barra è HTML
+    // (src/ui/nav.ts) per restare grande e leggibile anche su telefono.
+    let inPausa = false;
+    const azioni = {
+      onPausa: () => apriPausa(false),
+      onEsci: () => apriPausa(true)
+    };
+    const mostraBarra = (): void => mostraNav(azioni);
+    const suRipresa = (): void => {
+      inPausa = false;
+      mostraBarra();
+    };
+    const apriPausa = (conferma: boolean): void => {
+      if (inPausa) return;
+      inPausa = true;
+      nascondiNav();
+      // one-shot: la barra torna solo quando la partita riprende davvero.
+      this.events.once(Phaser.Scenes.Events.RESUME, suRipresa);
+      this.scene.launch('Pause', { conferma });
+      this.scene.pause();
+    };
+    mostraBarra();
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off(Phaser.Scenes.Events.RESUME, suRipresa);
+      nascondiNav();
+    });
+
+    // Tastiera: Esc e P aprono la pausa anche senza mouse.
+    const tastiera = this.input.keyboard;
+    const suPausa = (): void => apriPausa(false);
+    tastiera?.on('keydown-ESC', suPausa);
+    tastiera?.on('keydown-P', suPausa);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      tastiera?.off('keydown-ESC', suPausa);
+      tastiera?.off('keydown-P', suPausa);
+    });
+
+    // Con "Pausa quando serve" il gioco si ferma da solo se il bambino esce
+    // dalla pagina o cambia app: al ritorno ritrova la partita dov'era.
+    const suVisibilita = (): void => {
+      if (document.hidden) apriPausa(false);
+    };
+    if (cfg.pauseAllowed) document.addEventListener('visibilitychange', suVisibilita);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      document.removeEventListener('visibilitychange', suVisibilita);
+    });
 
     // Con "slowPace" i feedback restano più a lungo sullo schermo.
     const ritmo = cfg.slowPace ? 1.6 : 1;

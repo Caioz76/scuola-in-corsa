@@ -101,7 +101,7 @@ test('alto contrasto: i testi diventano neri (prima e dopo il profilo)', async (
   expect((await leggi())['Scegli la materia e corri!']).toBe('#000000');
 });
 
-test('accendo "Pausa quando serve" senza profilo e il gioco la mostra', async ({ page }) => {
+test('accendo "Pausa quando serve" senza profilo e la regola agisce davvero', async ({ page }) => {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
 
@@ -133,13 +133,26 @@ test('accendo "Pausa quando serve" senza profilo e il gioco la mostra', async ({
     )
     .toBe(true);
 
-  // ...e arriva fino al gioco: "Pausa" compare davvero.
+  // ...e arriva fino al gioco. La barra "Pausa / Esci" c'è sempre; questa
+  // regola in più fa fermare la partita se la pagina diventa nascosta.
   expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
   expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
   await expect.poll(() => scena(page)).toBe('Title');
-  await tocco(page, 512, 358); // Gioca
+  // Il titolo può comparire un attimo prima che i bottoni rispondano: se il
+  // tocco cade nel vuoto si riprova, invece di dichiarare fallito il gioco.
+  for (let i = 0; i < 3 && (await scena(page)) === 'Title'; i++) {
+    await tocco(page, 512, 358); // Gioca
+  }
   await expect.poll(() => scena(page)).toBe('Subject');
-  await tocco(page, 322, 248); // Matematica
+  for (let i = 0; i < 3 && (await scena(page)) === 'Subject'; i++) {
+    await tocco(page, 322, 248); // Matematica
+  }
   await expect.poll(() => scena(page)).toBe('Game');
-  expect((await testi(page)).map((t) => t.text)).toContain('Pausa');
+  await expect(page.locator('#nav-gioco button[data-azione="pausa"]')).toBeVisible();
+
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect.poll(() => scena(page)).toBe('Pause');
 });
