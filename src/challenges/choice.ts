@@ -57,8 +57,9 @@ export class ChoiceChallenge implements Challenge {
     this.cb = cb;
 
     // ── Prompt (con fascia verticale dedicata per non toccare il titolo o l'indizio) ──
+    const cx = scene.scale.gameSize.width / 2;
     const promptStr = testoSemplice(round.prompt, cfg);
-    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptX = cfg.repeatPrompt ? cx - 62 : cx;
     const promptWrap = cfg.repeatPrompt ? 640 : 780;
     this.promptText = makeText(scene, promptX, 66, promptStr, cfg, {
       size: 25,
@@ -85,7 +86,7 @@ export class ChoiceChallenge implements Challenge {
     if (round.type === 'image') {
       const iconKey = `icon-${round.icon}`;
       if (scene.textures.exists(iconKey)) {
-        this.iconImage = scene.add.image(512, 188, iconKey).setScale(1.65).setDepth(8);
+        this.iconImage = scene.add.image(cx, 188, iconKey).setScale(1.65).setDepth(8);
       }
       yShift = 18;
     }
@@ -94,7 +95,7 @@ export class ChoiceChallenge implements Challenge {
     this.options = fitOptions(round.options, cfg.maxOptions);
     const options = this.options;
     const scale = cfg.targetScale;
-    const pos = optionLayout(options.length, scale);
+    const pos = optionLayout(options.length, scale, cx);
 
     options.forEach((opt, i) => {
       const [px, py] = pos[i];
@@ -105,7 +106,7 @@ export class ChoiceChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+      this.reBtn = makeButton(scene, cfg, cx + 388, 68, 'Rileggi', {
         scale: 0.52,
         maxTargetScale: 1.04,
         depth: 12
@@ -177,7 +178,7 @@ export class ChoiceChallenge implements Challenge {
         g.lineBetween(x0 + i * cell, y0, x0 + i * cell, y0 + 10 * cell);
         g.lineBetween(x0, y0 + i * cell, x0 + 10 * cell, y0 + i * cell);
       }
-      this.supportLabel(512, 206, 'tabella 10×10 (100 caselle)');
+      this.supportLabel(this.scene.scale.gameSize.width / 2, 206, 'tabella 10×10 (100 caselle)');
     }
     return g;
   }
@@ -234,7 +235,7 @@ export class ChoiceChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
+    this.hintText = makeText(this.scene, this.scene.scale.gameSize.width / 2, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 14,
       color: C.orangeDeep,
       italic: true,

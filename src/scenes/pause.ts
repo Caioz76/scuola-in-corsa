@@ -24,20 +24,22 @@ export class PauseScene extends Phaser.Scene {
   create(data: { conferma?: boolean } = {}): void {
     this.conferma = Boolean(data.conferma);
     const cfg = resolveConfig(loadSettings());
+    const w = this.scale.gameSize.width;
+    const h = this.scale.gameSize.height;
 
     // Velo quasi pieno: sotto resta il gioco, ma non sembra più cliccabile.
-    this.add.rectangle(512, 288, 1024, 576, 0xffffff, 0.9);
+    this.add.rectangle(w / 2, h / 2, w, h, 0xffffff, 0.9);
 
     // Scheda bianca: separa la pausa dal quiz che resta dietro.
     const card = this.add.graphics();
     card.fillStyle(0x3b4a5a, 0.14);
-    card.fillRoundedRect(256, 118, 512, 396, 30);
+    card.fillRoundedRect(w / 2 - 256, 118, 512, 396, 30);
     card.fillStyle(0xffffff, 0.99);
-    card.fillRoundedRect(252, 110, 512, 396, 30);
+    card.fillRoundedRect(w / 2 - 260, 110, 512, 396, 30);
     card.lineStyle(2, 0xc9d3e0, 1);
-    card.strokeRoundedRect(252, 110, 512, 396, 30);
+    card.strokeRoundedRect(w / 2 - 260, 110, 512, 396, 30);
 
-    makeText(this, 512, 160, this.conferma ? 'Vuoi uscire?' : 'Pausa', cfg, {
+    makeText(this, w / 2, 160, this.conferma ? 'Vuoi uscire?' : 'Pausa', cfg, {
       size: 38,
       bold: true,
       color: this.conferma ? '#c2554d' : '#000000',
@@ -47,7 +49,7 @@ export class PauseScene extends Phaser.Scene {
 
     makeText(
       this,
-      512,
+      w / 2,
       220,
       this.conferma
         ? 'La tappa non è finita: i progressi di questa partita non vengono salvati.'
@@ -58,7 +60,7 @@ export class PauseScene extends Phaser.Scene {
 
     // Con "Pausa quando serve" la pausa diventa anche un momento per respirare.
     if (cfg.pauseAllowed && !this.conferma) {
-      makeText(this, 512, 268, 'Fai un respiro: inspira piano, poi espira.', cfg, {
+      makeText(this, w / 2, 268, 'Fai un respiro: inspira piano, poi espira.', cfg, {
         size: 14,
         bold: true,
         italic: true,
@@ -78,26 +80,26 @@ export class PauseScene extends Phaser.Scene {
     };
 
     if (this.conferma) {
-      const si = makeButton(this, cfg, 512, 332, 'Sì, esci', {
+      const si = makeButton(this, cfg, w / 2, 332, 'Sì, esci', {
         scale: 0.8,
         maxTargetScale: 1.02,
         depth: 10
       });
       si.onTap(esci);
-      const no = makeButton(this, cfg, 512, 420, 'No, torna al gioco', {
+      const no = makeButton(this, cfg, w / 2, 420, 'No, torna al gioco', {
         scale: 0.8,
         maxTargetScale: 1.02,
         depth: 10
       });
       no.onTap(riprendi);
     } else {
-      const continua = makeButton(this, cfg, 512, 332, 'Continua', {
+      const continua = makeButton(this, cfg, w / 2, 332, 'Continua', {
         scale: 0.8,
         maxTargetScale: 1.02,
         depth: 10
       });
       continua.onTap(riprendi);
-      const titolo = makeButton(this, cfg, 512, 420, 'Esci dalla partita', {
+      const titolo = makeButton(this, cfg, w / 2, 420, 'Esci dalla partita', {
         scale: 0.8,
         maxTargetScale: 1.02,
         depth: 10

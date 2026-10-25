@@ -88,12 +88,13 @@ export class OrderChallenge implements Challenge {
       256,
       Math.max(120, Math.floor((avail - (this.n - 1) * GAP) / Math.max(1, this.n)))
     );
+    const cx = scene.scale.gameSize.width / 2;
     const total = this.n * this.slotW + (this.n - 1) * GAP;
-    const x0 = 512 - total / 2 + this.slotW / 2;
+    const x0 = cx - total / 2 + this.slotW / 2;
     this.xs = Array.from({ length: this.n }, (_, i) => x0 + i * (this.slotW + GAP));
 
     // ── Prompt / hint / istruzione ──
-    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptX = cfg.repeatPrompt ? cx - 62 : cx;
     const promptWrap = cfg.repeatPrompt ? 640 : 780;
     this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
       size: 25,
@@ -108,7 +109,7 @@ export class OrderChallenge implements Challenge {
     const dragOk = this.dragAllowed();
     this.instrText = makeText(
       scene,
-      512,
+      cx,
       142,
       cfg.simpleLanguage
         ? `Metti nell'ordine da 1 a ${this.n}`
@@ -146,7 +147,7 @@ export class OrderChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+      this.reBtn = makeButton(scene, cfg, cx + 388, 68, 'Rileggi', {
         scale: 0.52,
         maxTargetScale: 1.04,
         depth: 12
@@ -163,7 +164,7 @@ export class OrderChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
+    this.hintText = makeText(this.scene, this.scene.scale.gameSize.width / 2, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 14,
       color: C.orangeDeep,
       italic: true,

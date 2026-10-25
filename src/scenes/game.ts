@@ -83,15 +83,17 @@ export class GameScene extends Phaser.Scene {
     const w = this.scale.gameSize.width;
 
     // Barra superiore e quadro domanda in stile Sport (in 2D o capsula dedicata in 3D)
+    const frameW = Math.min(832, w - 40);
+    const frameX = (w - frameW) / 2;
     if (!treD) {
-      drawSportChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 34, depth: -10 });
+      drawSportChannelFrame(this, cfg, { x: frameX, y: 6, w: frameW, h: 124, headerH: 34, depth: -10 });
     } else {
       // In 3D: capsula superiore dedicata su fondo chiaro per garantire massima leggibilità
       const pillBg = this.add.graphics().setDepth(90);
       pillBg.fillStyle(0xffffff, 0.95);
-      pillBg.fillRoundedRect(96, 6, 832, 34, 17);
+      pillBg.fillRoundedRect(frameX, 6, frameW, 34, 17);
       pillBg.lineStyle(2, 0x00a2e8, 0.7);
-      pillBg.strokeRoundedRect(96, 6, 832, 34, 17);
+      pillBg.strokeRoundedRect(frameX, 6, frameW, 34, 17);
     }
 
     // Intestazione in alto: materia, tappa, livello scolastico e contatore prove.
@@ -99,7 +101,7 @@ export class GameScene extends Phaser.Scene {
     const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
 
     // Titolo della tappa a sinistra nella barra superiore
-    makeText(this, 108, 23, testoTitolo, cfg, {
+    makeText(this, frameX + 12, 23, testoTitolo, cfg, {
       size: 12.5,
       bold: true,
       color: '#000000',
@@ -115,7 +117,7 @@ export class GameScene extends Phaser.Scene {
     let turnLogoObj: Phaser.GameObjects.Text | null = null;
     let turnTextObj: Phaser.GameObjects.Text | null = null;
 
-    const contatore = makeText(this, 904, 23, '', cfg, {
+    const contatore = makeText(this, frameX + frameW - 12, 23, '', cfg, {
       size: 13.5,
       bold: true,
       color: '#000000',

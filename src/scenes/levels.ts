@@ -34,10 +34,12 @@ export class LevelsScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
 
+    const frameW = Math.min(960, w - 40);
+    const frameX = (w - frameW) / 2;
     addWorld(this, 'scuola', cfg, { speed: 24 });
-    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
+    drawSportChannelFrame(this, cfg, { x: frameX, y: 16, w: frameW, h: 544, headerH: 80 });
 
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna indietro', {
+    const btnIndietro = makeButton(this, cfg, frameX + 98, 40, 'Torna indietro', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -59,10 +61,11 @@ export class LevelsScene extends Phaser.Scene {
       maxH: 20
     });
 
+    const xTappe = [frameX + 350, frameX + 580, frameX + 810];
     MATERIE.forEach((m, row) => {
       const y = 145 + row * 80;
       const pack = allPacks().find((p) => p.subject === m.id);
-      makeText(this, 155, y, m.label, cfg, {
+      makeText(this, frameX + 120, y, m.label, cfg, {
         size: 19,
         bold: true,
         color: '#000000',
@@ -72,7 +75,7 @@ export class LevelsScene extends Phaser.Scene {
       });
 
       pack?.levels.forEach((livello, i) => {
-        const x = X_TAPPE[i] ?? 380 + i * 235;
+        const x = xTappe[i] ?? (frameX + 350 + i * 230);
         const stelle = starsFor(pack.packId, livello.id);
         const b = makeButton(this, cfg, x, y, `Tappa ${i + 1} · ★ ${stelle}`, {
           scale: 0.68,

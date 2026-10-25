@@ -54,15 +54,14 @@ export interface World {
   destroy(): void;
 }
 
-const W = 1024;
-const H = 576;
-
 export function addWorld(
   scene: Phaser.Scene,
   theme: ThemeKey,
   cfg: EffectiveConfig,
   opts: WorldOpts = {}
 ): World {
+  const W = Math.max(1024, scene.scale.gameSize.width);
+  const H = Math.max(576, scene.scale.gameSize.height);
   applyPageTheme(theme, cfg.highContrast);
   // La scenografia è "decorazione": chi ha chiesto una schermata pulita non la vede.
   const scenografia = cfg.decoration && !cfg.highContrast;
@@ -179,10 +178,10 @@ export function addWorld(
 
   // La pista va dal primo checkpoint al traguardo: Pico la percorre davvero,
   // prova dopo prova. Con "riduci i movimenti" si sposta senza animazione.
-  const PISTA_X0 = 196;
-  const PISTA_X1 = 860;
-  const PISTA_Y = 546;
-  const PARTENZA_X = 66;
+  const PISTA_X0 = Math.round(W * 0.18);
+  const PISTA_X1 = Math.round(W * 0.85);
+  const PISTA_Y = H - 30;
+  const PARTENZA_X = Math.round(W * 0.06);
 
   const xCheckpoint = (i: number): number =>
     totali > 1 ? PISTA_X0 + ((PISTA_X1 - PISTA_X0) * i) / (totali - 1) : PISTA_X1;
@@ -202,7 +201,7 @@ export function addWorld(
       checkpoint.strokeCircle(x, PISTA_Y, 9);
     }
     if (!bandiera) {
-      bandiera = scene.add.image(906, 512, 'flag').setScale(0.5).setDepth(-13);
+      bandiera = scene.add.image(PISTA_X1 + 46, H - 64, 'flag').setScale(0.5).setDepth(-13);
       oggetti.push(bandiera);
     }
   };

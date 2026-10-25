@@ -48,6 +48,8 @@ export class MatchChallenge implements Challenge {
   private round: MatchRound;
   private cfg: EffectiveConfig;
   private cb: ChallengeCallbacks;
+  private leftX: number;
+  private rightX: number;
 
   private n: number;
   private ys: number[];
@@ -80,6 +82,10 @@ export class MatchChallenge implements Challenge {
     this.cfg = cfg;
     this.cb = cb;
 
+    const cx = scene.scale.gameSize.width / 2;
+    this.leftX = cx - 236;
+    this.rightX = cx + 236;
+
     const left = round.leftItems ?? [];
     const right = round.rightItems ?? [];
     const pairs = round.pairs ?? [];
@@ -93,7 +99,7 @@ export class MatchChallenge implements Challenge {
     this.rightOrder = order;
 
     // ── Prompt / hint / istruzione ──
-    const promptX = cfg.repeatPrompt ? 450 : 512;
+    const promptX = cfg.repeatPrompt ? cx - 62 : cx;
     const promptWrap = cfg.repeatPrompt ? 640 : 780;
     this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
       size: 25,
@@ -107,7 +113,7 @@ export class MatchChallenge implements Challenge {
     }
     this.instrText = makeText(
       scene,
-      512,
+      cx,
       142,
       cfg.simpleLanguage
         ? 'Tocca le coppie giuste'
@@ -119,7 +125,7 @@ export class MatchChallenge implements Challenge {
     // ── Colonne ──
     const chipH = this.n >= 4 ? 64 : 76;
     for (let i = 0; i < this.n; i++) {
-      const lc = makeChip(scene, cfg, LEFT_X, this.ys[i], left[i], {
+      const lc = makeChip(scene, cfg, this.leftX, this.ys[i], left[i], {
         w: CHIP_W,
         h: chipH,
         size: 18,
@@ -128,7 +134,7 @@ export class MatchChallenge implements Challenge {
       lc.onTap(() => this.onTap('L', i));
       this.leftChips.push(lc);
 
-      const rc = makeChip(scene, cfg, RIGHT_X, this.ys[i], right[this.rightOrder[i]], {
+      const rc = makeChip(scene, cfg, this.rightX, this.ys[i], right[this.rightOrder[i]], {
         w: CHIP_W,
         h: chipH,
         size: 18,
@@ -143,7 +149,7 @@ export class MatchChallenge implements Challenge {
 
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
-      this.reBtn = makeButton(scene, cfg, 900, 68, 'Rileggi', {
+      this.reBtn = makeButton(scene, cfg, cx + 388, 68, 'Rileggi', {
         scale: 0.52,
         maxTargetScale: 1.04,
         depth: 12
@@ -160,7 +166,7 @@ export class MatchChallenge implements Challenge {
   /** Mostra l'hint (una sola volta). */
   private showHintNow(): void {
     if (this.hintText || !this.round.hint) return;
-    this.hintText = makeText(this.scene, 512, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
+    this.hintText = makeText(this.scene, this.scene.scale.gameSize.width / 2, 112, `💡 ${testoSemplice(this.round.hint, this.cfg)}`, this.cfg, {
       size: 14,
       color: C.orangeDeep,
       italic: true,
@@ -252,7 +258,7 @@ export class MatchChallenge implements Challenge {
 
   private drawLine(L: number, R: number): void {
     this.lines.lineStyle(5, 0x58d68d, 0.95);
-    this.lines.lineBetween(LEFT_X + CHIP_W / 2 - 8, this.ys[L], RIGHT_X - CHIP_W / 2 + 8, this.ys[R]);
+    this.lines.lineBetween(this.leftX + CHIP_W / 2 - 8, this.ys[L], this.rightX - CHIP_W / 2 + 8, this.ys[R]);
     this.lines.lineStyle(0, 0x000000, 0);
   }
 

@@ -607,7 +607,9 @@ export function fitOptions(options: Option[], max: number): Option[] {
 export function flashCue(scene: Phaser.Scene, cfg: EffectiveConfig, kind: 'ok' | 'bad'): void {
   if (!cfg.visualAudioCues) return;
   const color = kind === 'ok' ? 0x58d68d : 0xff5d5d;
-  const r = scene.add.rectangle(512, 288, 1024, 576, color, 0).setDepth(400);
+  const gw = scene.scale.gameSize.width;
+  const gh = scene.scale.gameSize.height;
+  const r = scene.add.rectangle(gw / 2, gh / 2, gw, gh, color, 0).setDepth(400);
   scene.tweens.add({
     targets: r,
     alpha: 0.32,
@@ -701,7 +703,7 @@ export function showBanner(
   // nelle prove a opzioni va sopra i bottoni, nelle altre in basso.
   const w = 660;
   const h = sub ? 132 : 92;
-  const cx = at?.x ?? 512;
+  const cx = at?.x ?? scene.scale.gameSize.width / 2;
   const cy = at?.y ?? 468;
   const spec = fontSpec(cfg);
   const g = scene.add.graphics().setDepth(300);
@@ -771,16 +773,16 @@ export function showBanner(
  * Posizioni per le opzioni multiple in base al numero (2-4),
  * tenendo conto della scala degli obiettivi.
  */
-export function optionLayout(n: number, scale: number): [number, number][] {
+export function optionLayout(n: number, scale: number, cx: number = 512): [number, number][] {
   const w = BTN_W * scale;
   const gap = 24 * scale;
-  if (n <= 1) return [[512, 350]];
-  if (n === 2) return [[512 - w / 2 - gap, 350], [512 + w / 2 + gap, 350]];
-  if (n === 3) return [[512 - w / 2 - gap, 296], [512 + w / 2 + gap, 296], [512, 430]];
+  if (n <= 1) return [[cx, 350]];
+  if (n === 2) return [[cx - w / 2 - gap, 350], [cx + w / 2 + gap, 350]];
+  if (n === 3) return [[cx - w / 2 - gap, 296], [cx + w / 2 + gap, 296], [cx, 430]];
   return [
-    [512 - w / 2 - gap, 296],
-    [512 + w / 2 + gap, 296],
-    [512 - w / 2 - gap, 432],
-    [512 + w / 2 + gap, 432]
+    [cx - w / 2 - gap, 296],
+    [cx + w / 2 + gap, 296],
+    [cx - w / 2 - gap, 432],
+    [cx + w / 2 + gap, 432]
   ];
 }

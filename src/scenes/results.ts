@@ -71,27 +71,31 @@ export class ResultsScene extends Phaser.Scene {
     // Effetto coriandoli celebrativi in caduta libera!
     this.stopCelebration = start2DCelebration(this);
 
+    const w = this.scale.gameSize.width;
     const cardBg = this.add.graphics().setDepth(2);
 
     if (team.numPlayers > 1) {
       // ══════════════════════════════════════════════════════════════════════
       // RIEPILOGO MULTIGIOCATORE CON RISULTATI IN VERTICALE
       // ══════════════════════════════════════════════════════════════════════
+      const cardW = Math.min(872, w - 40);
+      const cardX = (w - cardW) / 2;
+
       // Scheda solida bianca grande
       cardBg.fillStyle(0x005b8f, 0.16);
-      cardBg.fillRoundedRect(76, 22, 872, 442, 28);
+      cardBg.fillRoundedRect(cardX - 4, 22, cardW + 8, 442, 28);
       cardBg.fillStyle(0xffffff, 0.98);
-      cardBg.fillRoundedRect(80, 18, 864, 438, 26);
+      cardBg.fillRoundedRect(cardX, 18, cardW, 438, 26);
       cardBg.lineStyle(3.5, 0x00a2e8, 0.95);
-      cardBg.strokeRoundedRect(80, 18, 864, 438, 26);
+      cardBg.strokeRoundedRect(cardX, 18, cardW, 438, 26);
 
       // Header fascia
       cardBg.fillStyle(0xf0f7fc, 0.96);
-      cardBg.fillRoundedRect(84, 22, 856, 72, 20);
+      cardBg.fillRoundedRect(cardX + 4, 22, cardW - 8, 72, 20);
       cardBg.lineStyle(2, 0x00a2e8, 0.65);
-      cardBg.lineBetween(96, 94, 928, 94);
+      cardBg.lineBetween(cardX + 16, 94, cardX + cardW - 16, 94);
 
-      makeText(this, 512, 48, '🏆 Riepilogo della Sessione — Squadra', cfg, {
+      makeText(this, w / 2, 48, '🏆 Riepilogo della Sessione — Squadra', cfg, {
         size: 26,
         bold: true,
         color: '#000000',
@@ -100,7 +104,7 @@ export class ResultsScene extends Phaser.Scene {
       });
 
       if (pack && idx >= 0) {
-        makeText(this, 512, 74, `${pack.title} — ${pack.levels[idx].title} (Sessione completata da tutti i giocatori)`, cfg, {
+        makeText(this, w / 2, 74, `${pack.title} — ${pack.levels[idx].title} (Sessione completata da tutti i giocatori)`, cfg, {
           size: 13.5,
           bold: true,
           color: '#334e68',
@@ -120,9 +124,9 @@ export class ResultsScene extends Phaser.Scene {
       }));
 
       const num = team.numPlayers;
-      const colW = Math.min(205, 830 / num);
+      const colW = Math.min(205, (cardW - 40) / num);
       const totalGridW = num * colW;
-      const startX = 512 - totalGridW / 2 + colW / 2;
+      const startX = w / 2 - totalGridW / 2 + colW / 2;
 
       team.players.forEach((p, i) => {
         const cx = startX + i * colW;
@@ -251,22 +255,25 @@ export class ResultsScene extends Phaser.Scene {
     // MODALITÀ SINGOLO GIOCATORE
     // ══════════════════════════════════════════════════════════════════════
     // Scheda solida bianca ad alta leggibilità (senza trasparenze sbiadite)
+    const cardW = Math.min(744, w - 40);
+    const cardX = (w - cardW) / 2;
+
     cardBg.fillStyle(0x005b8f, 0.16);
-    cardBg.fillRoundedRect(140, 32, 744, 332, 30);
+    cardBg.fillRoundedRect(cardX - 4, 32, cardW + 8, 332, 30);
     cardBg.fillStyle(0xffffff, 0.98);
-    cardBg.fillRoundedRect(144, 28, 736, 328, 28);
+    cardBg.fillRoundedRect(cardX, 28, cardW, 328, 28);
     cardBg.lineStyle(3.5, 0x00a2e8, 0.95);
-    cardBg.strokeRoundedRect(144, 28, 736, 328, 28);
+    cardBg.strokeRoundedRect(cardX, 28, cardW, 328, 28);
     cardBg.lineStyle(1.5, 0xffffff, 0.95);
-    cardBg.strokeRoundedRect(147, 31, 730, 322, 25);
+    cardBg.strokeRoundedRect(cardX + 3, 31, cardW - 6, 322, 25);
 
     cardBg.fillStyle(0xf0f7fc, 0.96);
-    cardBg.fillRoundedRect(150, 34, 724, 74, 22);
+    cardBg.fillRoundedRect(cardX + 6, 34, cardW - 12, 74, 22);
     cardBg.lineStyle(2, 0x00a2e8, 0.65);
-    cardBg.lineBetween(164, 108, 860, 108);
+    cardBg.lineBetween(cardX + 20, 108, cardX + cardW - 20, 108);
 
     const nomeGiocatore = getPlayerName();
-    makeText(this, 512, 72, nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!', cfg, {
+    makeText(this, w / 2, 72, nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!', cfg, {
       size: 34,
       bold: true,
       color: '#000000',
@@ -274,14 +281,14 @@ export class ResultsScene extends Phaser.Scene {
       maxH: 42
     });
 
-    makeText(this, 512, 134, 'Risposte corrette:', cfg, {
+    makeText(this, w / 2, 134, 'Risposte corrette:', cfg, {
       size: 20,
       bold: true,
       color: '#000000',
       maxH: 26
     });
 
-    makeText(this, 512, 162, `${correct} su ${total}`, cfg, {
+    makeText(this, w / 2, 162, `${correct} su ${total}`, cfg, {
       size: 26,
       bold: true,
       color: '#000000',
@@ -289,7 +296,7 @@ export class ResultsScene extends Phaser.Scene {
     });
 
     if (pack && idx >= 0) {
-      makeText(this, 512, 186, `${pack.title} — ${pack.levels[idx].title}`, cfg, {
+      makeText(this, w / 2, 186, `${pack.title} — ${pack.levels[idx].title}`, cfg, {
         size: 16,
         bold: true,
         color: '#000000',
@@ -299,7 +306,7 @@ export class ResultsScene extends Phaser.Scene {
     }
 
     // Stelle dorate grandi e luminose
-    const xs = [512 - 120, 512, 512 + 120];
+    const xs = [w / 2 - 120, w / 2, w / 2 + 120];
     xs.forEach((x, i) => {
       const star = this.add.image(x, 268, 'star').setScale(2.1).setDepth(10);
       if (i >= stelle) {
@@ -317,7 +324,7 @@ export class ResultsScene extends Phaser.Scene {
       }
     });
 
-    const rigioca = makeButton(this, cfg, 356, prossima ? 476 : 466, 'Rigioca', {
+    const rigioca = makeButton(this, cfg, w / 2 - 156, prossima ? 476 : 466, 'Rigioca', {
       scale: prossima ? 0.74 : 0.78,
       maxTargetScale: 1.02,
       depth: 10
@@ -328,7 +335,7 @@ export class ResultsScene extends Phaser.Scene {
     });
 
     if (prossima) {
-      const avanti = makeButton(this, cfg, 512, 396, 'Tappa successiva', {
+      const avanti = makeButton(this, cfg, w / 2, 396, 'Tappa successiva', {
         scale: 0.88,
         maxTargetScale: 1.02,
         depth: 10
@@ -341,7 +348,7 @@ export class ResultsScene extends Phaser.Scene {
       });
     }
 
-    const titolo = makeButton(this, cfg, 668, prossima ? 476 : 466, 'Torna al titolo', {
+    const titolo = makeButton(this, cfg, w / 2 + 156, prossima ? 476 : 466, 'Torna al titolo', {
       scale: prossima ? 0.74 : 0.78,
       maxTargetScale: 1.02,
       depth: 10

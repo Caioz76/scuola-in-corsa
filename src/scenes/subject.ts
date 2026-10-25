@@ -17,8 +17,10 @@ export class SubjectScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
 
+    const frameW = Math.min(960, w - 40);
+    const frameX = (w - frameW) / 2;
     addWorld(this, 'scuola', cfg, { speed: 44 });
-    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
+    drawSportChannelFrame(this, cfg, { x: frameX, y: 16, w: frameW, h: 544, headerH: 80 });
 
     makeText(this, w / 2, 40, 'Scegli la Materia', cfg, {
       size: 26,
@@ -46,7 +48,7 @@ export class SubjectScene extends Phaser.Scene {
     );
 
     // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
-    const tappe = makeButton(this, cfg, 884, 40, 'Tutte le tappe', {
+    const tappe = makeButton(this, cfg, frameX + frameW - 76, 40, 'Tutte le tappe', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -54,10 +56,10 @@ export class SubjectScene extends Phaser.Scene {
     tappe.onTap(() => this.scene.start('Levels'));
 
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
-      { id: 'matematica', label: 'Matematica', x: 320, y: 190 },
-      { id: 'italiano', label: 'Italiano', x: 704, y: 190 },
-      { id: 'scienze', label: 'Scienze', x: 320, y: 330 },
-      { id: 'storia', label: 'Storia', x: 704, y: 330 }
+      { id: 'matematica', label: 'Matematica', x: w / 2 - 192, y: 190 },
+      { id: 'italiano', label: 'Italiano', x: w / 2 + 192, y: 190 },
+      { id: 'scienze', label: 'Scienze', x: w / 2 - 192, y: 330 },
+      { id: 'storia', label: 'Storia', x: w / 2 + 192, y: 330 }
     ];
 
     for (const v of voci) {

@@ -47,7 +47,7 @@ body {
   touch-action: none;
 }
 
-/* Il canvas viene centrato da Phaser (Scale.FIT + CENTER_BOTH). */
+/* Il canvas viene centrato via CSS assoluto, evitando conflitti di flexbox e margini inline Phaser */
 #game {
   position: fixed;
   inset: 0;
@@ -55,16 +55,17 @@ body {
   height: 100vh;
   width: 100dvw;
   height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   z-index: 1;
 }
 
 #game canvas {
   display: block;
   touch-action: none;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 1;
   max-width: 100vw;
   max-height: 100vh;

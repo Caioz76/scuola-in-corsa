@@ -79,10 +79,10 @@ export class TitleScene extends Phaser.Scene {
 
       // Badge delle 4 materie ai lati della card (medaglioni lucidi Sport)
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
-        { icon: 'icon-abaco', x: 116, y: 184, ring: 0x00a2e8, bg: 0xe6f6ff },
-        { icon: 'icon-pergamena', x: 908, y: 184, ring: 0xff9f1c, bg: 0xfff5e6 },
-        { icon: 'icon-sole', x: 102, y: 324, ring: 0x26c266, bg: 0xe8faef },
-        { icon: 'icon-corona', x: 922, y: 324, ring: 0x7d68d8, bg: 0xf2eeff }
+        { icon: 'icon-abaco', x: w / 2 - 396, y: 184, ring: 0x00a2e8, bg: 0xe6f6ff },
+        { icon: 'icon-pergamena', x: w / 2 + 396, y: 184, ring: 0xff9f1c, bg: 0xfff5e6 },
+        { icon: 'icon-sole', x: w / 2 - 410, y: 324, ring: 0x26c266, bg: 0xe8faef },
+        { icon: 'icon-corona', x: w / 2 + 410, y: 324, ring: 0x7d68d8, bg: 0xf2eeff }
       ];
 
       badges.forEach((b, idx) => {
@@ -234,7 +234,7 @@ export class TitleScene extends Phaser.Scene {
     const btnMusica = makeButton(
       this,
       cfg,
-      892,
+      w - 110,
       38,
       synth.musicActive ? '🎵 Musica: ON' : '🔇 Musica: OFF',
       {

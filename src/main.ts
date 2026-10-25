@@ -37,10 +37,47 @@ const game = new Phaser.Game({
   },
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.NO_CENTER
   },
   scene: [BootScene, TitleScene, SubjectScene, LevelsScene, GameScene, ResultsScene, SettingsScene, PauseScene, ProgressScene]
 });
+
+/**
+ * Adatta dinamicamente la larghezza del canvas Phaser in modalità orizzontale.
+ * Su iPhone e dispositivi moderni (schermi panoramici ~19.5:9 o 20:9), una larghezza
+ * fissa a 16:9 causerebbe bande nere o un gioco miniaturizzato al centro.
+ * Calcolando targetW in base all'aspect ratio reale dello schermo, il canvas
+ * riempie il 100% dell'area visibile con zero bordi sprecati.
+ */
+function adattaScalaGioco(): void {
+  const vv = window.visualViewport;
+  const vw = vv ? vv.width : window.innerWidth;
+  const vh = vv ? vv.height : window.innerHeight;
+  const orizzontale = vw >= vh;
+  if (orizzontale) {
+    const ratio = Math.max(16 / 9, vw / vh);
+    const targetW = Math.min(1440, Math.max(1024, Math.round(576 * ratio)));
+    if (game.scale.gameSize.width !== targetW || game.scale.gameSize.height !== 576) {
+      game.scale.resize(targetW, 576);
+    }
+  } else {
+    if (game.scale.gameSize.width !== 1024 || game.scale.gameSize.height !== 576) {
+      game.scale.resize(1024, 576);
+    }
+  }
+  game.scale.refresh();
+}
+
+window.addEventListener('resize', adattaScalaGioco);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', adattaScalaGioco);
+}
+window.addEventListener('orientationchange', () => {
+  setTimeout(adattaScalaGioco, 100);
+  setTimeout(adattaScalaGioco, 350);
+});
+
+adattaScalaGioco();
 
 initMobilePortrait(game);
 

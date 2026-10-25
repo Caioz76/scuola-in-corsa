@@ -19,14 +19,17 @@ export class ProgressScene extends Phaser.Scene {
 
   create(): void {
     const cfg = resolveConfig(loadSettings());
+    const w = this.scale.gameSize.width;
     const team = getTeamSetup();
     if (progressPlayerIdx > team.numPlayers) progressPlayerIdx = 1;
     const activePlayer = team.players.find((p) => p.playerIndex === progressPlayerIdx) ?? team.players[0];
 
+    const frameW = Math.min(960, w - 40);
+    const frameX = (w - frameW) / 2;
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
-    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
+    drawSportChannelFrame(this, cfg, { x: frameX, y: 16, w: frameW, h: 544, headerH: 80 });
 
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al titolo', {
+    const btnIndietro = makeButton(this, cfg, frameX + 98, 40, 'Torna al titolo', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -36,7 +39,7 @@ export class ProgressScene extends Phaser.Scene {
     const nome = getPlayerName();
     makeText(
       this,
-      512,
+      w / 2,
       40,
       team.numPlayers > 1
         ? `Progressi Squadra — ${activePlayer.token.icon} ${activePlayer.token.name} (G${activePlayer.playerIndex})`
@@ -51,7 +54,7 @@ export class ProgressScene extends Phaser.Scene {
       }
     );
 
-    const btnCambiaNome = makeButton(this, cfg, 884, 40, '👥 Squadra', {
+    const btnCambiaNome = makeButton(this, cfg, frameX + frameW - 76, 40, '👥 Squadra', {
       scale: 0.52,
       maxTargetScale: 1.02,
       depth: 10
@@ -65,8 +68,8 @@ export class ProgressScene extends Phaser.Scene {
     // Se ci sono più giocatori, mostra i tasti a linguetta per selezionare il soggetto
     if (team.numPlayers > 1) {
       const num = team.numPlayers;
-      const step = Math.min(220, 840 / num);
-      const startX = 512 - ((num - 1) * step) / 2;
+      const step = Math.min(220, (frameW - 120) / num);
+      const startX = w / 2 - ((num - 1) * step) / 2;
       team.players.forEach((p, idx) => {
         const isCurrent = p.playerIndex === progressPlayerIdx;
         const tot = totalStarsForPlayer(p.token.id);
@@ -85,7 +88,7 @@ export class ProgressScene extends Phaser.Scene {
         });
       });
     } else {
-      makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
+      makeText(this, w / 2, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
         size: 13.5,
         bold: true,
         color: '#1e293b',
@@ -111,8 +114,8 @@ export class ProgressScene extends Phaser.Scene {
       const col = idx < 6 ? 0 : 1;
       const row = idx % 6;
       const y = 118 + row * 48;
-      const xTitolo = col === 0 ? 210 : 700;
-      const xStelle = col === 0 ? 445 : 935;
+      const xTitolo = col === 0 ? frameX + 178 : frameX + 668;
+      const xStelle = col === 0 ? frameX + 413 : frameX + 903;
       makeText(this, xTitolo, y, r.titolo, cfg, {
         size: 13,
         bold: true,
@@ -131,7 +134,7 @@ export class ProgressScene extends Phaser.Scene {
 
     makeText(
       this,
-      512,
+      w / 2,
       424,
       `Totale ${activePlayer.token.name}: ${totale} stelle su ${righe.length * 3}`,
       cfg,
@@ -148,7 +151,7 @@ export class ProgressScene extends Phaser.Scene {
     const ultima = storia[storia.length - 1];
     if (ultima) {
       const data = new Date(ultima.finishedAt).toLocaleDateString('it-IT');
-      makeText(this, 512, 456, `Ultima partita: ${ultima.correct}/${ultima.total} — ${data}`, cfg, {
+      makeText(this, w / 2, 456, `Ultima partita: ${ultima.correct}/${ultima.total} — ${data}`, cfg, {
         size: 14,
         color: '#1f8a4c',
         wrap: 620,
@@ -156,14 +159,14 @@ export class ProgressScene extends Phaser.Scene {
       });
     }
 
-    const indietro = makeButton(this, cfg, 400, 510, 'Torna al titolo', {
+    const indietro = makeButton(this, cfg, w / 2 - 130, 510, 'Torna al titolo', {
       scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
     indietro.onTap(() => this.scene.start('Title'));
 
-    const btnAzzera = makeButton(this, cfg, 660, 510, '🗑️ Azzera progressi', {
+    const btnAzzera = makeButton(this, cfg, w / 2 + 130, 510, '🗑️ Azzera progressi', {
       scale: 0.58,
       maxTargetScale: 1.04,
       depth: 10
