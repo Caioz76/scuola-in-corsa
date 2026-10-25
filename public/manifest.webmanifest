@@ -1,9 +1,9 @@
 {
   "name": "Scuola in Corsa",
   "short_name": "Scuola in Corsa",
-  "description": "Videogioco didattico inclusivo e accessibile BES in stile Nintendo Wii Sports",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Videogioco didattico inclusivo e accessibile BES con corsa ed enigmi educativi",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen", "window-controls-overlay"],
   "orientation": "any",
@@ -11,19 +11,19 @@
   "theme_color": "#00a2e8",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

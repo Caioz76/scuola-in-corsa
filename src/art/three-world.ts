@@ -17,7 +17,7 @@
 import * as THREE from 'three';
 import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
-import type { ThemeKey } from './backgrounds';
+import { type ThemeKey, applyPageTheme } from './backgrounds';
 import type { World } from './world';
 import { synth } from '../audio/synth';
 import { aggiornaHudRunner } from '../ui/runner-hud';
@@ -439,6 +439,7 @@ class Mondo3D implements World3D {
     this.scene = scene;
     this.cfg = cfg;
     this.tema = TEMI[theme] ?? TEMI.scuola;
+    applyPageTheme(theme, cfg.highContrast);
     this.animato = cfg.motion !== 'off';
     this.velocita = this.animato ? speed : 0;
     this.bersaglio = this.velocita;

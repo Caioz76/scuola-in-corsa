@@ -29,6 +29,29 @@ const THEMES: Record<ThemeKey, Theme> = {
   storia:     { farTop: '#faebd4', farBottom: '#fffcf5', sun: '#ffe08c', hill1: '#e6cfa8', hill2: '#cfb284' }
 };
 
+/**
+ * Adatta i colori dello sfondo della pagina (body e finestra intera) al tema attivo,
+ * così in modalità orizzontale la finestra è usata al 100% e lo sfondo prosegue senza tagli.
+ */
+export function applyPageTheme(themeKey: ThemeKey, highContrast = false): void {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (highContrast) {
+    root.style.setProperty('--bg-sky-top', '#f8fafc');
+    root.style.setProperty('--bg-sky-bottom', '#e2e8f0');
+    root.style.setProperty('--bg-hill', '#cbd5e1');
+    root.style.setProperty('--bg-ground', '#94a3b8');
+    root.style.setProperty('--bg-ground-deep', '#64748b');
+    return;
+  }
+  const t = THEMES[themeKey] ?? THEMES.scuola;
+  root.style.setProperty('--bg-sky-top', t.farTop);
+  root.style.setProperty('--bg-sky-bottom', t.farBottom);
+  root.style.setProperty('--bg-hill', t.hill2);
+  root.style.setProperty('--bg-ground', '#6ee268');
+  root.style.setProperty('--bg-ground-deep', '#58cc52');
+}
+
 function cloud(ctx: Ctx, x: number, y: number, s: number): void {
   // Ombra inferiore morbida della nuvola
   ctx.fillStyle = 'rgba(180,215,245,0.42)';

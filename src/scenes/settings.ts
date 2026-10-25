@@ -4,7 +4,9 @@ import {
   ANNI_SCOLASTICI,
   ANNO_BY_ID,
   normalizzaAnno,
-  resolveConfig
+  resolveConfig,
+  type AnnoScolastico,
+  type BesSettings
 } from '../bes/resolver';
 import { BES_PROFILES } from '../bes/profiles';
 import { RULE_BY_ID } from '../bes/rules';
@@ -37,7 +39,16 @@ const REGOLE_UI = [
   'mascotGuide'
 ];
 
-let pagina: 'profili' | 'regole' | 'classe' = 'profili';
+export type NodoImpostazioni =
+  | 'radice'
+  | 'bes'
+  | 'bes-custom'
+  | 'anno'
+  | 'anno-primaria'
+  | 'anno-secondaria'
+  | 'gioco';
+
+let nodoCorrente: NodoImpostazioni = 'radice';
 
 export class SettingsScene extends Phaser.Scene {
   constructor() {
@@ -49,7 +60,7 @@ export class SettingsScene extends Phaser.Scene {
     const cfg = resolveConfig(impostazioni);
     const w = this.scale.gameSize.width;
 
-    document.body.dataset.settingsPage = pagina;
+    document.body.dataset.settingsPage = nodoCorrente;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       delete document.body.dataset.settingsPage;
     });
@@ -57,139 +68,200 @@ export class SettingsScene extends Phaser.Scene {
     addWorld(this, 'scuola', cfg, { pico: false, speed: 20 });
     drawSportChannelFrame(this, cfg, { x: 24, y: 8, w: 976, h: 536, headerH: 86 });
 
-    if (pagina === 'regole') {
-      this.creaRegole(cfg, w);
+    if (nodoCorrente === 'bes') {
+      this.creaBes(impostazioni, cfg, w);
       return;
     }
-    if (pagina === 'classe') {
-      this.creaClasse(impostazioni, cfg, w);
+    if (nodoCorrente === 'bes-custom') {
+      this.creaBesCustom(cfg, w);
+      return;
+    }
+    if (nodoCorrente === 'anno') {
+      this.creaSceltaGrado(impostazioni, cfg, w);
+      return;
+    }
+    if (nodoCorrente === 'anno-primaria') {
+      this.creaClassePrimaria(impostazioni, cfg, w);
+      return;
+    }
+    if (nodoCorrente === 'anno-secondaria') {
+      this.creaClasseSecondaria(impostazioni, cfg, w);
+      return;
+    }
+    if (nodoCorrente === 'gioco') {
+      this.creaGioco(impostazioni, cfg, w);
       return;
     }
 
-    // ── Header Superiore ──
-    makeText(this, 160, 22, 'Impostazioni', cfg, {
-      size: 24,
+    this.creaMenuRadice(impostazioni, cfg, w);
+  }
+
+  // ── 1. NODO RADICE (Menu principale ad albero) ─────────────────────
+  private creaMenuRadice(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    makeText(this, w / 2, 28, 'Menu Impostazioni', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 240,
-      maxH: 26,
+      wrap: 480,
+      maxH: 30,
       outline: true
+    });
+
+    makeText(this, w / 2, 58, 'Seleziona una categoria da personalizzare ad albero:', cfg, {
+      size: 14,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 22
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
     const infoAnno = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
-    makeText(
-      this,
-      160,
-      48,
-      `Classe: ${infoAnno.label} · Difficoltà: ${infoAnno.difficulty}/3`,
-      cfg,
-      {
-        size: 12,
-        bold: true,
-        color: '#e6f4fc',
-        wrap: 270,
-        maxH: 20
-      }
-    );
+    const modalitaTxt = impostazioni.mode === 'runner' ? 'Runner' : 'Quiz';
+    const graficaTxt = impostazioni.graphics === '3d' ? '3D' : '2D';
 
-    makeText(this, 512, 84, scelto ? scelto.description : 'Nessun profilo: regole standard.', cfg, {
-      size: 14,
-      color: scelto ? '#1f8a4c' : '#8a99ad',
-      wrap: 860,
-      maxH: 24
-    });
-
-    // ── Bottone Audio (Spegnimento/Attivazione) ──
-    const btnAudio = makeButton(
+    // ── Ramo 1: BES ──
+    const btnBes = makeButton(
       this,
       cfg,
-      882,
-      28,
-      synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
-      { scale: 0.44, maxTargetScale: 1.02, depth: 10 }
+      w / 2,
+      142,
+      `Bisogni Educativi Speciali (BES)`,
+      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
     );
-    btnAudio.setKind(synth.muted ? 'disabled' : 'correct');
-    btnAudio.onTap(() => {
-      const muto = synth.toggleMute();
-      btnAudio.setLabel(muto ? '🔇 Audio OFF' : '🔊 Audio ON');
-      btnAudio.setKind(muto ? 'disabled' : 'correct');
-    });
-
-    // ── Modalità di gioco (Quiz bottoni vs Runner cartelli) ──
-    const mode = impostazioni.mode ?? 'quiz';
-    makeText(this, 260, 126, 'Modalità:', cfg, {
-      size: 15,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 160,
-      maxH: 24
-    });
-    (
-      [
-        ['quiz', 'Quiz (bottoni)', 448],
-        ['runner', 'Runner (cartelli)', 664]
-      ] as const
-    ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 126, label, {
-        scale: 0.5,
-        maxTargetScale: 1.02,
-        depth: 10
-      });
-      // Acceso (selected / verde) vs Spento (unselected / blu)
-      b.setKind(mode === id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        if (mode === id) return;
-        saveSettings({ ...impostazioni, mode: id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Grafica (2D vs 3D) ──
-    const grafica = impostazioni.graphics ?? '2d';
-    makeText(this, 260, 168, 'Grafica:', cfg, {
-      size: 15,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 160,
-      maxH: 24
-    });
-    (
-      [
-        ['2d', '2D', 448],
-        ['3d', '3D', 664]
-      ] as const
-    ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 168, label, {
-        scale: 0.5,
-        maxTargetScale: 1.02,
-        depth: 10
-      });
-      b.setKind(grafica === id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        if (grafica === id) return;
-        saveSettings({ ...impostazioni, graphics: id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Pulsante Anno scolastico ──
-    const btnAnno = makeButton(this, cfg, 882, 147, 'Anno scolastico', {
-      scale: 0.52,
-      maxTargetScale: 1.02,
-      depth: 10
-    });
-    btnAnno.onTap(() => {
-      pagina = 'classe';
+    btnBes.setKind(scelto ? 'selected' : 'unselected');
+    btnBes.onTap(() => {
+      nodoCorrente = 'bes';
       this.scene.restart();
     });
 
-    // ── Griglia Profili BES (3×3) ──
+    makeText(
+      this,
+      w / 2,
+      188,
+      `Profilo attivo: ${scelto ? scelto.label : 'Standard (Nessun profilo)'} · Personalizza profili e caratteristiche`,
+      cfg,
+      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
+
+    // ── Ramo 2: Anno Scolastico ──
+    const btnAnno = makeButton(
+      this,
+      cfg,
+      w / 2,
+      252,
+      `Anno Scolastico & Difficoltà`,
+      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnAnno.setKind('unselected');
+    btnAnno.onTap(() => {
+      nodoCorrente = 'anno';
+      this.scene.restart();
+    });
+
+    makeText(
+      this,
+      w / 2,
+      298,
+      `Classe attiva: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli tra Primaria e Secondaria`,
+      cfg,
+      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
+
+    // ── Ramo 3: Gioco & Grafica ──
+    const btnGioco = makeButton(
+      this,
+      cfg,
+      w / 2,
+      362,
+      `Gioco & Grafica`,
+      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnGioco.setKind('unselected');
+    btnGioco.onTap(() => {
+      nodoCorrente = 'gioco';
+      this.scene.restart();
+    });
+
+    makeText(
+      this,
+      w / 2,
+      408,
+      `Stato attuale: ${modalitaTxt} · Grafica ${graficaTxt} · ${synth.muted ? '🔇 Muto' : '🔊 Audio ON'}`,
+      cfg,
+      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
+
+    // ── Torna al titolo ──
+    const btnTitolo = makeButton(this, cfg, w / 2, 490, 'Torna al titolo', {
+      scale: 0.72,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.start('Title');
+    });
+  }
+
+  // ── 2. RAMO BES (Profili guidati & Caratteristiche) ─────────────────
+  private creaBes(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Profili BES', cfg, {
+      size: 24,
+      bold: true,
+      color: '#ffffff',
+      wrap: 420,
+      maxH: 28,
+      outline: true
+    });
+
+    makeText(this, w / 2, 58, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
+      size: 13,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 20
+    });
+
+    // Tasto Caratteristiche Custom
+    const btnCustom = makeButton(
+      this,
+      cfg,
+      w / 2,
+      100,
+      'Personalizza Caratteristiche (Custom)',
+      { scale: 0.76, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnCustom.setKind('correct');
+    btnCustom.onTap(() => {
+      nodoCorrente = 'bes-custom';
+      this.scene.restart();
+    });
+
+    // 9 Profili BES in griglia 3x3
     const xs = [200, 512, 824];
-    const ys = [232, 314, 396];
+    const ys = [164, 238, 312];
     BES_PROFILES.forEach((p, i) => {
       const b = makeButton(this, cfg, xs[i % 3], ys[Math.floor(i / 3)], p.label, {
-        scale: 0.86,
+        scale: 0.78,
         maxTargetScale: 1.0,
         depth: 10
       });
@@ -201,221 +273,76 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    // ── Barra rapida Anno scolastico (Primaria 1ª–5ª · Secondaria I 1ª–3ª) ──
-    makeText(this, 102, 452, 'Classe:', cfg, {
-      size: 14,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 96,
-      maxH: 22
-    });
-    ANNI_SCOLASTICI.forEach((anno, idx) => {
-      const bx = 200 + idx * 102;
-      const b = makeButton(this, cfg, bx, 452, anno.short, {
-        scale: 0.29,
-        maxTargetScale: 1.0,
-        depth: 10
-      });
-      const isSel = anno.id === infoAnno.id;
-      b.setKind(isSel ? 'selected' : 'unselected');
-      b.onTap(() => {
-        if (anno.id === infoAnno.id) return;
-        saveSettings({ ...impostazioni, schoolYear: anno.id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Barra Inferiore: Nessun profilo, Regole Custom, Torna al titolo ──
-    const nessuno = makeButton(this, cfg, 250, 504, 'Nessun profilo', {
-      scale: 0.62,
+    // Tasto Nessun Profilo (Standard)
+    const btnStandard = makeButton(this, cfg, w / 2, 386, 'Nessun profilo (Standard)', {
+      scale: 0.7,
       maxTargetScale: 1.02,
       depth: 10
     });
-    nessuno.setKind(impostazioni.profileId === null ? 'selected' : 'unselected');
-    nessuno.onTap(() => {
+    btnStandard.setKind(impostazioni.profileId === null ? 'selected' : 'unselected');
+    btnStandard.onTap(() => {
       saveSettings({ ...impostazioni, profileId: null, overrides: {} });
       this.scene.restart();
     });
 
-    const personalizza = makeButton(this, cfg, 512, 504, 'Regole una per una', {
-      scale: 0.62,
-      maxTargetScale: 1.02,
-      depth: 10
-    });
-    personalizza.onTap(() => {
-      pagina = 'regole';
-      this.scene.restart();
-    });
-
-    const indietro = makeButton(this, cfg, 774, 504, 'Torna al titolo', {
-      scale: 0.62,
-      maxTargetScale: 1.02,
-      depth: 10
-    });
-    indietro.onTap(() => {
-      pagina = 'profili';
-      this.scene.start('Title');
-    });
-  }
-
-  private creaClasse(
-    impostazioni: ReturnType<typeof loadSettings>,
-    cfg: ReturnType<typeof resolveConfig>,
-    w: number
-  ): void {
-    const attivo = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
-
-    makeText(this, w / 2, 38, 'Anno scolastico e difficoltà', cfg, {
-      size: 28,
-      bold: true,
-      color: '#1d6fb8',
-      wrap: 760,
-      maxH: 36,
-      outline: true
-    });
+    const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
     makeText(
       this,
       w / 2,
-      74,
-      'Modella la difficoltà delle prove, la velocità del Runner e il bacino di domande.',
+      436,
+      scelto ? scelto.description : 'Regole standard per tutti i bambini.',
       cfg,
-      { size: 14, color: '#5f7186', wrap: 860, maxH: 22 }
-    );
-    makeText(this, w / 2, 106, attivo.description, cfg, {
-      size: 14,
-      bold: true,
-      color: '#1f8a4c',
-      wrap: 860,
-      maxH: 28
-    });
-
-    // ── Scuola Primaria (1ª – 5ª) ──
-    makeText(this, w / 2, 152, 'Scuola Primaria (dalla 1ª alla 5ª)', cfg, {
-      size: 17,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 760,
-      maxH: 24
-    });
-    const primaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'primaria');
-    primaria.forEach((anno, i) => {
-      const x = 136 + i * 188;
-      const b = makeButton(this, cfg, x, 204, anno.label, {
-        scale: 0.54,
-        maxTargetScale: 1.0,
-        depth: 10
-      });
-      b.setKind(anno.id === attivo.id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        saveSettings({ ...impostazioni, schoolYear: anno.id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Scuola Secondaria di primo grado (1ª – 3ª) ──
-    makeText(this, w / 2, 274, 'Scuola Secondaria di primo grado (dalla 1ª alla 3ª)', cfg, {
-      size: 17,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 760,
-      maxH: 24
-    });
-    const secondaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'secondaria');
-    secondaria.forEach((anno, i) => {
-      const x = 256 + i * 256;
-      const b = makeButton(this, cfg, x, 326, anno.label, {
-        scale: 0.68,
-        maxTargetScale: 1.0,
-        depth: 10
-      });
-      b.setKind(anno.id === attivo.id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        saveSettings({ ...impostazioni, schoolYear: anno.id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Regolazione Velocità Corsa Runner ──
-    makeText(this, w / 2, 386, 'Velocità di scorrimento Runner 3D:', cfg, {
-      size: 15,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 760,
-      maxH: 22
-    });
-
-    const velocitaOpzioni: Array<{ id: 'slow' | 'normal' | 'fast'; label: string; x: number }> = [
-      { id: 'slow', label: 'Lenta (Rilassata)', x: 330 },
-      { id: 'normal', label: 'Normale', x: 512 },
-      { id: 'fast', label: 'Veloce', x: 694 }
-    ];
-
-    const currentVel = impostazioni.runnerSpeedMultiplier ?? 'normal';
-    velocitaOpzioni.forEach((v) => {
-      const b = makeButton(this, cfg, v.x, 422, v.label, {
-        scale: 0.52,
-        maxTargetScale: 1.0,
-        depth: 10
-      });
-      b.setKind(currentVel === v.id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        saveSettings({ ...impostazioni, runnerSpeedMultiplier: v.id });
-        this.scene.restart();
-      });
-    });
-
-    // ── Estrazione casuale delle domande ──
-    const casuali = impostazioni.randomQuestions !== false;
-    makeToggle(
-      this,
-      cfg,
-      w / 2,
-      468,
-      540,
-      'Domande casuali ad ogni partita (consigliato)',
-      casuali,
-      () => {
-        const s = loadSettings();
-        saveSettings({ ...s, randomQuestions: !(s.randomQuestions !== false) });
-        this.scene.restart();
-      }
+      { size: 13, color: scelto ? '#1b7440' : '#496682', wrap: 840, maxH: 22 }
     );
 
-    const indietro = makeButton(this, cfg, 380, 516, 'Torna ai profili', {
+    const btnTornaMenu = makeButton(this, cfg, 380, 492, 'Torna ai profili', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
     });
-    indietro.onTap(() => {
-      pagina = 'profili';
+    btnTornaMenu.onTap(() => {
+      nodoCorrente = 'radice';
       this.scene.restart();
     });
 
-    const titolo = makeButton(this, cfg, 644, 516, 'Torna al titolo', {
+    const btnTitolo = makeButton(this, cfg, 644, 492, 'Torna al titolo', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
     });
-    titolo.onTap(() => {
-      pagina = 'profili';
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
       this.scene.start('Title');
     });
   }
 
-  private creaRegole(cfg: ReturnType<typeof resolveConfig>, w: number): void {
-    makeText(this, w / 2, 36, 'Personalizza regole (Custom)', cfg, {
-      size: 26,
+  // ── 3. SOTTO-RAMO CARATTERISTICHE BES (Custom) ──────────────────────
+  private creaBesCustom(cfg: ReturnType<typeof resolveConfig>, w: number): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai profili', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'bes';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Caratteristiche BES (Custom)', cfg, {
+      size: 24,
       bold: true,
-      color: '#1d6fb8',
-      wrap: 720,
-      maxH: 34,
+      color: '#ffffff',
+      wrap: 520,
+      maxH: 28,
       outline: true
     });
-    makeText(this, w / 2, 70, 'Regole una per una: personalizza video, audio, caratteri e facilitazioni.', cfg, {
+
+    makeText(this, w / 2, 58, 'Attiva o disattiva le singole facilitazioni per il bambino:', cfg, {
       size: 13,
-      color: '#5f7186',
-      wrap: 860,
-      maxH: 22
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 20
     });
 
     const voci = REGOLE_UI.map((id) => RULE_BY_ID.get(id)).filter(
@@ -429,7 +356,7 @@ export class SettingsScene extends Phaser.Scene {
         this,
         cfg,
         colonna === 0 ? 268 : 756,
-        112 + riga * 35,
+        100 + riga * 34,
         460,
         regola.label,
         cfg.rules[regola.id] === true,
@@ -444,23 +371,450 @@ export class SettingsScene extends Phaser.Scene {
       );
     });
 
-    const indietro = makeButton(this, cfg, 380, 526, 'Torna ai profili', {
+    const btnTornaProfili = makeButton(this, cfg, 380, 506, 'Torna ai profili', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
     });
-    indietro.onTap(() => {
-      pagina = 'profili';
+    btnTornaProfili.onTap(() => {
+      nodoCorrente = 'bes';
       this.scene.restart();
     });
 
-    const titolo = makeButton(this, cfg, 644, 526, 'Torna al titolo', {
+    const btnTitolo = makeButton(this, cfg, 644, 506, 'Torna al titolo', {
       scale: 0.62,
       maxTargetScale: 1.04,
       depth: 10
     });
-    titolo.onTap(() => {
-      pagina = 'profili';
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.start('Title');
+    });
+  }
+
+  // ── 4. RAMO ANNO SCOLASTICO (Scelta Grado) ─────────────────────────
+  private creaSceltaGrado(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Anno Scolastico', cfg, {
+      size: 24,
+      bold: true,
+      color: '#ffffff',
+      wrap: 420,
+      maxH: 28,
+      outline: true
+    });
+
+    const infoAnno = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
+    makeText(
+      this,
+      w / 2,
+      58,
+      `Classe attuale: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli il grado scolastico:`,
+      cfg,
+      { size: 13, bold: true, color: '#e6f4fc', wrap: 620, maxH: 20 }
+    );
+
+    // ── Ramo Primaria ──
+    const btnPrimaria = makeButton(
+      this,
+      cfg,
+      w / 2,
+      176,
+      'Scuola Primaria (Elementare)',
+      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnPrimaria.setKind(infoAnno.ciclo === 'primaria' ? 'selected' : 'unselected');
+    btnPrimaria.onTap(() => {
+      nodoCorrente = 'anno-primaria';
+      this.scene.restart();
+    });
+
+    makeText(
+      this,
+      w / 2,
+      222,
+      'Dalla 1ª alla 5ª Primaria · Esercizi graduati per bambini dai 6 ai 10 anni',
+      cfg,
+      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
+
+    // ── Ramo Secondaria ──
+    const btnSecondaria = makeButton(
+      this,
+      cfg,
+      w / 2,
+      304,
+      'Scuola Secondaria di 1° Grado (Media)',
+      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnSecondaria.setKind(infoAnno.ciclo === 'secondaria' ? 'selected' : 'unselected');
+    btnSecondaria.onTap(() => {
+      nodoCorrente = 'anno-secondaria';
+      this.scene.restart();
+    });
+
+    makeText(
+      this,
+      w / 2,
+      350,
+      'Dalla 1ª alla 3ª Secondaria · Quesiti logici e di comprensione per ragazzi dagli 11 ai 14 anni',
+      cfg,
+      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
+
+    // ── Bottom Nav ──
+    const btnTornaMenu = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTornaMenu.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.restart();
+    });
+
+    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.start('Title');
+    });
+  }
+
+  // ── 5. SOTTO-RAMO PRIMARIA (1ª – 5ª) ────────────────────────────────
+  private creaClassePrimaria(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai gradi', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'anno';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Scuola Primaria', cfg, {
+      size: 24,
+      bold: true,
+      color: '#ffffff',
+      wrap: 420,
+      maxH: 28,
+      outline: true
+    });
+
+    makeText(this, w / 2, 58, 'Seleziona l\'anno di riferimento della Scuola Primaria:', cfg, {
+      size: 13,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 20
+    });
+
+    const attivoId = normalizzaAnno(impostazioni.schoolYear);
+    const primaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'primaria');
+
+    primaria.forEach((anno, i) => {
+      const y = 130 + i * 62;
+      const b = makeButton(this, cfg, w / 2, y, anno.label, {
+        scale: 0.74,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
+      const isSel = anno.id === attivoId;
+      b.setKind(isSel ? 'selected' : 'unselected');
+      b.onTap(() => {
+        saveSettings({ ...impostazioni, schoolYear: anno.id as AnnoScolastico });
+        this.scene.restart();
+      });
+    });
+
+    const btnTorna = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTorna.onTap(() => {
+      nodoCorrente = 'anno';
+      this.scene.restart();
+    });
+
+    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.start('Title');
+    });
+  }
+
+  // ── 6. SOTTO-RAMO SECONDARIA (1ª – 3ª) ──────────────────────────────
+  private creaClasseSecondaria(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai gradi', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'anno';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Scuola Secondaria I Grado', cfg, {
+      size: 24,
+      bold: true,
+      color: '#ffffff',
+      wrap: 520,
+      maxH: 28,
+      outline: true
+    });
+
+    makeText(this, w / 2, 58, 'Seleziona l\'anno di riferimento della Scuola Secondaria di 1° grado:', cfg, {
+      size: 13,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 20
+    });
+
+    const attivoId = normalizzaAnno(impostazioni.schoolYear);
+    const secondaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'secondaria');
+
+    secondaria.forEach((anno, i) => {
+      const y = 160 + i * 82;
+      const b = makeButton(this, cfg, w / 2, y, anno.label, {
+        scale: 0.88,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
+      const isSel = anno.id === attivoId;
+      b.setKind(isSel ? 'selected' : 'unselected');
+      b.onTap(() => {
+        saveSettings({ ...impostazioni, schoolYear: anno.id as AnnoScolastico });
+        this.scene.restart();
+      });
+    });
+
+    const btnTorna = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTorna.onTap(() => {
+      nodoCorrente = 'anno';
+      this.scene.restart();
+    });
+
+    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.start('Title');
+    });
+  }
+
+  // ── 7. RAMO GIOCO & GRAFICA ────────────────────────────────────────
+  private creaGioco(
+    impostazioni: BesSettings,
+    cfg: ReturnType<typeof resolveConfig>,
+    w: number
+  ): void {
+    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.restart();
+    });
+
+    makeText(this, w / 2, 28, 'Gioco & Grafica', cfg, {
+      size: 24,
+      bold: true,
+      color: '#ffffff',
+      wrap: 420,
+      maxH: 28,
+      outline: true
+    });
+
+    makeText(this, w / 2, 58, 'Personalizza modalità di gameplay, rendering e audio:', cfg, {
+      size: 13,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 620,
+      maxH: 20
+    });
+
+    // ── Modalità: Quiz vs Runner ──
+    const mode = impostazioni.mode ?? 'quiz';
+    makeText(this, 260, 126, 'Modalità:', cfg, {
+      size: 16,
+      bold: true,
+      color: '#2f3b4c',
+      wrap: 160,
+      maxH: 24
+    });
+    (
+      [
+        ['quiz', 'Quiz (bottoni)', 448],
+        ['runner', 'Runner (cartelli)', 664]
+      ] as const
+    ).forEach(([id, label, x]) => {
+      const b = makeButton(this, cfg, x, 126, label, {
+        scale: 0.52,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
+      b.setKind(mode === id ? 'selected' : 'unselected');
+      b.onTap(() => {
+        if (mode === id) return;
+        saveSettings({ ...impostazioni, mode: id });
+        this.scene.restart();
+      });
+    });
+
+    // ── Grafica: 2D vs 3D ──
+    const grafica = impostazioni.graphics ?? '2d';
+    makeText(this, 260, 196, 'Grafica:', cfg, {
+      size: 16,
+      bold: true,
+      color: '#2f3b4c',
+      wrap: 160,
+      maxH: 24
+    });
+    (
+      [
+        ['2d', '2D', 448],
+        ['3d', '3D', 664]
+      ] as const
+    ).forEach(([id, label, x]) => {
+      const b = makeButton(this, cfg, x, 196, label, {
+        scale: 0.52,
+        maxTargetScale: 1.02,
+        depth: 10
+      });
+      b.setKind(grafica === id ? 'selected' : 'unselected');
+      b.onTap(() => {
+        if (grafica === id) return;
+        saveSettings({ ...impostazioni, graphics: id });
+        this.scene.restart();
+      });
+    });
+
+    // ── Velocità Scorrimento Runner ──
+    makeText(this, 260, 266, 'Velocità Runner:', cfg, {
+      size: 16,
+      bold: true,
+      color: '#2f3b4c',
+      wrap: 160,
+      maxH: 24
+    });
+    const velocitaOpzioni: Array<{ id: 'slow' | 'normal' | 'fast'; label: string; x: number }> = [
+      { id: 'slow', label: 'Lenta', x: 420 },
+      { id: 'normal', label: 'Normale', x: 556 },
+      { id: 'fast', label: 'Veloce', x: 692 }
+    ];
+    const currentVel = impostazioni.runnerSpeedMultiplier ?? 'normal';
+    velocitaOpzioni.forEach((v) => {
+      const b = makeButton(this, cfg, v.x, 266, v.label, {
+        scale: 0.44,
+        maxTargetScale: 1.0,
+        depth: 10
+      });
+      b.setKind(currentVel === v.id ? 'selected' : 'unselected');
+      b.onTap(() => {
+        saveSettings({ ...impostazioni, runnerSpeedMultiplier: v.id });
+        this.scene.restart();
+      });
+    });
+
+    // ── Domande casuali ──
+    const casuali = impostazioni.randomQuestions !== false;
+    makeToggle(
+      this,
+      cfg,
+      w / 2,
+      336,
+      540,
+      'Domande casuali ad ogni partita (consigliato)',
+      casuali,
+      () => {
+        const s = loadSettings();
+        saveSettings({ ...s, randomQuestions: !(s.randomQuestions !== false) });
+        this.scene.restart();
+      }
+    );
+
+    // ── Audio ON / OFF ──
+    makeText(this, 320, 404, 'Audio:', cfg, {
+      size: 16,
+      bold: true,
+      color: '#2f3b4c',
+      wrap: 120,
+      maxH: 24
+    });
+    const btnAudio = makeButton(
+      this,
+      cfg,
+      540,
+      404,
+      synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
+      { scale: 0.56, maxTargetScale: 1.02, depth: 10 }
+    );
+    btnAudio.setKind(synth.muted ? 'disabled' : 'correct');
+    btnAudio.onTap(() => {
+      const muto = synth.toggleMute();
+      btnAudio.setLabel(muto ? '🔇 Audio OFF' : '🔊 Audio ON');
+      btnAudio.setKind(muto ? 'disabled' : 'correct');
+    });
+
+    // ── Bottom Nav ──
+    const btnTornaMenu = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTornaMenu.onTap(() => {
+      nodoCorrente = 'radice';
+      this.scene.restart();
+    });
+
+    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
+      scale: 0.62,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTitolo.onTap(() => {
+      nodoCorrente = 'radice';
       this.scene.start('Title');
     });
   }

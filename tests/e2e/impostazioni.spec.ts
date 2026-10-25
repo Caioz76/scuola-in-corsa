@@ -78,6 +78,9 @@ test.describe('Impostazioni BES', () => {
     expect(await toccaTesto(page, 'Impostazioni')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
 
+    // ── Naviga nel ramo BES dell'albero
+    expect(await toccaTesto(page, 'Bisogni Educativi Speciali')).toBe(true);
+
     // ── I nove profili sono presenti
     const etichette = (await testi(page)).map((t) => t.text);
     for (const atteso of ['ADHD', 'Autismo', 'Dislessia', 'Discalculia', 'Disgrafia', 'Disprassia', 'Sordità', 'DSA / Ansia']) {
@@ -130,15 +133,13 @@ test.describe('Impostazioni BES', () => {
     expect(await toccaTesto(page, 'Impostazioni')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
 
-    // Apro la scheda Anno scolastico
-    expect(await toccaTesto(page, 'Anno scolastico')).toBe(true);
+    // Apro il ramo Anno scolastico dell'albero
+    expect(await toccaTesto(page, 'Anno Scolastico')).toBe(true);
+
+    // Scelgo Scuola Secondaria di I Grado
+    expect(await toccaTesto(page, 'Scuola Secondaria')).toBe(true);
     const etichette = (await testi(page)).map((t) => t.text);
     for (const atteso of [
-      '1ª Primaria',
-      '2ª Primaria',
-      '3ª Primaria',
-      '4ª Primaria',
-      '5ª Primaria',
       '1ª Secondaria',
       '2ª Secondaria',
       '3ª Secondaria'
@@ -153,7 +154,7 @@ test.describe('Impostazioni BES', () => {
     const salvato = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
     expect(salvato.schoolYear).toBe('S2');
 
-    // Torno ai profili e poi al titolo → avvio Matematica e verifico che parta col livello/quesiti di 2ª Media
+    // Torno ai gradi e poi al titolo → avvio Matematica e verifico che parta col livello/quesiti di 2ª Media
     expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
@@ -305,36 +306,37 @@ test.describe('Impostazioni BES', () => {
     await btnImp.click();
     await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
 
-    // Verifica schermata principale impostazioni
+    // Verifica schermata principale impostazioni (voci ad albero)
     await expect(page.locator('#mobile-deck .m-header')).toHaveText('Impostazioni');
-    await expect(page.locator('#mobile-deck')).toContainText('Profilo BES');
+    await expect(page.locator('#mobile-deck')).toContainText('Bisogni Educativi Speciali');
 
     // Apre Anno scolastico
-    const btnAnno = page.locator('#mobile-deck button').filter({ hasText: 'Anno scolastico' }).first();
+    const btnAnno = page.locator('#mobile-deck button').filter({ hasText: 'Anno Scolastico' }).first();
     await expect(btnAnno).toBeVisible();
     await btnAnno.click();
 
-    // La schermata deve essere "Anno scolastico e difficoltà", NON deve mostrare "Profilo BES"
-    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Anno scolastico e difficoltà');
-    await expect(page.locator('#mobile-deck')).not.toContainText('Profilo BES');
+    // La schermata deve essere "Anno Scolastico", NON deve mostrare i profili BES
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Anno Scolastico');
+    await expect(page.locator('#mobile-deck')).not.toContainText('Discalculia');
 
-    // Seleziona un anno scolastico (es. 2ª Secondaria)
+    // Seleziona Scuola Secondaria
+    const btnSec = page.locator('#mobile-deck button').filter({ hasText: 'Secondaria' }).first();
+    await expect(btnSec).toBeVisible();
+    await btnSec.click();
+
+    // Sotto-ramo Secondaria
+    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Scuola Secondaria I Grado');
     const btnS2 = page.locator('#mobile-deck button').filter({ hasText: '2ª Secondaria' }).first();
     await expect(btnS2).toBeVisible();
     await btnS2.click();
 
-    // Resta nella schermata Anno scolastico con 2ª Secondaria evidenziata come selezionata
-    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Anno scolastico e difficoltà');
+    // Resta nella schermata con 2ª Secondaria selezionata
     await expect(btnS2).toHaveClass(/m-state-selected/);
 
-    // Torna ai profili
+    // Torna indietro
     const btnTornaProfili = page.locator('#mobile-deck button').filter({ hasText: 'Torna ai profili' }).first();
     await expect(btnTornaProfili).toBeVisible();
     await btnTornaProfili.click();
-
-    // Torna alla schermata principale Impostazioni: ora Profilo BES è presente e la classe aggiornata
-    await expect(page.locator('#mobile-deck .m-header')).toHaveText('Impostazioni');
-    await expect(page.locator('#mobile-deck')).toContainText('Profilo BES');
 
     // Torna al titolo
     const btnTitolo = page.locator('#mobile-deck button').filter({ hasText: 'Torna al titolo' }).first();

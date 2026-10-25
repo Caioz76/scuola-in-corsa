@@ -38,6 +38,29 @@ const game = new Phaser.Game({
 
 initMobilePortrait(game);
 
+// Gestione avviso rotazione su mobile: chiudibile con bottone per consentire il gioco in verticale
+const btnRuotaChiudi = document.getElementById('ruota-chiudi');
+const elRuota = document.getElementById('ruota');
+if (btnRuotaChiudi && elRuota) {
+  const chiudiRuota = () => {
+    elRuota.classList.add('chiuso');
+    document.body.classList.add('ruota-chiuso');
+    try {
+      sessionStorage.setItem('sic.ruota_chiuso', '1');
+    } catch {
+      // storage non disponibile
+    }
+  };
+  btnRuotaChiudi.addEventListener('click', chiudiRuota);
+  try {
+    if (sessionStorage.getItem('sic.ruota_chiuso') === '1') {
+      chiudiRuota();
+    }
+  } catch {
+    // storage non disponibile
+  }
+}
+
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────
 // Espone la scena attiva SENZA spingere stato (nessun evento, nessun costo
 // per frame): un getter che legge la scena al momento della richiesta, quindi

@@ -9,7 +9,7 @@
  */
 import Phaser from 'phaser';
 import type { EffectiveConfig } from '../bes/resolver';
-import { SUBJECTS, type ThemeKey } from './backgrounds';
+import { SUBJECTS, type ThemeKey, applyPageTheme } from './backgrounds';
 
 /** Materia del pacchetto → tema grafico; qualunque altro valore usa il neutro. */
 export function themeFor(subject: string | null | undefined): ThemeKey {
@@ -63,6 +63,7 @@ export function addWorld(
   cfg: EffectiveConfig,
   opts: WorldOpts = {}
 ): World {
+  applyPageTheme(theme, cfg.highContrast);
   // La scenografia è "decorazione": chi ha chiesto una schermata pulita non la vede.
   const scenografia = cfg.decoration && !cfg.highContrast;
   // Con "riduci i movimenti" la scenografia c'è ma resta ferma.

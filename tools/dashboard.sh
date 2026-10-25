@@ -425,7 +425,6 @@ html = f"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0e17">
 <title>Dashboard — Scuola in Corsa</title>
-<meta http-equiv="refresh" content="30">
 <style>
   :root {{
     --bg: #080b12;
@@ -872,7 +871,7 @@ html = f"""<!doctype html>
       <h1>Scuola in Corsa <span class="anno">Dashboard di Sviluppo &amp; Controllo</span></h1>
       <div class="sub">
         Aggiornata il <strong>{g('ORA')}</strong> in <strong>{g('DURATA')}s</strong> &middot; Modalità: <strong>{g('PW_MODO')}</strong>
-        <span class="pill info" style="margin-left:6px">Auto-refresh 30s</span>
+        <button id="btn-autorefresh" class="pill" style="margin-left:8px; cursor:pointer; border:1px solid rgba(255,255,255,0.18); font-weight:700; font-size:12px; background:var(--card2); color:var(--txt)">▶ Auto-refresh: DISATTIVATO</button>
       </div>
     </div>
     <div class="semaforo">
@@ -1115,6 +1114,52 @@ html = f"""<!doctype html>
   </footer>
 
 </div>
+<script>
+  let autoRefresh = false;
+  let timer = null;
+  const btn = document.getElementById('btn-autorefresh');
+  function toggleAuto() {{
+    autoRefresh = !autoRefresh;
+    localStorage.setItem('dashboard_autorefresh', autoRefresh ? '1' : '0');
+    renderBtn();
+    if (autoRefresh) startPolling();
+    else if (timer) clearInterval(timer);
+  }}
+  function renderBtn() {{
+    if (!btn) return;
+    btn.textContent = autoRefresh ? '⏸ Auto-refresh: ATTIVO (30s)' : '▶ Auto-refresh: DISATTIVATO';
+    btn.style.background = autoRefresh ? '#065f46' : 'var(--card2)';
+  }}
+  async function reloadPreservingScroll() {{
+    try {{
+      const resp = await fetch(window.location.href, {{ cache: 'no-store' }});
+      if (!resp.ok) return;
+      const text = await resp.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      const newWrap = doc.querySelector('.wrap');
+      const curWrap = document.querySelector('.wrap');
+      if (newWrap && curWrap) {{
+        const sy = window.scrollY;
+        curWrap.innerHTML = newWrap.innerHTML;
+        window.scrollTo(0, sy);
+        renderBtn();
+      }}
+    }} catch (e) {{
+      console.warn('Aggiornamento dashboard fallito:', e);
+    }}
+  }}
+  function startPolling() {{
+    if (timer) clearInterval(timer);
+    timer = setInterval(reloadPreservingScroll, 30000);
+  }}
+  if (btn) {{
+    btn.addEventListener('click', toggleAuto);
+    autoRefresh = localStorage.getItem('dashboard_autorefresh') === '1';
+    renderBtn();
+    if (autoRefresh) startPolling();
+  }}
+</script>
 </body>
 </html>
 """

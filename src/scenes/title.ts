@@ -5,6 +5,7 @@ import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { addWorld } from '../art/world';
 import { add3DWorld } from '../art/three-world';
+import { toggleFullscreen } from '../ui/fullscreen';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -195,6 +196,15 @@ export class TitleScene extends Phaser.Scene {
       depth: 10
     });
     progressi.onTap(() => this.scene.start('Progress'));
+
+    const schermoIntero = makeButton(this, cfg, 152, 44, 'Schermo intero', {
+      scale: 0.55,
+      maxTargetScale: 1.05,
+      depth: 10
+    });
+    schermoIntero.onTap(() => {
+      toggleFullscreen().catch(() => undefined);
+    });
 
     makeText(
       this,

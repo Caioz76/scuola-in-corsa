@@ -15,9 +15,20 @@ export default defineConfig({
     target: 'es2020'
   },
   server: {
-    // 127.0.0.1 esplicito: "localhost" può finire su ::1 (IPv6) e i test
-    // Playwright, che controllano 127.0.0.1, non vedrebbero il server.
-    host: '127.0.0.1',
-    port: 5173
+    // 0.0.0.0 permette l'accesso sia da questo Mac (127.0.0.1) sia da smartphone
+    // e altri dispositivi collegati alla rete Wi-Fi locale.
+    host: '0.0.0.0',
+    port: 5173,
+    watch: {
+      ignored: [
+        '**/dashboard.html',
+        '**/dashboard.sh',
+        '**/tools/**',
+        '**/test-results/**',
+        '**/*.md',
+        '**/*.log',
+        '**/dist/**'
+      ]
+    }
   }
 });

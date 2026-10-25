@@ -150,6 +150,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
         deck.style.display = 'none';
         ultimaChiave = '';
       }
+      game.scale.refresh();
       return;
     }
 
@@ -183,10 +184,10 @@ export function initMobilePortrait(game: Phaser.Game): void {
     const firmaItems = items
       .map(
         (it) =>
-          `${it.id}:${it.kind}:${it.label()}:${it.state()}:${it.enabled() ? 1 : 0}:${Math.round(it.x())}:${Math.round(it.y())}`
+          `${it.id}:${it.kind}:${it.label()}:${it.state()}:${it.enabled() ? 1 : 0}`
       )
       .join('|');
-    const firmaTesti = testi.map((t) => `${t.text}@${Math.round(t.y)}`).join('|');
+    const firmaTesti = testi.map((t) => t.text).join('|');
     const chiaveAttuale = `${key}::${pageTab}::${cfg.font}::${cfg.highContrast}::${cfg.fontScale}::${Boolean(iconaUrl)}::${firmaItems}::${firmaTesti}`;
 
     if (chiaveAttuale === ultimaChiave) return;
@@ -214,9 +215,14 @@ export function initMobilePortrait(game: Phaser.Game): void {
     if (scrollPrev > 0) deck.scrollTop = scrollPrev;
   };
 
-  window.addEventListener('resize', aggiorna);
-  window.addEventListener('orientationchange', aggiorna);
-  window.setInterval(aggiorna, 150);
+  const suResize = (): void => {
+    game.scale.refresh();
+    aggiorna();
+  };
+
+  window.addEventListener('resize', suResize);
+  window.addEventListener('orientationchange', suResize);
+  window.setInterval(aggiorna, 250);
   aggiorna();
 }
 
@@ -403,24 +409,109 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   const buttons = items.filter((i) => i.kind === 'button');
   const toggles = items.filter((i) => i.kind === 'toggle');
 
-  const page =
-    document.body.dataset.settingsPage ||
-    (buttons.some((b) => b.label() === 'Torna ai profili') && toggles.length <= 2
-      ? 'classe'
-      : toggles.length > 2
-        ? 'regole'
-        : 'profili');
+  const page = document.body.dataset.settingsPage || 'radice';
 
-  if (page === 'regole') {
-    // ── Regole Custom (una per una) ──
+  // ── 1. NODO RADICE (Menu principale ad albero) ──
+  if (page === 'radice') {
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Personalizza regole (Custom)';
+    h.textContent = 'Impostazioni';
     card.appendChild(h);
 
     const sub = document.createElement('p');
     sub.className = 'm-sub';
-    sub.textContent = 'Attiva o disattiva le facilitazioni per adattare il gioco al bambino:';
+    sub.textContent = 'Scegli la categoria da personalizzare ad albero:';
+    card.appendChild(sub);
+
+    const macro = buttons.filter((b) =>
+      [
+        'Bisogni Educativi Speciali (BES)',
+        'Anno Scolastico & Difficoltà',
+        'Gioco & Grafica'
+      ].includes(b.label())
+    );
+    const mg = document.createElement('div');
+    mg.className = 'm-toggle-list';
+    macro.forEach((b) => {
+      mg.appendChild(creaBtnDom(b, 'm-btn-compact'));
+    });
+    card.appendChild(mg);
+
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (titolo) {
+      const bWrap = document.createElement('div');
+      bWrap.style.marginTop = '16px';
+      bWrap.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+      card.appendChild(bWrap);
+    }
+
+    deck.appendChild(card);
+    return;
+  }
+
+  // ── 2. NODO BES (Profili guidati & Caratteristiche) ──
+  if (page === 'bes') {
+    const h = document.createElement('div');
+    h.className = 'm-header';
+    h.textContent = 'Profili BES';
+    card.appendChild(h);
+
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Seleziona un profilo guidato o personalizza le caratteristiche:';
+    card.appendChild(sub);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
+    const indietro = buttons.find((b) => b.label() === 'Torna al menu' || b.label() === 'Torna ai profili');
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
+
+    const custom = buttons.find((b) => b.label().includes('Personalizza Caratteristiche'));
+    if (custom) {
+      const cWrap = document.createElement('div');
+      cWrap.style.margin = '10px 0';
+      cWrap.appendChild(creaBtnDom(custom, 'm-btn-sport m-btn-correct'));
+      card.appendChild(cWrap);
+    }
+
+    const standard = buttons.find((b) => b.label().includes('Nessun profilo'));
+    if (standard) {
+      card.appendChild(creaBtnDom(standard, 'm-btn-compact'));
+    }
+
+    const BES_LABELS = [
+      'ADHD', 'Autismo', 'Dislessia', 'Discalculia',
+      'Disgrafia', 'Disprassia', 'Ipovisione', 'Sordità', 'DSA / Ansia'
+    ];
+    const profili = buttons.filter((b) => BES_LABELS.includes(b.label()));
+    if (profili.length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'm-group-title';
+      lbl.textContent = 'Elenco profili BES disponibili';
+      card.appendChild(lbl);
+      const pg = document.createElement('div');
+      pg.className = 'm-grid-2';
+      profili.forEach((b) => pg.appendChild(creaBtnDom(b, 'm-btn-compact')));
+      card.appendChild(pg);
+    }
+
+    deck.appendChild(card);
+    return;
+  }
+
+  // ── 3. NODO BES CUSTOM ──
+  if (page === 'bes-custom') {
+    const h = document.createElement('div');
+    h.className = 'm-header';
+    h.textContent = 'Caratteristiche BES (Custom)';
+    card.appendChild(h);
+
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Attiva o disattiva le singole facilitazioni per il bambino:';
     card.appendChild(sub);
 
     const nav = document.createElement('div');
@@ -452,69 +543,137 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     return;
   }
 
-  if (page === 'classe') {
-    // ── Anno scolastico e difficoltà ──
+  // ── 4. NODO ANNO (Scelta Primaria vs Secondaria) ──
+  if (page === 'anno') {
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Anno scolastico e difficoltà';
+    h.textContent = 'Anno Scolastico';
     card.appendChild(h);
 
     const sub = document.createElement('p');
     sub.className = 'm-sub';
-    sub.textContent = 'Calibra le domande, la difficoltà (1-3) e la velocità di corsa:';
+    sub.textContent = 'Scegli il grado scolastico del bambino:';
     card.appendChild(sub);
 
     const nav = document.createElement('div');
     nav.className = 'm-grid-2';
-    const indietro = buttons.find((b) => b.label() === 'Torna ai profili');
+    const indietro = buttons.find((b) => b.label() === 'Torna al menu' || b.label() === 'Torna ai profili');
     const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
     if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
     if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
     card.appendChild(nav);
 
-    // Pillola con descrizione della classe attiva
-    const desc = testi.find((t) => t.y > 90 && t.y < 130);
-    if (desc) {
-      const pill = document.createElement('div');
-      pill.className = 'm-pill';
-      pill.textContent = desc.text;
-      card.appendChild(pill);
-    }
-
-    // Scuola Primaria (1ª – 5ª)
-    const primaria = buttons.filter((b) => b.label().includes('Primaria'));
-    if (primaria.length > 0) {
-      const lbl = document.createElement('div');
-      lbl.className = 'm-group-title';
-      lbl.textContent = 'Scuola Primaria (1ª – 5ª · Difficoltà 1-2)';
-      card.appendChild(lbl);
-      const g = document.createElement('div');
-      g.className = 'm-grid-3';
-      primaria.forEach((b) => g.appendChild(creaBtnDom(b, 'm-btn-compact')));
-      card.appendChild(g);
-    }
-
-    // Scuola Secondaria I grado (1ª – 3ª)
-    const secondaria = buttons.filter((b) => b.label().includes('Secondaria'));
-    if (secondaria.length > 0) {
-      const lbl = document.createElement('div');
-      lbl.className = 'm-group-title';
-      lbl.textContent = 'Scuola Secondaria I grado (1ª – 3ª · Difficoltà 3)';
-      card.appendChild(lbl);
-      const g = document.createElement('div');
-      g.className = 'm-grid-3';
-      secondaria.forEach((b) => g.appendChild(creaBtnDom(b, 'm-btn-compact')));
-      card.appendChild(g);
-    }
-
-    // Velocità Runner 3D
-    const velButtons = buttons.filter((b) =>
-      ['Lenta (Rilassata)', 'Normale', 'Veloce'].includes(b.label())
+    const gradi = buttons.filter((b) =>
+      b.label().includes('Primaria') || b.label().includes('Secondaria')
     );
+    const gg = document.createElement('div');
+    gg.className = 'm-toggle-list';
+    gradi.forEach((b) => gg.appendChild(creaBtnDom(b, 'm-btn-compact')));
+    card.appendChild(gg);
+
+    deck.appendChild(card);
+    return;
+  }
+
+  // ── 5. NODO ANNO PRIMARIA ──
+  if (page === 'anno-primaria') {
+    const h = document.createElement('div');
+    h.className = 'm-header';
+    h.textContent = 'Scuola Primaria (Elementare)';
+    card.appendChild(h);
+
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Seleziona la classe di scuola primaria (1ª–5ª):';
+    card.appendChild(sub);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
+    const indietro = buttons.find((b) => b.label() === 'Torna ai gradi' || b.label() === 'Torna ai profili');
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
+
+    const classi = buttons.filter((b) => b.label().includes('Primaria'));
+    const cg = document.createElement('div');
+    cg.className = 'm-toggle-list';
+    classi.forEach((b) => cg.appendChild(creaBtnDom(b, 'm-btn-compact')));
+    card.appendChild(cg);
+
+    deck.appendChild(card);
+    return;
+  }
+
+  // ── 6. NODO ANNO SECONDARIA ──
+  if (page === 'anno-secondaria') {
+    const h = document.createElement('div');
+    h.className = 'm-header';
+    h.textContent = 'Scuola Secondaria I Grado';
+    card.appendChild(h);
+
+    const sub = document.createElement('p');
+    sub.className = 'm-sub';
+    sub.textContent = 'Seleziona la classe di scuola media (1ª–3ª):';
+    card.appendChild(sub);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
+    const indietro = buttons.find((b) => b.label() === 'Torna ai gradi' || b.label() === 'Torna ai profili');
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
+
+    const classi = buttons.filter((b) => b.label().includes('Secondaria'));
+    const cg = document.createElement('div');
+    cg.className = 'm-toggle-list';
+    classi.forEach((b) => cg.appendChild(creaBtnDom(b, 'm-btn-compact')));
+    card.appendChild(cg);
+
+    deck.appendChild(card);
+    return;
+  }
+
+  // ── 7. NODO GIOCO & GRAFICA ──
+  if (page === 'gioco') {
+    const h = document.createElement('div');
+    h.className = 'm-header';
+    h.textContent = 'Gioco & Grafica';
+    card.appendChild(h);
+
+    const nav = document.createElement('div');
+    nav.className = 'm-grid-2';
+    const indietro = buttons.find((b) => b.label() === 'Torna al menu' || b.label() === 'Torna ai profili');
+    const titolo = buttons.find((b) => b.label() === 'Torna al titolo');
+    if (indietro) nav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(nav);
+
+    // Audio
+    const btnAudio = buttons.find((b) => b.label().includes('Audio'));
+    if (btnAudio) {
+      const aw = document.createElement('div');
+      aw.style.margin = '10px 0';
+      aw.appendChild(creaBtnDom(btnAudio, 'm-btn-compact'));
+      card.appendChild(aw);
+    }
+
+    // Modalità & Grafica
+    const modeRow = document.createElement('div');
+    modeRow.className = 'm-grid-4';
+    ['Quiz (bottoni)', 'Runner (cartelli)', '2D', '3D'].forEach((lbl) => {
+      const b = buttons.find((it) => it.label() === lbl);
+      if (b) modeRow.appendChild(creaBtnDom(b, 'm-btn-compact'));
+    });
+    card.appendChild(modeRow);
+
+    // Velocità Runner
+    const velButtons = buttons.filter((b) => ['Lenta', 'Normale', 'Veloce'].includes(b.label()));
     if (velButtons.length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'm-group-title';
-      lbl.textContent = 'Velocità di corsa Runner 3D';
+      lbl.textContent = 'Velocità di corsa Runner';
       card.appendChild(lbl);
       const vg = document.createElement('div');
       vg.className = 'm-grid-3';
@@ -541,84 +700,6 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
 
     deck.appendChild(card);
     return;
-  }
-
-  // ── Schermata Principale Impostazioni (profili) ──
-  const h = document.createElement('div');
-  h.className = 'm-header';
-  h.textContent = 'Impostazioni';
-  card.appendChild(h);
-
-  // Barra Navigazione Principale in Alto: Torna al titolo, Anno scolastico, Regole Custom
-  const navTop = document.createElement('div');
-  navTop.className = 'm-grid-3';
-  ['Torna al titolo', 'Anno scolastico', 'Regole una per una'].forEach((lbl) => {
-    const b = buttons.find((it) => it.label() === lbl);
-    if (b) navTop.appendChild(creaBtnDom(b, 'm-btn-compact m-btn-secondary'));
-  });
-  card.appendChild(navTop);
-
-  // Pulsante Audio (ON / OFF)
-  const btnAudio = buttons.find((b) => b.label().includes('Audio'));
-  if (btnAudio) {
-    const audioWrap = document.createElement('div');
-    audioWrap.className = 'm-group';
-    audioWrap.style.marginTop = '10px';
-    audioWrap.appendChild(creaBtnDom(btnAudio, 'm-btn-compact'));
-    card.appendChild(audioWrap);
-  }
-
-  // Modalità (Quiz / Runner) e Grafica (2D / 3D)
-  const modeRow = document.createElement('div');
-  modeRow.className = 'm-grid-4';
-  ['Quiz (bottoni)', 'Runner (cartelli)', '2D', '3D'].forEach((lbl) => {
-    const b = buttons.find((it) => it.label() === lbl);
-    if (b) modeRow.appendChild(creaBtnDom(b, 'm-btn-compact'));
-  });
-  card.appendChild(modeRow);
-
-  // Classe attiva e barra rapida
-  const classi = buttons.filter((b) =>
-    ['1ªP', '2ªP', '3ªP', '4ªP', '5ªP', '1ªS', '2ªS', '3ªS'].includes(b.label())
-  );
-  if (classi.length > 0) {
-    const lbl = document.createElement('div');
-    lbl.className = 'm-group-title';
-    lbl.textContent = 'Classe (Primaria 1ª–5ª · Secondaria I 1ª–3ª)';
-    card.appendChild(lbl);
-    const cg = document.createElement('div');
-    cg.className = 'm-grid-4';
-    classi.forEach((b) => cg.appendChild(creaBtnDom(b, 'm-btn-compact')));
-    card.appendChild(cg);
-  }
-
-  // Profili BES (FILTRATI RIGOROSAMENTE PER NOME PROFILO, MAI PER COORDINATE Y!)
-  const BES_LABELS = [
-    'ADHD', 'Autismo', 'Dislessia', 'Discalculia',
-    'Disgrafia', 'Disprassia', 'Sordità', 'DSA / Ansia'
-  ];
-  const profili = buttons.filter((b) => BES_LABELS.includes(b.label()));
-  const nessuno = buttons.find((b) => b.label() === 'Nessun profilo');
-  if (profili.length > 0) {
-    const lbl = document.createElement('div');
-    lbl.className = 'm-group-title';
-    lbl.textContent = 'Profilo BES';
-    card.appendChild(lbl);
-    const pg = document.createElement('div');
-    pg.className = 'm-grid-2';
-    profili.forEach((b) => pg.appendChild(creaBtnDom(b, 'm-btn-compact')));
-    if (nessuno) pg.appendChild(creaBtnDom(nessuno, 'm-btn-compact m-btn-secondary'));
-    card.appendChild(pg);
-  }
-
-  // Descrizione del profilo attivo
-  const desc = testi.find((t) => t.y === 84 || (t.y > 70 && t.y < 100 && t.text.length > 15));
-  if (desc) {
-    const pBox = document.createElement('div');
-    pBox.className = 'm-pill';
-    pBox.style.marginTop = '12px';
-    pBox.textContent = desc.text;
-    card.appendChild(pBox);
   }
 
   deck.appendChild(card);
