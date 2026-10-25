@@ -249,12 +249,6 @@ function renderTitle(
   const card = document.createElement('div');
   card.className = 'm-card m-card-title';
 
-  // Badge superiore stile Sport
-  const badgeTop = document.createElement('div');
-  badgeTop.className = 'm-sport-tag';
-  badgeTop.textContent = '★ EDIZIONE EDU SPORTIVA ★';
-  card.appendChild(badgeTop);
-
   // Titolo principale unico (non duplicato)
   const titleEl = document.createElement('h1');
   titleEl.className = 'm-game-title';
