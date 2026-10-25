@@ -20,9 +20,21 @@ import { initMobilePortrait } from './ui/mobile-portrait';
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
 
+function calcolaLarghezzaIniziale(): number {
+  if (typeof window === 'undefined') return 1024;
+  const vv = window.visualViewport;
+  const vw = vv ? vv.width : window.innerWidth;
+  const vh = vv ? vv.height : window.innerHeight;
+  if (vw >= vh) {
+    const ratio = Math.max(16 / 9, vw / vh);
+    return Math.min(1920, Math.max(1024, Math.round(576 * ratio)));
+  }
+  return 1024;
+}
+
 const game = new Phaser.Game({
   type: Phaser.AUTO,
-  width: 1024,
+  width: calcolaLarghezzaIniziale(),
   height: 576,
   parent: 'game',
   // Trasparente: quando c'è il mondo 3D (canvas Three.js sotto), Phaser deve
@@ -56,7 +68,7 @@ function adattaScalaGioco(): void {
   const orizzontale = vw >= vh;
   if (orizzontale) {
     const ratio = Math.max(16 / 9, vw / vh);
-    const targetW = Math.min(1440, Math.max(1024, Math.round(576 * ratio)));
+    const targetW = Math.min(1920, Math.max(1024, Math.round(576 * ratio)));
     if (game.scale.gameSize.width !== targetW || game.scale.gameSize.height !== 576) {
       game.scale.resize(targetW, 576);
     }
@@ -67,6 +79,10 @@ function adattaScalaGioco(): void {
   }
   game.scale.refresh();
 }
+
+game.events.once(Phaser.Core.Events.READY, () => {
+  adattaScalaGioco();
+});
 
 window.addEventListener('resize', adattaScalaGioco);
 if (window.visualViewport) {

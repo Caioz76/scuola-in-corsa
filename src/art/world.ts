@@ -60,8 +60,13 @@ export function addWorld(
   cfg: EffectiveConfig,
   opts: WorldOpts = {}
 ): World {
-  const W = Math.max(1024, scene.scale.gameSize.width);
-  const H = Math.max(576, scene.scale.gameSize.height);
+  // Margine extra a sinistra e a destra per coprire qualsiasi aspect ratio panoramico
+  // (es. iPhone con Dynamic Island / notch in landscape a tutto schermo).
+  const EXTRA_X = 800;
+  let curW = Math.max(1024, scene.scale.gameSize.width);
+  let curH = Math.max(576, scene.scale.gameSize.height);
+  let wBg = Math.max(3600, curW + EXTRA_X * 2);
+
   applyPageTheme(theme, cfg.highContrast);
   // La scenografia è "decorazione": chi ha chiesto una schermata pulita non la vede.
   const scenografia = cfg.decoration && !cfg.highContrast;
@@ -73,27 +78,28 @@ export function addWorld(
   const oggetti: Phaser.GameObjects.GameObject[] = [];
   let far: Phaser.GameObjects.TileSprite | null = null;
   let mid: Phaser.GameObjects.TileSprite | null = null;
+  let velo: Phaser.GameObjects.Rectangle | null = null;
 
   if (scenografia) {
     far = scene.add
-      .tileSprite(0, 0, W, H, `bg-${theme}-far`)
+      .tileSprite(-EXTRA_X, 0, wBg, curH, `bg-${theme}-far`)
       .setOrigin(0)
       .setDepth(-40)
       .setName('bg-far');
     mid = scene.add
-      .tileSprite(0, 0, W, H, `bg-${theme}-mid`)
+      .tileSprite(-EXTRA_X, 0, wBg, curH, `bg-${theme}-mid`)
       .setOrigin(0)
       .setDepth(-30)
       .setName('bg-mid');
     oggetti.push(far, mid);
     // Velo chiaro: la scenografia si vede, ma i testi scuri restano leggibili.
-    const velo = scene.add.rectangle(0, 0, W, H, 0xffffff, 0.34).setOrigin(0).setDepth(-25);
+    velo = scene.add.rectangle(-EXTRA_X, 0, wBg, curH, 0xffffff, 0.34).setOrigin(0).setDepth(-25);
     oggetti.push(velo);
   }
 
   // Pista: sempre presente, è il terreno su cui corre Pico.
   const pista = scene.add
-    .tileSprite(0, H - 96, W, 96, 'groundRow')
+    .tileSprite(-EXTRA_X, curH - 96, wBg, 96, 'groundRow')
     .setOrigin(0)
     .setDepth(-22)
     .setName('pista');
@@ -104,7 +110,7 @@ export function addWorld(
   let props: Phaser.GameObjects.TileSprite | null = null;
   if (opts.props && scenografia) {
     props = scene.add
-      .tileSprite(0, H - 96, W, 64, 'propsRow')
+      .tileSprite(-EXTRA_X, curH - 96, wBg, 64, 'propsRow')
       .setOrigin(0)
       .setDepth(-21)
       .setName('bordo');
@@ -125,7 +131,7 @@ export function addWorld(
 
   if (modoPico !== false) {
     pico = scene.add
-      .image(picoX, H - 50, modoPico === 'cheer' ? (diProfilo ? texSalto : 'pico-cheer') : texCorsa[0])
+      .image(picoX, curH - 50, modoPico === 'cheer' ? (diProfilo ? texSalto : 'pico-cheer') : texCorsa[0])
       .setScale(diProfilo ? 0.92 : 0.84)
       .setDepth(-15)
       .setName('pico');
@@ -133,7 +139,7 @@ export function addWorld(
   }
   // Da dove parte e dove torna dopo un salto (modalità Runner).
   const CASA_X = picoX;
-  const CASA_Y = H - 50;
+  const CASA_Y = curH - 50;
 
   const passo = scene.time.addEvent({
     delay: 130,
@@ -178,38 +184,43 @@ export function addWorld(
 
   // La pista va dal primo checkpoint al traguardo: Pico la percorre davvero,
   // prova dopo prova. Con "riduci i movimenti" si sposta senza animazione.
-  const PISTA_X0 = Math.round(W * 0.18);
-  const PISTA_X1 = Math.round(W * 0.85);
-  const PISTA_Y = H - 30;
-  const PARTENZA_X = Math.round(W * 0.06);
-
-  const xCheckpoint = (i: number): number =>
-    totali > 1 ? PISTA_X0 + ((PISTA_X1 - PISTA_X0) * i) / (totali - 1) : PISTA_X1;
+  const xCheckpoint = (i: number): number => {
+    const p0 = Math.round(curW * 0.18);
+    const p1 = Math.round(curW * 0.85);
+    return totali > 1 ? p0 + ((p1 - p0) * i) / (totali - 1) : p1;
+  };
 
   const disegnaCheckpoint = (): void => {
     checkpoint.clear();
     if (!opts.track || totali <= 0) return;
+    const p0 = Math.round(curW * 0.18);
+    const p1 = Math.round(curW * 0.85);
+    const pY = curH - 30;
+
     // linea della pista, chiara: si vede anche sul prato
     checkpoint.lineStyle(6, 0xffffff, 0.5);
-    checkpoint.lineBetween(PISTA_X0, PISTA_Y, PISTA_X1, PISTA_Y);
+    checkpoint.lineBetween(p0, pY, p1, pY);
     for (let i = 0; i < totali; i++) {
       const acceso = i < fatti;
       const x = xCheckpoint(i);
       checkpoint.fillStyle(acceso ? 0x3aa564 : 0xffffff, acceso ? 1 : 0.95);
-      checkpoint.fillCircle(x, PISTA_Y, 9);
+      checkpoint.fillCircle(x, pY, 9);
       checkpoint.lineStyle(2, acceso ? 0x24804a : 0x8a99ad, 0.95);
-      checkpoint.strokeCircle(x, PISTA_Y, 9);
+      checkpoint.strokeCircle(x, pY, 9);
     }
     if (!bandiera) {
-      bandiera = scene.add.image(PISTA_X1 + 46, H - 64, 'flag').setScale(0.5).setDepth(-13);
+      bandiera = scene.add.image(p1 + 46, curH - 64, 'flag').setScale(0.5).setDepth(-13);
       oggetti.push(bandiera);
+    } else {
+      bandiera.setPosition(p1 + 46, curH - 64);
     }
   };
 
   /** Porta Pico al checkpoint raggiunto (o alla partenza se non ha ancora corso). */
   const portaPico = (compiuti: number): void => {
     if (!pico || opts.advance === false) return;
-    const target = compiuti <= 0 ? PARTENZA_X : xCheckpoint(Math.min(compiuti, totali) - 1);
+    const pX = Math.round(curW * 0.06);
+    const target = compiuti <= 0 ? pX : xCheckpoint(Math.min(compiuti, totali) - 1);
     if (!animato) {
       pico.x = target;
       return;
@@ -218,6 +229,27 @@ export function addWorld(
   };
 
   disegnaCheckpoint();
+
+  // Reattività dinamica al resize dello schermo (rotazione iPhone landscape / portrait)
+  const suResize = (): void => {
+    curW = Math.max(1024, scene.scale.gameSize.width);
+    curH = Math.max(576, scene.scale.gameSize.height);
+    wBg = Math.max(3600, curW + EXTRA_X * 2);
+    if (far) far.setSize(wBg, curH);
+    if (mid) mid.setSize(wBg, curH);
+    if (velo) {
+      velo.width = wBg;
+      velo.height = curH;
+    }
+    pista.setSize(wBg, 96);
+    pista.y = curH - 96;
+    if (props) {
+      props.setSize(wBg, 64);
+      props.y = curH - 96;
+    }
+    disegnaCheckpoint();
+  };
+  scene.scale.on(Phaser.Scale.Events.RESIZE, suResize);
 
   // ── Scorrimento ──
   let spinta = 0;
@@ -254,6 +286,7 @@ export function addWorld(
   // Pulizia automatica: la scena può essere fermata o riavviata (Settings lo fa
   // a ogni tocco). Senza questo, i listener si accumulerebbero a ogni visita.
   const distruggi = (): void => {
+    scene.scale.off(Phaser.Scale.Events.RESIZE, suResize);
     scene.events.off(Phaser.Scenes.Events.UPDATE, aggiorna);
     scene.events.off(Phaser.Scenes.Events.SHUTDOWN, distruggi);
     passo.remove(false);
@@ -298,7 +331,7 @@ export function addWorld(
       scene.tweens.killTweensOf(pico);
       saltoInCorso = true;
       inCorsa = true;
-      const bersaglioX = Phaser.Math.Clamp(x, 150, W - 150);
+      const bersaglioX = Phaser.Math.Clamp(x, 150, curW - 150);
       const bersaglioY = Phaser.Math.Clamp(y, 300, CASA_Y - 40);
       pico.setTexture(texSalto);
       scene.tweens.add({
