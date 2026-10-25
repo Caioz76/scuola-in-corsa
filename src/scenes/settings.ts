@@ -212,16 +212,6 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'radice';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Profili BES', cfg, {
       size: 26,
       bold: true,
