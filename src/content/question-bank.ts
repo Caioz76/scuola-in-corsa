@@ -468,7 +468,395 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
         hint: 'Due numeri concordi negativi si sommano mantenendo il segno meno.',
         explanation: '(−5) + (−3) = −8.'
       }
+    },
+
+  // ── Primaria 1ª – 2ª (P1, P2) ─────────────────────────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-6',
+      type: 'quiz',
+      support: 'numberLine',
+      prompt: 'Qual è il numero pari tra questi?',
+      options: [
+        { label: '8', correct: true },
+        { label: '7', correct: false },
+        { label: '5', correct: false },
+        { label: '9', correct: false }
+      ],
+      hint: 'I numeri pari si possono dividere in due parti uguali.',
+      explanation: '8 è pari perché 4 + 4 = 8.'
     }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-7',
+      type: 'quiz',
+      support: 'numberLine',
+      prompt: 'Quanto fa 10 − 7?',
+      options: [
+        { label: '3', correct: true },
+        { label: '2', correct: false },
+        { label: '4', correct: false },
+        { label: '5', correct: false }
+      ],
+      hint: 'Pensa a quanto manca a 7 per arrivare a 10.',
+      explanation: '10 − 7 = 3 (perché 7 + 3 = 10).'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-8',
+      type: 'image',
+      icon: 'abaco',
+      prompt: 'Quale strumento per contare vedi nell\'immagine?',
+      options: [
+        { label: 'Un abaco', correct: true },
+        { label: 'Una bilancia', correct: false },
+        { label: 'Un orologio', correct: false }
+      ],
+      hint: 'Ha palline colorate infilate su aste verticali.',
+      explanation: 'L\'abaco serve per contare unità, decine e centinaia.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-mat-p2-5',
+      type: 'quiz',
+      prompt: 'Quanto fa 5 × 4?',
+      options: [
+        { label: '20', correct: true },
+        { label: '15', correct: false },
+        { label: '25', correct: false },
+        { label: '18', correct: false }
+      ],
+      hint: 'Conta di 5 in 5 per 4 volte: 5, 10, 15...',
+      explanation: '5 × 4 = 20.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p2-6',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Trascina e ordina i numeri dal più piccolo al più grande.',
+      sortItems: ['3', '7', '12', '19'],
+      hint: 'Inizia dal numero minore.',
+      explanation: 'L\'ordine crescente corretto è 3, 7, 12, 19.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-mat-p2-7',
+      type: 'quiz',
+      prompt: 'Marco compra un gelato da 2 euro e paga con una banconota da 5 euro. Quanto riceve di resto?',
+      options: [
+        { label: '3 euro', correct: true },
+        { label: '2 euro', correct: false },
+        { label: '4 euro', correct: false },
+        { label: '1 euro', correct: false }
+      ],
+      hint: 'Calcola 5 − 2.',
+      explanation: '5 − 2 = 3 euro di resto.'
+    }
+  },
+
+  // ── Primaria 3ª – 4ª – 5ª (P3, P4, P5) ─────────────────────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-mat-p3-5',
+      type: 'quiz',
+      prompt: 'Quanto fa 7 × 8?',
+      options: [
+        { label: '56', correct: true },
+        { label: '54', correct: false },
+        { label: '64', correct: false },
+        { label: '48', correct: false }
+      ],
+      hint: 'Pensa alla tabellina dell\'8: 8 × 7.',
+      explanation: '7 × 8 = 56.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-mat-p3-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni moltiplicazione al suo risultato.',
+      leftItems: ['6 × 6', '9 × 3', '4 × 7'],
+      rightItems: ['36', '27', '28'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Calcola una moltiplicazione alla volta.',
+      explanation: '6 × 6 = 36; 9 × 3 = 27; 4 × 7 = 28.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-mat-p3-7',
+      type: 'quiz',
+      prompt: 'Qual è il perimetro di un rettangolo con base di 8 cm e altezza di 5 cm?',
+      options: [
+        { label: '26 cm', correct: true },
+        { label: '40 cm', correct: false },
+        { label: '13 cm', correct: false },
+        { label: '24 cm', correct: false }
+      ],
+      hint: 'Il perimetro è la somma di tutti e 4 i lati: (8 + 5) × 2.',
+      explanation: '(8 + 5) × 2 = 13 × 2 = 26 cm.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-mat-p4-4',
+      type: 'quiz',
+      prompt: 'Quanto vale la frazione 3/4 di 24?',
+      options: [
+        { label: '18', correct: true },
+        { label: '16', correct: false },
+        { label: '20', correct: false },
+        { label: '12', correct: false }
+      ],
+      hint: 'Dividi 24 per 4 (denominatore) e moltiplica il risultato per 3.',
+      explanation: '24 : 4 = 6, poi 6 × 3 = 18.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-mat-p4-5',
+      type: 'quiz',
+      prompt: 'Quale numero decimale corrisponde alla frazione 1/2?',
+      options: [
+        { label: '0,5', correct: true },
+        { label: '0,2', correct: false },
+        { label: '1,2', correct: false },
+        { label: '0,05', correct: false }
+      ],
+      hint: 'La metà di 1 intero si scrive con 5 decimi.',
+      explanation: '1 : 2 = 0,5.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-mat-p4-6',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca le unità di misura di lunghezza in ordine dalla più piccola alla più grande.',
+      items: ['millimetro', 'centimetro', 'metro', 'chilometro'],
+      hint: 'Parti da quella usata per la punta della matita fino alla distanza tra città.',
+      explanation: 'L\'ordine corretto è millimetro, centimetro, metro, chilometro.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-mat-p5-5',
+      type: 'quiz',
+      prompt: 'Qual è l\'area di un triangolo con base di 10 cm e altezza di 6 cm?',
+      options: [
+        { label: '30 cm²', correct: true },
+        { label: '60 cm²', correct: false },
+        { label: '16 cm²', correct: false },
+        { label: '25 cm²', correct: false }
+      ],
+      hint: 'La formula dell\'area del triangolo è: (base × altezza) : 2.',
+      explanation: '(10 × 6) : 2 = 60 : 2 = 30 cm².'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-mat-p5-6',
+      type: 'quiz',
+      prompt: 'A quale percentuale corrisponde la frazione 1/4?',
+      options: [
+        { label: '25%', correct: true },
+        { label: '20%', correct: false },
+        { label: '50%', correct: false },
+        { label: '40%', correct: false }
+      ],
+      hint: 'Pensa a un quarto di 100.',
+      explanation: '100 : 4 = 25%.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-mat-p5-7',
+      type: 'quiz',
+      prompt: 'Quanti grammi ci sono in 2,5 chilogrammi?',
+      options: [
+        { label: '2500 g', correct: true },
+        { label: '250 g', correct: false },
+        { label: '25 g', correct: false },
+        { label: '25000 g', correct: false }
+      ],
+      hint: '1 chilogrammo vale 1000 grammi. Moltiplica 2,5 per 1000.',
+      explanation: '2,5 × 1000 = 2500 grammi.'
+    }
+  },
+
+  // ── Secondaria di I grado (S1, S2, S3) ───────────────────────────
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-mat-s1-4',
+      type: 'quiz',
+      prompt: 'Qual è il Massimo Comune Divisore (MCD) tra 18 e 24?',
+      options: [
+        { label: '6', correct: true },
+        { label: '3', correct: false },
+        { label: '12', correct: false },
+        { label: '2', correct: false }
+      ],
+      hint: 'Trova il divisore comune più grande tra 18 e 24.',
+      explanation: 'I divisori di 18 sono 1, 2, 3, 6, 9, 18; quelli di 24 sono 1, 2, 3, 4, 6, 8, 12, 24. Il massimo comune è 6.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-mat-s1-5',
+      type: 'quiz',
+      prompt: 'Quanto vale la potenza 2⁵?',
+      options: [
+        { label: '32', correct: true },
+        { label: '10', correct: false },
+        { label: '16', correct: false },
+        { label: '64', correct: false }
+      ],
+      hint: 'Moltiplica 2 per se stesso 5 volte: 2 × 2 × 2 × 2 × 2.',
+      explanation: '2 × 2 × 2 × 2 × 2 = 32.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-mat-s1-6',
+      type: 'quiz',
+      prompt: 'Secondo le proprietà delle potenze, quanto fa 3⁴ × 3²?',
+      options: [
+        { label: '3⁶', correct: true },
+        { label: '3⁸', correct: false },
+        { label: '9⁶', correct: false },
+        { label: '3²', correct: false }
+      ],
+      hint: 'Nel prodotto di potenze con stessa base gli esponenti si sommano: 4 + 2.',
+      explanation: '3⁴ × 3² = 3⁴⁺² = 3⁶.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s2-3',
+      type: 'quiz',
+      prompt: 'In un triangolo rettangolo i cateti misurano 6 cm e 8 cm. Quanto misura l\'ipotenusa?',
+      options: [
+        { label: '10 cm', correct: true },
+        { label: '14 cm', correct: false },
+        { label: '12 cm', correct: false },
+        { label: '9 cm', correct: false }
+      ],
+      hint: 'Teorema di Pitagora: radice quadrata di (6² + 8²) = radice di (36 + 64).',
+      explanation: '√(36 + 64) = √100 = 10 cm.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s2-4',
+      type: 'quiz',
+      prompt: 'Nella proporzione 4 : 6 = 10 : x, quanto vale l\'incognita x?',
+      options: [
+        { label: '15', correct: true },
+        { label: '12', correct: false },
+        { label: '20', correct: false },
+        { label: '16', correct: false }
+      ],
+      hint: 'Il prodotto dei medi è uguale al prodotto degli estremi: x = (6 × 10) : 4.',
+      explanation: 'x = (6 × 10) : 4 = 60 : 4 = 15.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s2-5',
+      type: 'quiz',
+      prompt: 'Quanto fa il prodotto tra numeri relativi (−4) × (−5)?',
+      options: [
+        { label: '+20', correct: true },
+        { label: '−20', correct: false },
+        { label: '−9', correct: false },
+        { label: '+9', correct: false }
+      ],
+      hint: 'Meno per meno fa più.',
+      explanation: 'Due numeri concordi negativi moltiplicati danno segno positivo: (−4) × (−5) = +20.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s3-4',
+      type: 'quiz',
+      prompt: 'Qual è la soluzione dell\'equazione di primo grado: 3x − 7 = 14?',
+      options: [
+        { label: 'x = 7', correct: true },
+        { label: 'x = 5', correct: false },
+        { label: 'x = 3', correct: false },
+        { label: 'x = 21', correct: false }
+      ],
+      hint: 'Sposta il −7 a destra cambiandolo di segno: 3x = 14 + 7, poi dividi per 3.',
+      explanation: '3x = 21, quindi x = 21 : 3 = 7.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s3-5',
+      type: 'quiz',
+      prompt: 'Qual è il volume di un cubo con lo spigolo di 5 cm?',
+      options: [
+        { label: '125 cm³', correct: true },
+        { label: '25 cm³', correct: false },
+        { label: '150 cm³', correct: false },
+        { label: '75 cm³', correct: false }
+      ],
+      hint: 'La formula del volume del cubo è spigolo al cubo: s³ = 5 × 5 × 5.',
+      explanation: '5 × 5 × 5 = 125 cm³.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s3-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascuna figura geometrica alla sua formula dell\'area.',
+      leftItems: ['Quadrato', 'Rettangolo', 'Triangolo'],
+      rightItems: ['lato × lato', 'base × altezza', '(base × altezza) : 2'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa alle formule standard di calcolo delle superfici piane.',
+      explanation: 'Area quadrato: l²; Area rettangolo: b × h; Area triangolo: (b × h) : 2.'
+    }
+  }
   ],
 
   italiano: [
@@ -910,7 +1298,391 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
         hint: 'Indica lo scopo o il fine dell\'azione di studiare.',
         explanation: 'Introdotta da «affinché» o «perché», indica lo scopo: è una subordinata finale.'
       }
+    },
+
+  // ── Primaria 1ª – 2ª (P1, P2) ─────────────────────────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-6',
+      type: 'quiz',
+      prompt: 'Quale parola è scritta nel modo corretto con la lettera Q?',
+      options: [
+        { label: 'Quadro', correct: true },
+        { label: 'Cuadro', correct: false },
+        { label: 'Qadro', correct: false },
+        { label: 'Kuadro', correct: false }
+      ],
+      hint: 'La Q è sempre seguita dalla U e da un\'altra vocale.',
+      explanation: 'Si scrive quadro con QU.'
     }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-7',
+      type: 'image',
+      icon: 'sole',
+      prompt: 'Qual è il nome dell\'astro luminoso mostrato nell\'immagine?',
+      options: [
+        { label: 'Sole', correct: true },
+        { label: 'Luna', correct: false },
+        { label: 'Stella', correct: false }
+      ],
+      hint: 'Scalda la Terra e brilla di giorno nel cielo.',
+      explanation: 'L\'icona rappresenta il Sole.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-8',
+      type: 'quiz',
+      prompt: 'Quale parola contiene una doppia consonante?',
+      options: [
+        { label: 'Palla', correct: true },
+        { label: 'Pala', correct: false },
+        { label: 'Mela', correct: false },
+        { label: 'Vaso', correct: false }
+      ],
+      hint: 'Ha due consonanti uguali vicine vicine.',
+      explanation: 'Palla contiene la doppia LL.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-ita-p2-5',
+      type: 'quiz',
+      prompt: 'Quale frase contiene l\'apostrofo usato correttamente?',
+      options: [
+        { label: 'C\'è un bel sole', correct: true },
+        { label: 'Ce un bel sole', correct: false },
+        { label: 'Ci è un bel sole', correct: false }
+      ],
+      hint: '«C\'è» significa «ci è», l\'apostrofo sostituisce la lettera caduta.',
+      explanation: 'Si scrive «C\'è» con l\'apostrofo e l\'accento sulla e.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p2-6',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Metti in ordine alfabetico le seguenti parole.',
+      sortItems: ['Ape', 'Barca', 'Cane', 'Dado'],
+      hint: 'Guarda la prima lettera di ogni parola: A, B, C, D.',
+      explanation: 'L\'ordine alfabetico è Ape (A), Barca (B), Cane (C), Dado (D).'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-ita-p2-7',
+      type: 'quiz',
+      prompt: 'Qual è il plurale corretto della parola «amico»?',
+      options: [
+        { label: 'Amici', correct: true },
+        { label: 'Amichi', correct: false },
+        { label: 'Amicoi', correct: false }
+      ],
+      hint: 'Al plurale il suono diventa dolce.',
+      explanation: 'Il plurale di amico è amici.'
+    }
+  },
+
+  // ── Primaria 3ª – 4ª – 5ª (P3, P4, P5) ─────────────────────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-ita-p3-4',
+      type: 'quiz',
+      prompt: 'Nella frase «Il gatto bianco dorme sul divano», qual è l\'aggettivo qualificativo?',
+      options: [
+        { label: 'bianco', correct: true },
+        { label: 'gatto', correct: false },
+        { label: 'dorme', correct: false },
+        { label: 'divano', correct: false }
+      ],
+      hint: 'Descrive come è fatto il gatto.',
+      explanation: '«Bianco» è un aggettivo qualificativo perché indica una qualità del nome gatto.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-ita-p3-5',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun nome al suo contrario.',
+      leftItems: ['Alto', 'Luce', 'Felice'],
+      rightItems: ['Basso', 'Buio', 'Triste'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Cerca la parola di significato opposto.',
+      explanation: 'Alto ↔ Basso; Luce ↔ Buio; Felice ↔ Triste.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-ita-p3-6',
+      type: 'quiz',
+      prompt: 'Quale voce del verbo AVERE completa correttamente: «I bambini ... giocato tutto il pomeriggio»?',
+      options: [
+        { label: 'hanno', correct: true },
+        { label: 'anno', correct: false },
+        { label: 'anno\'', correct: false }
+      ],
+      hint: 'È voce del verbo avere (essi hanno), quindi serve l\'H iniziale.',
+      explanation: '«Hanno» con l\'H è la terza persona plurale del verbo avere.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-ita-p4-4',
+      type: 'quiz',
+      prompt: 'Nella frase «Marco legge un libro interessante», qual è il complemento oggetto?',
+      options: [
+        { label: 'un libro interessante', correct: true },
+        { label: 'Marco', correct: false },
+        { label: 'legge', correct: false },
+        { label: 'interessante', correct: false }
+      ],
+      hint: 'Risponde alla domanda: «chi? che cosa?» dopo il verbo.',
+      explanation: 'Marco legge che cosa? «Un libro interessante» è il complemento oggetto (con attributo).'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-ita-p4-5',
+      type: 'quiz',
+      prompt: 'A quale tempo dell\'indicativo appartiene il verbo «NOI CANTEREMO»?',
+      options: [
+        { label: 'Futuro semplice', correct: true },
+        { label: 'Presente', correct: false },
+        { label: 'Passato prossimo', correct: false },
+        { label: 'Imperfetto', correct: false }
+      ],
+      hint: 'Indica un\'azione che avverrà più avanti nel tempo.',
+      explanation: '«Canteremo» è prima persona plurale del futuro semplice del verbo cantare.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-ita-p4-6',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Ordina i gradi dell\'aggettivo qualificativo dal grado positivo al superlativo assoluto.',
+      items: ['bello', 'più bello di', 'bellissimo'],
+      hint: 'Grado positivo, comparativo di maggioranza, superlativo assoluto.',
+      explanation: 'Bello (positivo) → Più bello di (comparativo) → Bellissimo (superlativo assoluto).'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-ita-p5-4',
+      type: 'quiz',
+      prompt: 'Nella frase «La nonna è affettuosa», che tipo di predicato è «è affettuosa»?',
+      options: [
+        { label: 'Predicato nominale', correct: true },
+        { label: 'Predicato verbale', correct: false },
+        { label: 'Soggetto sottinteso', correct: false }
+      ],
+      hint: 'È formato dal verbo essere + un aggettivo che indica una qualità.',
+      explanation: 'Verbo essere (copula) + aggettivo (nome del predicato) forma il predicato nominale.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-ita-p5-5',
+      type: 'quiz',
+      prompt: 'Quale dei seguenti è un pronome possessivo?',
+      options: [
+        { label: 'Il mio', correct: true },
+        { label: 'Quello', correct: false },
+        { label: 'Chiunque', correct: false },
+        { label: 'Loro', correct: false }
+      ],
+      hint: 'Sostituisce il nome indicando a chi appartiene qualcosa.',
+      explanation: '«Il mio» usato al posto del nome è un pronome possessivo.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-ita-p5-6',
+      type: 'quiz',
+      prompt: 'Qual è il modo verbale che esprime certezza e realtà dei fatti?',
+      options: [
+        { label: 'Modo Indicativo', correct: true },
+        { label: 'Modo Congiuntivo', correct: false },
+        { label: 'Modo Condizionale', correct: false },
+        { label: 'Modo Imperativo', correct: false }
+      ],
+      hint: 'È il modo più usato, quello delle certezze oggettive.',
+      explanation: 'L\'indicativo è il modo della certezza e della realtà.'
+    }
+  },
+
+  // ── Secondaria di I grado (S1, S2, S3) ───────────────────────────
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-ita-s1-4',
+      type: 'quiz',
+      prompt: 'Nella frase «Ho regalato un libro a Giulia», che complemento è «a Giulia»?',
+      options: [
+        { label: 'Complemento di termine', correct: true },
+        { label: 'Complemento di specificazione', correct: false },
+        { label: 'Complemento d\'agente', correct: false },
+        { label: 'Complemento di causa', correct: false }
+      ],
+      hint: 'Risponde alla domanda: «a chi? a che cosa?»',
+      explanation: 'Il complemento di termine risponde alla domanda «a chi? a che cosa?» ed è introdotto dalla preposizione «a».'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-ita-s1-5',
+      type: 'quiz',
+      prompt: 'Chi è l\'eroe protagonista dell\'Odissea di Omero che affronta un lungo viaggio per tornare a Itaca?',
+      options: [
+        { label: 'Ulisse (Odisseo)', correct: true },
+        { label: 'Achille', correct: false },
+        { label: 'Enea', correct: false },
+        { label: 'Ettore', correct: false }
+      ],
+      hint: 'Re di Itaca, celebre per la sua astuzia e il cavallo di Troia.',
+      explanation: 'Ulisse (Odisseo) è il protagonista dell\'Odissea.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-ita-s1-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun complemento alla domanda a cui risponde.',
+      leftItems: ['Specificazione', 'Mezzo o strumento', 'Causa'],
+      rightItems: ['Di chi? Di che cosa?', 'Per mezzo di che cosa?', 'A causa di che cosa?'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa alle domande guida dell\'analisi logica.',
+      explanation: 'Specificazione: di chi? Mezzo: con che cosa? Causa: per quale motivo?'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s2-4',
+      type: 'quiz',
+      prompt: 'Quale figura retorica consiste nell\'accostare due termini in contraddizione tra loro, come «silenzio assordante»?',
+      options: [
+        { label: 'Ossimoro', correct: true },
+        { label: 'Metafora', correct: false },
+        { label: 'Iperbole', correct: false },
+        { label: 'Sinestesia', correct: false }
+      ],
+      hint: 'Unisce due parole di significato opposto nello stesso sintagma.',
+      explanation: 'L\'ossimoro unisce concetti apparentemente inconciliabili (es. «ghiaccio bollente», «silenzio assordante»).'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s2-5',
+      type: 'quiz',
+      prompt: 'Quale tempo del modo congiuntivo è il verbo «CHE EGLI AVESSE SCRITTO»?',
+      options: [
+        { label: 'Congiuntivo trapassato', correct: true },
+        { label: 'Congiuntivo imperfetto', correct: false },
+        { label: 'Congiuntivo passato', correct: false },
+        { label: 'Congiuntivo presente', correct: false }
+      ],
+      hint: 'È composto dall\'imperfetto del verbo ausiliare (avesse) + participio passato.',
+      explanation: '«Avesse scritto» è congiuntivo trapassato, terza persona singolare.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s2-6',
+      type: 'quiz',
+      prompt: 'Che tipo di subordinata è introdotta nella frase: «Non esco perché piove a dirotto»?',
+      options: [
+        { label: 'Subordinata causale', correct: true },
+        { label: 'Subordinata finale', correct: false },
+        { label: 'Subordinata temporale', correct: false },
+        { label: 'Subordinata consecutiva', correct: false }
+      ],
+      hint: 'Spiega la causa o il motivo per cui non si esce.',
+      explanation: 'Introdotta da «perché» o «poiché», esprime la causa dell\'azione: è una subordinata causale.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s3-5',
+      type: 'quiz',
+      prompt: 'Quale celebre autore italiano ha scritto la raccolta di cento novelle intitolata «Decameron»?',
+      options: [
+        { label: 'Giovanni Boccaccio', correct: true },
+        { label: 'Francesco Petrarca', correct: false },
+        { label: 'Dante Alighieri', correct: false },
+        { label: 'Ludovico Ariosto', correct: false }
+      ],
+      hint: 'Uno delle «Tre Corone» fiorentine del Trecento.',
+      explanation: 'Il Decameron fu scritto da Giovanni Boccaccio tra il 1349 e il 1353.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s3-6',
+      type: 'quiz',
+      prompt: 'Nella frase «Se avessi studiato di più, ... l\'esame», qual è la forma corretta del condizionale passato?',
+      options: [
+        { label: 'avrei superato', correct: true },
+        { label: 'avessi superato', correct: false },
+        { label: 'supererei', correct: false },
+        { label: 'avrei superante', correct: false }
+      ],
+      hint: 'Nel periodo ipotetico dell\'irrealtà al passato: se + congiuntivo trapassato, condizionale passato.',
+      explanation: 'La concordanza corretta è: «Se avessi studiato di più, avrei superato l\'esame».'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s3-7',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun prefisso di origine greca al suo significato in italiano.',
+      leftItems: ['Bio-', 'Crono-', 'Geo-'],
+      rightItems: ['Vita', 'Tempo', 'Terra'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa a parole come biologia, cronometro, geografia.',
+      explanation: 'Bio = vita; Crono = tempo; Geo = terra.'
+    }
+  }
   ],
 
   scienze: [
@@ -1353,7 +2125,396 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
         hint: 'È l\'involucro solido superficiale su cui camminiamo, diviso in placche.',
         explanation: 'La Terra è divisa dall\'esterno all\'interno in crosta, mantello e nucleo.'
       }
+    },
+
+  // ── Primaria 1ª – 2ª (P1, P2) ─────────────────────────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-5',
+      type: 'image',
+      icon: 'albero',
+      prompt: 'Quale parte verde della pianta assorbe la luce solare?',
+      options: [
+        { label: 'La foglia', correct: true },
+        { label: 'La radice', correct: false },
+        { label: 'Il tronco', correct: false }
+      ],
+      hint: 'Cresce sui rami ed è quasi sempre verde.',
+      explanation: 'La foglia contiene la clorofilla che cattura la luce.'
     }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-6',
+      type: 'quiz',
+      prompt: 'Quale dei seguenti è un animale erbivoro, che si nutre solo di erba e piante?',
+      options: [
+        { label: 'La mucca', correct: true },
+        { label: 'Il leone', correct: false },
+        { label: 'Il lupo', correct: false },
+        { label: 'Lo squalo', correct: false }
+      ],
+      hint: 'Pascola nei prati e produce il latte.',
+      explanation: 'La mucca mangia solo vegetali: è un animale erbivoro.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-7',
+      type: 'image',
+      icon: 'occhio',
+      prompt: 'A quale dei cinque sensi corrisponde l\'organo mostrato nell\'immagine?',
+      options: [
+        { label: 'Alla vista', correct: true },
+        { label: 'All\'udito', correct: false },
+        { label: 'All\'olfatto', correct: false }
+      ],
+      hint: 'Ci permette di guardare e vedere colori e forme.',
+      explanation: 'L\'occhio è l\'organo deputato al senso della vista.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-sci-p2-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Metti in ordine le quattro stagioni dell\'anno a partire dalla primavera.',
+      items: ['Primavera', 'Estate', 'Autunno', 'Inverno'],
+      hint: 'Dopo i fiori della primavera arriva il caldo dell\'estate.',
+      explanation: 'Il ciclo annuale delle stagioni è Primavera, Estate, Autunno, Inverno.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p2-6',
+      type: 'quiz',
+      prompt: 'Quando l\'acqua diventa ghiaccio a causa del freddo intenso, in quale stato si trova?',
+      options: [
+        { label: 'Stato solido', correct: true },
+        { label: 'Stato liquido', correct: false },
+        { label: 'Stato gassoso', correct: false }
+      ],
+      hint: 'Ha una forma propria dura e compatta.',
+      explanation: 'Il ghiaccio è acqua allo stato solido.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-sci-p2-7',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun animale alla sua classe biologica.',
+      leftItems: ['Aquila', 'Trota', 'Farfalla'],
+      rightItems: ['Uccello', 'Pesce', 'Insetto'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa a come si muovono e alle loro caratteristiche.',
+      explanation: 'L\'aquila è un uccello; la trota è un pesce; la farfalla è un insetto.'
+    }
+  },
+
+  // ── Primaria 3ª – 4ª – 5ª (P3, P4, P5) ─────────────────────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sci-p3-4',
+      type: 'quiz',
+      prompt: 'Quale sostanza verde contenuta nelle foglie cattura l\'energia della luce per la fotosintesi?',
+      options: [
+        { label: 'Clorofilla', correct: true },
+        { label: 'Emoglobina', correct: false },
+        { label: 'Melanina', correct: false },
+        { label: 'Cellulosa', correct: false }
+      ],
+      hint: 'Dà alle foglie il loro tipico colore verde.',
+      explanation: 'La clorofilla è il pigmento che assorbe la luce durante la fotosintesi.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sci-p3-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Metti in ordine logico le fasi del ciclo dell\'acqua a partire dall\'evaporazione.',
+      items: ['Evaporazione', 'Condensazione', 'Precipitazione'],
+      hint: 'L\'acqua sale come vapore, forma le nuvole e poi cade come pioggia.',
+      explanation: 'L\'acqua evapora dal mare, si condensa in nuvole e precipita come pioggia o neve.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sci-p3-6',
+      type: 'quiz',
+      prompt: 'In una catena alimentare, come vengono chiamate le piante verdi che producono il proprio nutrimento da sole?',
+      options: [
+        { label: 'Produttori', correct: true },
+        { label: 'Consumatori primari', correct: false },
+        { label: 'Decompositori', correct: false },
+        { label: 'Predatori', correct: false }
+      ],
+      hint: 'Producono la materia organica tramite la fotosintesi.',
+      explanation: 'I vegetali sono i produttori alla base della catena trofica.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sci-p4-4',
+      type: 'quiz',
+      prompt: 'Qual è il pianeta più vicino al Sole nel nostro Sistema Solare?',
+      options: [
+        { label: 'Mercurio', correct: true },
+        { label: 'Venere', correct: false },
+        { label: 'Marte', correct: false },
+        { label: 'Terra', correct: false }
+      ],
+      hint: 'È il primo pianeta roccioso partendo dalla stella centrale.',
+      explanation: 'Mercurio è il pianeta più vicino al Sole.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sci-p4-5',
+      type: 'quiz',
+      prompt: 'Che cosa provoca l\'alternarsi del giorno e della notte sulla Terra?',
+      options: [
+        { label: 'La rotazione della Terra sul proprio asse', correct: true },
+        { label: 'La rivoluzione della Terra attorno al Sole', correct: false },
+        { label: 'Le fasi lunari', correct: false },
+        { label: 'Il movimento del Sole', correct: false }
+      ],
+      hint: 'La Terra compie un giro completo su se stessa in circa 24 ore.',
+      explanation: 'Il moto di rotazione della Terra attorno al proprio asse dura 24 ore e causa l\'alternanza di luce e buio.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sci-p4-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun passaggio di stato dell\'acqua alla sua definizione.',
+      leftItems: ['Fusione', 'Evaporazione', 'Solidificazione'],
+      rightItems: ['Da solido a liquido', 'Da liquido a vapore', 'Da liquido a solido'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa al ghiaccio che si scioglie o all\'acqua che bolle.',
+      explanation: 'Fusione: solido → liquido; Evaporazione: liquido → gas; Solidificazione: liquido → solido.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sci-p5-5',
+      type: 'image',
+      icon: 'cuore',
+      prompt: 'Quale muscolo involontario funge da pompa per far circolare il sangue in tutto il corpo umano?',
+      options: [
+        { label: 'Il cuore', correct: true },
+        { label: 'Il cervello', correct: false },
+        { label: 'Il polmone', correct: false }
+      ],
+      hint: 'Batte nel petto giorno e notte senza mai fermarsi.',
+      explanation: 'Il cuore è la pompa muscolare al centro dell\'apparato circolatorio.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sci-p5-6',
+      type: 'quiz',
+      prompt: 'Quale gas indispensabile alla respirazione degli esseri umani viene rilasciato dalle piante durante la fotosintesi?',
+      options: [
+        { label: 'Ossigeno', correct: true },
+        { label: 'Anidride carbonica', correct: false },
+        { label: 'Azoto', correct: false },
+        { label: 'Metano', correct: false }
+      ],
+      hint: 'La sua formula chimica è O₂.',
+      explanation: 'Durante la fotosintesi clorofilliana le piante assorbono CO₂ e rilasciano ossigeno nell\'aria.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sci-p5-7',
+      type: 'quiz',
+      prompt: 'Qual è lo strato superficiale più fertile del terreno, ricco di sostanze organiche decomposte?',
+      options: [
+        { label: 'L\'humus', correct: true },
+        { label: 'La roccia madre', correct: false },
+        { label: 'La sabbia', correct: false },
+        { label: 'L\'argilla', correct: false }
+      ],
+      hint: 'Ha un colore scuro e nutre le radici delle piante.',
+      explanation: 'L\'humus è lo strato fertile formato dalla decomposizione di foglie e resti organici.'
+    }
+  },
+
+  // ── Secondaria di I grado (S1, S2, S3) ───────────────────────────
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sci-s1-4',
+      type: 'quiz',
+      prompt: 'Quale organulo cellulare è considerato la centrale energetica della cellula perché produce ATP tramite la respirazione cellulare?',
+      options: [
+        { label: 'Il mitocondrio', correct: true },
+        { label: 'Il ribosoma', correct: false },
+        { label: 'Il nucleo', correct: false },
+        { label: 'Il lisosoma', correct: false }
+      ],
+      hint: 'È presente sia nelle cellule animali sia in quelle vegetali per generare energia.',
+      explanation: 'Nei mitocondri avviene la respirazione cellulare con produzione di energia sotto forma di ATP.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sci-s1-5',
+      type: 'quiz',
+      prompt: 'Quale struttura protegge e dà rigidità alla cellula vegetale, ma è assente nelle cellule animali?',
+      options: [
+        { label: 'Parete cellulare', correct: true },
+        { label: 'Membrana plasmatica', correct: false },
+        { label: 'Citoplasma', correct: false },
+        { label: 'Nucleo', correct: false }
+      ],
+      hint: 'È composta principalmente da fibre di cellulosa.',
+      explanation: 'La parete cellulare è esclusiva delle cellule vegetali e fornisce sostegno meccanico.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sci-s1-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun apparato del corpo umano alla sua funzione principale.',
+      leftItems: ['Apparato digerente', 'Apparato respiratorio', 'Sistema nervoso'],
+      rightItems: ['Assimilare i nutrienti dal cibo', 'Scambiare ossigeno e anidride carbonica', 'Trasmettere impulsi elettrici'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Rifletti sui ruoli vitali di stomaco, polmoni e cervello.',
+      explanation: 'Digerente: nutrienti; Respiratorio: gas ossigeno/CO₂; Nervoso: segnali e impulsi.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s2-4',
+      type: 'quiz',
+      prompt: 'Quale scienziato è considerato il padre della genetica grazie ai suoi celebri esperimenti sulle piante di pisello odoroso?',
+      options: [
+        { label: 'Gregor Mendel', correct: true },
+        { label: 'Charles Darwin', correct: false },
+        { label: 'Louis Pasteur', correct: false },
+        { label: 'Galileo Galilei', correct: false }
+      ],
+      hint: 'Formulò le leggi della dominanza e della segregazione dei caratteri.',
+      explanation: 'Gregor Mendel scoprì le leggi fondamentali dell\'ereditarietà genetica.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s2-5',
+      type: 'quiz',
+      prompt: 'Qual è la forma tridimensionale della molecola di DNA scoperta da Watson e Crick?',
+      options: [
+        { label: 'Doppia elica', correct: true },
+        { label: 'Sfera cava', correct: false },
+        { label: 'Piramide a base quadrata', correct: false },
+        { label: 'Anello piatto', correct: false }
+      ],
+      hint: 'Ricorda una scala a pioli avvolta a spirale.',
+      explanation: 'Il DNA (acido desossiribonucleico) è strutturato come una doppia elica di nucleotidi.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s2-6',
+      type: 'quiz',
+      prompt: 'Quale particella subatomica con carica elettrica NEGATIVA ruota attorno al nucleo dell\'atomo?',
+      options: [
+        { label: 'Elettrone', correct: true },
+        { label: 'Protone', correct: false },
+        { label: 'Neutrone', correct: false },
+        { label: 'Fotone', correct: false }
+      ],
+      hint: 'I protoni hanno carica positiva, mentre questa particella ha carica opposta.',
+      explanation: 'L\'elettrone ha carica elettrica negativa (-1) e orbita attorno al nucleo atomico.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s3-5',
+      type: 'quiz',
+      prompt: 'Secondo il principio di Archimede, un corpo immerso in un liquido riceve una spinta dal basso verso l\'alto pari a:',
+      options: [
+        { label: 'Al peso del volume di liquido spostato', correct: true },
+        { label: 'Al doppio del proprio peso', correct: false },
+        { label: 'Alla profondità a cui si trova', correct: false },
+        { label: 'All\'area della superficie del liquido', correct: false }
+      ],
+      hint: 'Spiega perché le navi d\'acciaio galleggiano sull\'acqua.',
+      explanation: 'La spinta idrostatica di Archimede è uguale al peso del fluido spostato dal corpo.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s3-6',
+      type: 'quiz',
+      prompt: 'Quale delle seguenti è una fonte di energia RINNOVABILE che non emette gas serra durante il suo utilizzo?',
+      options: [
+        { label: 'Energia eolica', correct: true },
+        { label: 'Carbone', correct: false },
+        { label: 'Petrolio', correct: false },
+        { label: 'Gas naturale', correct: false }
+      ],
+      hint: 'Sfrutta la forza naturale del vento per far girare le turbine.',
+      explanation: 'Il vento è una fonte inesauribile e pulita di energia rinnovabile.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s3-7',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascuna grandezza fisica alla sua unità di misura nel Sistema Internazionale (SI).',
+      leftItems: ['Massa', 'Forza', 'Tempo'],
+      rightItems: ['Chilogrammo (kg)', 'Newton (N)', 'Secondo (s)'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pensa alle unità standard usate negli esperimenti scientifici.',
+      explanation: 'Massa: chilogrammo (kg); Forza: Newton (N); Tempo: secondo (s).'
+    }
+  }
   ],
 
   storia: [
@@ -1793,5 +2954,393 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
         explanation: 'Il Muro di Berlino fu abbattuto il 9 novembre 1989.'
       }
     }
+,
+
+  // ── Primaria 1ª – 2ª (P1, P2) ─────────────────────────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca le parole che indicano lo scorrere del tempo in ordine cronologico.',
+      items: ['Ieri', 'Oggi', 'Domani'],
+      hint: 'Dal giorno passato a quello presente fino al giorno futuro.',
+      explanation: 'La successione temporale corretta è Ieri (passato), Oggi (presente), Domani (futuro).'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-6',
+      type: 'quiz',
+      prompt: 'Quale tipo di fonte storica è un antico vaso di terracotta ritrovato da un archeologo?',
+      options: [
+        { label: 'Fonte materiale (reperto)', correct: true },
+        { label: 'Fonte orale', correct: false },
+        { label: 'Fonte scritta', correct: false }
+      ],
+      hint: 'È un oggetto concreto che si può toccare con mano.',
+      explanation: 'Gli oggetti, gli strumenti e le costruzioni sono fonti materiali.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-7',
+      type: 'image',
+      icon: 'pergamena',
+      prompt: 'Quale antico supporto di scrittura vedi nell\'immagine?',
+      options: [
+        { label: 'Una pergamena', correct: true },
+        { label: 'Uno scudo', correct: false },
+        { label: 'Una spada', correct: false }
+      ],
+      hint: 'Un rotolo di pelle lavorata usato dagli scribi per scrivere.',
+      explanation: 'L\'icona rappresenta una pergamena arrotolata.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p2-4',
+      type: 'quiz',
+      prompt: 'Chi è lo studioso che scava nel terreno alla ricerca di reperti e resti delle civiltà del passato?',
+      options: [
+        { label: 'L\'archeologo', correct: true },
+        { label: 'L\'astronomo', correct: false },
+        { label: 'Il veterinario', correct: false },
+        { label: 'Il meteorologo', correct: false }
+      ],
+      hint: 'Usa pennelli e palette negli scavi archeologici.',
+      explanation: 'L\'archeologo scopre e studia le testimonianze materiali del passato.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-sto-p2-5',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascuna fonte storica al suo esempio pratico.',
+      leftItems: ['Fonte visiva', 'Fonte scritta', 'Fonte orale'],
+      rightItems: ['Una fotografia d\'epoca', 'Una pagina di diario', 'Il racconto del nonno'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Guarda con gli occhi, leggi con la mente o ascolta con le orecchie.',
+      explanation: 'Fotografia: visiva; Diario: scritta; Racconto: orale.'
+    }
+  },
+  {
+    years: ['P2', 'P3'],
+    round: {
+      id: 'qb-sto-p2-6',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Metti in ordine cronologico i periodi della vita di una persona.',
+      items: ['Infanzia', 'Giovinezza', 'Età adulta', 'Vecchiaia'],
+      hint: 'Dal bambino appena nato all\'anziano saggio.',
+      explanation: 'Le tappe della vita si susseguono: infanzia, giovinezza, età adulta e vecchiaia.'
+    }
+  },
+
+  // ── Primaria 3ª – 4ª – 5ª (P3, P4, P5) ─────────────────────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sto-p3-4',
+      type: 'quiz',
+      prompt: 'Durante il Neolitico gli esseri umani smisero di essere nomadi e divennero sedentari grazie a quale grande scoperta?',
+      options: [
+        { label: 'L\'agricoltura e l\'allevamento', correct: true },
+        { label: 'L\'invenzione della ferrovia', correct: false },
+        { label: 'La scoperta dell\'elettricità', correct: false },
+        { label: 'L\'invenzione della plastica', correct: false }
+      ],
+      hint: 'Coltivando piante e addomesticando animali non serviva più spostarsi continuamente.',
+      explanation: 'Con la nascita dell\'agricoltura nel Neolitico gli uomini costruirono villaggi stabili.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sto-p3-5',
+      type: 'quiz',
+      prompt: 'Quale popolo della Mesopotamia inventò la scrittura cuneiforme incidendo tavolette d\'argilla con uno stilo?',
+      options: [
+        { label: 'I Sumeri', correct: true },
+        { label: 'I Romani', correct: false },
+        { label: 'I Vichinghi', correct: false },
+        { label: 'I Celti', correct: false }
+      ],
+      hint: 'Abitavano tra i fiumi Tigri ed Eufrate nel IV millennio a.C.',
+      explanation: 'I Sumeri inventarono la scrittura cuneiforme intorno al 3200 a.C.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sto-p3-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun popolo dell\'antichità al fiume o mare attorno a cui si è sviluppato.',
+      leftItems: ['Egizi', 'Sumeri', 'Fenici'],
+      rightItems: ['Fiume Nilo', 'Tigri ed Eufrate', 'Mar Mediterraneo'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Ricorda i fiumi delle prime grandi civiltà idrauliche.',
+      explanation: 'Egizi: Nilo; Sumeri: Mesopotamia (Tigri ed Eufrate); Fenici: commerci nel Mediterraneo.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sto-p4-4',
+      type: 'quiz',
+      prompt: 'Quale famosa polis dell\'antica Grecia era celebre per l\'educazione militare fin dall\'infanzia dei suoi cittadini?',
+      options: [
+        { label: 'Sparta', correct: true },
+        { label: 'Atene', correct: false },
+        { label: 'Corinto', correct: false },
+        { label: 'Micene', correct: false }
+      ],
+      hint: 'I suoi guerrieri erano gli opliti spartani, guidati da Leonida alle Termopili.',
+      explanation: 'Sparta basava la propria società sulla disciplina e sull\'addestramento militare.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sto-p4-5',
+      type: 'quiz',
+      prompt: 'Quale forma di governo nata nell\'Atene di Clistene e Pericle significa letteralmente «governo del popolo»?',
+      options: [
+        { label: 'Democrazia', correct: true },
+        { label: 'Oligarchia', correct: false },
+        { label: 'Monarchia', correct: false },
+        { label: 'Tirannia', correct: false }
+      ],
+      hint: 'Dal greco démos (popolo) e krátos (potere).',
+      explanation: 'Ad Atene nacque la democrazia, dove l\'assemblea dei cittadini (Ecclesia) votava le leggi.'
+    }
+  },
+  {
+    years: ['P4', 'P5'],
+    round: {
+      id: 'qb-sto-p4-6',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Ordina le tre grandi fasi politiche della storia dell\'antica Roma.',
+      items: ['Monarchia', 'Repubblica', 'Impero'],
+      hint: 'Dalla fondazione con i sette re fino a Ottaviano Augusto.',
+      explanation: 'Roma fu prima una Monarchia (753-509 a.C.), poi Repubblica, infine Impero (dal 27 a.C.).'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sto-p5-5',
+      type: 'quiz',
+      prompt: 'Chi fu il primo imperatore romano, salito al potere nel 27 a.C. dopo la fine delle guerre civili?',
+      options: [
+        { label: 'Ottaviano Augusto', correct: true },
+        { label: 'Giulio Cesare', correct: false },
+        { label: 'Nerone', correct: false },
+        { label: 'Traiano', correct: false }
+      ],
+      hint: 'Diede il nome al mese di agosto e instaurò la Pax Romana.',
+      explanation: 'Ottaviano Augusto fu il primo imperatore di Roma dal 27 a.C. al 14 d.C.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sto-p5-6',
+      type: 'quiz',
+      prompt: 'Quale straordinaria rete di infrastrutture permise ai Romani di collegare tutte le province dell\'Impero?',
+      options: [
+        { label: 'Le strade lastricate consolari', correct: true },
+        { label: 'Le ferrovie a vapore', correct: false },
+        { label: 'I canali sottomarini', correct: false },
+        { label: 'Le teleferiche', correct: false }
+      ],
+      hint: 'Da qui deriva il detto: «Tutte le strade portano a Roma».',
+      explanation: 'I Romani costruirono oltre 80.000 km di strade consolari come la Via Appia.'
+    }
+  },
+  {
+    years: ['P5', 'S1'],
+    round: {
+      id: 'qb-sto-p5-7',
+      type: 'quiz',
+      prompt: 'Quale evento segna convenzionalmente per gli storici la fine dell\'Età Antica e l\'inizio del Medioevo?',
+      options: [
+        { label: 'La caduta dell\'Impero Romano d\'Occidente (476 d.C.)', correct: true },
+        { label: 'La scoperta dell\'America (1492)', correct: false },
+        { label: 'La Rivoluzione Francese (1789)', correct: false },
+        { label: 'La nascita di Roma (753 a.C.)', correct: false }
+      ],
+      hint: 'Avvenne nel 476 d.C. quando Odoacre depose l\'ultimo imperatore Romolo Augustolo.',
+      explanation: 'Nel 476 d.C. cadde l\'Impero Romano d\'Occidente, dando inizio al Medioevo.'
+    }
+  },
+
+  // ── Secondaria di I grado (S1, S2, S3) ───────────────────────────
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sto-s1-4',
+      type: 'quiz',
+      prompt: 'Nella notte di Natale dell\'anno 800, chi fu incoronato a Roma imperatore del Sacro Romano Impero da Papa Leone III?',
+      options: [
+        { label: 'Carlo Magno', correct: true },
+        { label: 'Federico Barbarossa', correct: false },
+        { label: 'Giustiniano', correct: false },
+        { label: 'Ottone I', correct: false }
+      ],
+      hint: 'Re dei Franchi, celebre per la rinascita carolingia.',
+      explanation: 'Carlo Magno fu incoronato la notte di Natale dell\'800 nella Basilica di San Pietro.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sto-s1-5',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun ordine della società feudale medievale al suo ruolo.',
+      leftItems: ['Oratores', 'Bellatores', 'Laboratores'],
+      rightItems: [
+        'Coloro che pregano (clero)',
+        'Coloro che combattono (nobili cavalieri)',
+        'Coloro che lavorano (contadini e artigiani)'
+      ],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'La tripartizione sociale ideata dai pensatori medievali.',
+      explanation: 'Oratores: preghiera; Bellatores: difesa e guerra; Laboratores: lavoro della terra.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sto-s1-6',
+      type: 'quiz',
+      prompt: 'Quali erano le quattro celebri Repubbliche Marinare italiane che dominarono i commerci nel Mediterraneo medievale?',
+      options: [
+        { label: 'Amalfi, Genova, Pisa e Venezia', correct: true },
+        { label: 'Roma, Milano, Napoli e Torino', correct: false },
+        { label: 'Firenze, Siena, Lucca e Bologna', correct: false },
+        { label: 'Palermo, Cagliari, Bari e Trieste', correct: false }
+      ],
+      hint: 'I loro stemmi compaiono ancora oggi nella bandiera della Marina Militare italiana.',
+      explanation: 'Le quattro Repubbliche Marinare erano Amalfi, Genova, Pisa e Venezia.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s2-4',
+      type: 'quiz',
+      prompt: 'In quale anno Cristoforo Colombo approdò nelle isole delle Bahamas, evento che segna l\'inizio dell\'Età Moderna?',
+      options: [
+        { label: '1492', correct: true },
+        { label: '1517', correct: false },
+        { label: '1348', correct: false },
+        { label: '1789', correct: false }
+      ],
+      hint: 'Nel XV secolo, finanziato dai sovrani cattolici di Spagna Ferdinando e Isabella.',
+      explanation: 'Il 12 ottobre 1492 Cristoforo Colombo sbarcò in America.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s2-5',
+      type: 'quiz',
+      prompt: 'Quale monaco tedesco diede avvio alla Riforma Protestante nel 1517 affiggendo 95 tesi a Wittenberg contro la vendita delle indulgenze?',
+      options: [
+        { label: 'Martin Lutero', correct: true },
+        { label: 'Giovanni Calvino', correct: false },
+        { label: 'Erasmo da Rotterdam', correct: false },
+        { label: 'Tommaso Moro', correct: false }
+      ],
+      hint: 'Tradusse la Bibbia in tedesco per renderla accessibile al popolo.',
+      explanation: 'Martin Lutero avviò la Riforma Protestante nel 1517.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s2-6',
+      type: 'quiz',
+      prompt: 'Quale celebre evento del 14 luglio 1789 a Parigi segnò l\'inizio della Rivoluzione Francese?',
+      options: [
+        { label: 'La presa della Bastiglia', correct: true },
+        { label: 'La battaglia di Waterloo', correct: false },
+        { label: 'L\'esecuzione di Napoleone', correct: false },
+        { label: 'Il Congresso di Vienna', correct: false }
+      ],
+      hint: 'I cittadini assalirono l\'antica fortezza-prigione simbolo dell\'assolutismo monarchico.',
+      explanation: 'La presa della Bastiglia il 14 luglio 1789 diede inizio alla Rivoluzione Francese.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s3-5',
+      type: 'quiz',
+      prompt: 'In quale anno venne proclamato a Torino il Regno d\'Italia unito sotto la corona di Vittorio Emanuele II?',
+      options: [
+        { label: '1861', correct: true },
+        { label: '1848', correct: false },
+        { label: '1870', correct: false },
+        { label: '1915', correct: false }
+      ],
+      hint: 'Il 17 marzo, al termine della Spedizione dei Mille guidata da Giuseppe Garibaldi.',
+      explanation: 'Il 17 marzo 1861 il Parlamento di Torino proclamò il Regno d\'Italia.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s3-6',
+      type: 'quiz',
+      prompt: 'Quale data si celebra ogni anno in Italia come Festa della Liberazione dal nazifascismo al termine della Seconda Guerra Mondiale?',
+      options: [
+        { label: '25 Aprile', correct: true },
+        { label: '2 Giugno', correct: false },
+        { label: '1 Maggio', correct: false },
+        { label: '4 Novembre', correct: false }
+      ],
+      hint: 'Nel 1945 il Comitato di Liberazione Nazionale proclamò l\'insurrezione generale.',
+      explanation: 'Il 25 Aprile 1945 è la ricorrenza nazionale della Liberazione d\'Italia.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s3-7',
+      type: 'quiz',
+      prompt: 'Il 2 giugno 1946 gli italiani e per la prima volta anche le donne votarono al referendum istituzionale per scegliere tra:',
+      options: [
+        { label: 'Monarchia e Repubblica', correct: true },
+        { label: 'Guerra e Pace', correct: false },
+        { label: 'Alleanza e Neutralità', correct: false },
+        { label: 'Presidenzialismo e Federalismo', correct: false }
+      ],
+      hint: 'Vinse la Repubblica e nacque l\'attuale forma di Stato italiana.',
+      explanation: 'Il 2 giugno 1946 il popolo italiano scelse la Repubblica con suffragio universale.'
+    }
+  }
   ]
 };
