@@ -192,6 +192,56 @@ describe('validatore contenuti', () => {
     }
   });
 
+  it('verifica copertura e coerenza della banca domande per tutti gli anni scolastici (P1..S3)', () => {
+    const anni: ('P1' | 'P2' | 'P3' | 'P4' | 'P5' | 'S1' | 'S2' | 'S3')[] = ['P1', 'P2', 'P3', 'P4', 'P5', 'S1', 'S2', 'S3'];
+    const materie = ['matematica', 'italiano', 'scienze', 'storia'];
+
+    for (const m of materie) {
+      const banca = BANCA_DOMANDE[m] ?? [];
+      for (const a of anni) {
+        const perAnno = banca.filter((t) => t.years.includes(a));
+        const quiz = perAnno.filter((t) => t.round.type === 'quiz' || t.round.type === 'image');
+        // Deve esserci un numero sufficiente di quesiti
+        expect(perAnno.length, `${m} anno ${a} ha ${perAnno.length} domande`).toBeGreaterThanOrEqual(5);
+        expect(quiz.length, `${m} anno ${a} ha ${quiz.length} quiz`).toBeGreaterThanOrEqual(4);
+      }
+    }
+  });
+
+  it('garantisce la rigorosa coerenza dei quesiti in base all\'anno scolastico scelto (né più semplici, né più complessi)', () => {
+    const mat = EMBEDDED_PACKS.find((p) => p.subject === 'matematica')!;
+    const sto = EMBEDDED_PACKS.find((p) => p.subject === 'storia')!;
+
+    // Test S3 (Terza Media): MAI quesiti elementari di prima o seconda primaria
+    const s3Mat = selectRoundsForGame(mat, mat.levels[0], {
+      profileId: null,
+      overrides: {},
+      schoolYear: 'S3',
+      randomQuestions: true
+    });
+    expect(s3Mat).toHaveLength(6);
+    // Nessun ID da prima primaria o calcoli di base tipo 7+5 (mat-1)
+    for (const r of s3Mat) {
+      expect(r.id).not.toBe('mat-1');
+      expect(r.id).not.toBe('mat-2');
+      expect(r.id).not.toBe('mat-3');
+      expect(r.id).not.toBe('mat-4');
+    }
+
+    // Test P1 (Prima Elementare): MAI quesiti avanzati di scuola media
+    const p1Sto = selectRoundsForGame(sto, sto.levels[2], {
+      profileId: null,
+      overrides: {},
+      schoolYear: 'P1',
+      randomQuestions: true
+    });
+    expect(p1Sto).toHaveLength(6);
+    for (const r of p1Sto) {
+      expect(r.id).not.toBe('sto-l3-1');
+      expect(r.id).not.toBe('sto-l3-2');
+    }
+  });
+
   it('selectRoundsForGame estrae 6 prove in modo casuale e varia tra partite successive', () => {
     const mat = EMBEDDED_PACKS.find((p) => p.subject === 'matematica')!;
     const lv = mat.levels[0];

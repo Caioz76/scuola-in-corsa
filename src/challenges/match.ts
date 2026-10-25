@@ -53,6 +53,7 @@ export class MatchChallenge implements Challenge {
 
   private n: number;
   private ys: number[];
+  private leftOrder: number[]; // leftOrder[riga] = indice in leftItems
   private rightOrder: number[]; // rightOrder[riga] = indice in rightItems
 
   private leftChips: Chip[] = [];
@@ -88,15 +89,12 @@ export class MatchChallenge implements Challenge {
 
     const left = round.leftItems ?? [];
     const right = round.rightItems ?? [];
-    const pairs = round.pairs ?? [];
     this.n = left.length;
     this.ys = rowsY(this.n);
-    // colonna destra mescolata (ma NON identica all'ordine, se possibile)
-    let order = shuffle(right.map((_, i) => i));
-    if (this.n > 1 && order.every((v, i) => v === i)) {
-      order = [...order.slice(1), order[0]];
-    }
-    this.rightOrder = order;
+    // Mescoliamo sia la colonna di sinistra che quella di destra in modo indipendente,
+    // così gli incroci e le posizioni degli abbinamenti cambiano ad ogni partita.
+    this.leftOrder = shuffle(left.map((_, i) => i));
+    this.rightOrder = shuffle(right.map((_, i) => i));
 
     // ── Prompt / hint / istruzione ──
     const promptX = cfg.repeatPrompt ? cx - 62 : cx;
@@ -125,7 +123,8 @@ export class MatchChallenge implements Challenge {
     // ── Colonne ──
     const chipH = this.n >= 4 ? 64 : 76;
     for (let i = 0; i < this.n; i++) {
-      const lc = makeChip(scene, cfg, this.leftX, this.ys[i], left[i], {
+      const origLeftIdx = this.leftOrder[i];
+      const lc = makeChip(scene, cfg, this.leftX, this.ys[i], left[origLeftIdx], {
         w: CHIP_W,
         h: chipH,
         size: 18,
@@ -134,7 +133,8 @@ export class MatchChallenge implements Challenge {
       lc.onTap(() => this.onTap('L', i));
       this.leftChips.push(lc);
 
-      const rc = makeChip(scene, cfg, this.rightX, this.ys[i], right[this.rightOrder[i]], {
+      const origRightIdx = this.rightOrder[i];
+      const rc = makeChip(scene, cfg, this.rightX, this.ys[i], right[origRightIdx], {
         w: CHIP_W,
         h: chipH,
         size: 18,
@@ -211,8 +211,11 @@ export class MatchChallenge implements Challenge {
   }
 
   private evaluate(L: number, R: number, chipL: Chip, chipR: Chip): void {
-    // pairs[L] = [L, idx giusto in rightItems]; la riga R contiene rightOrder[R]
-    const correct = (this.round.pairs ?? [])[L]?.[1] === this.rightOrder[R];
+    // pairs associa [indiceLeft, indiceRight].
+    // La riga sinistra L visualizza leftItems[leftOrder[L]], la riga destra R visualizza rightItems[rightOrder[R]].
+    const origLeftIdx = this.leftOrder[L];
+    const pair = (this.round.pairs ?? []).find((p) => p[0] === origLeftIdx);
+    const correct = pair !== undefined && pair[1] === this.rightOrder[R];
 
     if (correct) {
       chipL.setSelected(false);
@@ -270,7 +273,10 @@ export class MatchChallenge implements Challenge {
     this.clearTimers();
     const pairs = this.round.pairs ?? [];
     for (let L = 0; L < this.n; L++) {
-      const want = pairs[L]?.[1];
+      const origLeftIdx = this.leftOrder[L];
+      const pair = pairs.find((p) => p[0] === origLeftIdx);
+      if (!pair) continue;
+      const want = pair[1];
       const R = this.rightOrder.findIndex((v) => v === want);
       if (R === -1) continue;
       this.drawLine(L, R);

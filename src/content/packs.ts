@@ -897,6 +897,25 @@ export function defaultLevelForYear(pack: Pack, year?: AnnoScolastico): Level {
   return pack.levels[0];
 }
 
+const LEVEL_YEARS_COMPATIBILITY: Record<string, AnnoScolastico[]> = {
+  // Matematica
+  'mat-7-9-l1': ['P1', 'P2', 'P3'],
+  'mat-7-9-l2': ['P3', 'P4'],
+  'mat-7-9-l3': ['P4', 'P5'],
+  // Italiano
+  'ita-8-10-l1': ['P2', 'P3'],
+  'ita-8-10-l2': ['P3', 'P4'],
+  'ita-8-10-l3': ['P4', 'P5'],
+  // Scienze
+  'sci-8-10-l1': ['P2', 'P3'],
+  'sci-8-10-l2': ['P3', 'P4'],
+  'sci-8-10-l3': ['P4', 'P5'],
+  // Storia
+  'sto-10-12-l1': ['P4', 'P5'],
+  'sto-10-12-l2': ['P5', 'S1'],
+  'sto-10-12-l3': ['S1', 'S2']
+};
+
 let ultimiRoundIds = new Set<string>();
 let proveAttive: Round[] = [];
 
@@ -907,34 +926,40 @@ export function getActiveRounds(): Round[] {
 
 /**
  * Seleziona le 6 prove per la partita:
- * - se `settings.randomQuestions === false`, mantiene le prove originali della tappa;
- * - altrimenti unisce le prove della tappa al bacino dell'anno scolastico attivo
- *   (`BANCA_DOMANDE`), evita per quanto possibile le prove appena giocate e
- *   mescola l'ordine (tenendo 4 prove a scelta prima e 2 interattive in coda,
- *   così il Runner inizia sempre con i varchi di corsa).
+ * - garantisce la STRETTA coerenza con l'anno scolastico attivo (`settings.schoolYear`):
+ *   i quesiti sono rigorosamente calibrati per l'anno dell'alunno (né più semplici, né più complessi);
+ * - include i quesiti originali della tappa solo se compatibili con il grado dell'alunno;
+ * - mescola le domande evitando quelle appena viste e bilanciando scelte multiple e prove interattive.
  */
 export function selectRoundsForGame(
   pack: Pack,
   level: Level,
   settings: BesSettings
 ): Round[] {
-  if (settings.randomQuestions === false) {
-    proveAttive = level.rounds.slice(0, 6);
-    return proveAttive;
-  }
-
   const anno = normalizzaAnno(settings.schoolYear);
+  const compatibili = LEVEL_YEARS_COMPATIBILITY[level.id]?.includes(anno) ?? false;
+
   const extra = (BANCA_DOMANDE[pack.subject] ?? [])
     .filter((t) => t.years.includes(anno))
     .map((t) => t.round);
 
-  // Unisce le prove della tappa con quelle dell'anno scolastico senza duplicare ID
+  if (settings.randomQuestions === false) {
+    if (compatibili && level.rounds.length >= 6) {
+      proveAttive = level.rounds.slice(0, 6);
+    } else {
+      proveAttive = (extra.length >= 6 ? extra : level.rounds).slice(0, 6);
+    }
+    return proveAttive;
+  }
+
+  // Costruisce il bacino: SOLO quesiti rigorosamente coerenti con l'anno scolastico selezionato.
+  // I quesiti della tappa vengono uniti soltanto se adatti all'anno scolastico dell'alunno.
   const mappa = new Map<string, Round>();
-  // Per la Secondaria (S1..S3) o Primaria 1ª–2ª (P1..P2), diamo priorità ai quesiti
-  // calibrati sull'anno scolastico, affiancati da quelli della tappa.
   for (const r of extra) mappa.set(r.id, r);
-  for (const r of level.rounds) {
-    if (!mappa.has(r.id)) mappa.set(r.id, r);
+  if (compatibili) {
+    for (const r of level.rounds) {
+      if (!mappa.has(r.id)) mappa.set(r.id, r);
+    }
   }
 
   const tutti = Array.from(mappa.values());

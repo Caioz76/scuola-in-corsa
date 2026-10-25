@@ -856,6 +856,55 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'Pensa alle formule standard di calcolo delle superfici piane.',
       explanation: 'Area quadrato: l²; Area rettangolo: b × h; Area triangolo: (b × h) : 2.'
     }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-mat-s1-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni potenza al suo risultato corretto.',
+      leftItems: ['2³', '3²', '10²', '5²'],
+      rightItems: ['8', '9', '100', '25'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 3]
+      ],
+      hint: 'Moltiplica la base per se stessa: 2×2×2, 3×3, 10×10, 5×5.',
+      explanation: '2³ = 8, 3² = 9, 10² = 100, 5² = 25.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-mat-s1-s1',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Metti in ordine crescente i numeri relativi (dal più piccolo al più grande).',
+      sortItems: ['−8', '−2', '0', '+3', '+7'],
+      hint: 'I numeri negativi più lontani dallo zero sono i più piccoli.',
+      explanation: 'L\'ordine corretto è −8, −2, 0, +3, +7.'
+    }
+  },
+  {
+    years: ['S3'],
+    round: {
+      id: 'qb-mat-s3-m2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascuna espressione algebrica o teorema alla sua formula.',
+      leftItems: ['Teorema di Pitagora', 'Area del cerchio', 'Quadrato di binomio'],
+      rightItems: ['c² = a² + b²', 'π × r²', 'a² + 2ab + b²'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Pitagora calcola il quadrato dell\'ipotenusa; l\'area del cerchio usa pi greco.',
+      explanation: 'Pitagora: c² = a² + b²; Cerchio: πr²; Quadrato di binomio: a² + 2ab + b².'
+    }
   }
   ],
 
@@ -1681,6 +1730,60 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       ],
       hint: 'Pensa a parole come biologia, cronometro, geografia.',
       explanation: 'Bio = vita; Crono = tempo; Geo = terra.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-ita-s1-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni complemento alla domanda a cui risponde.',
+      leftItems: ['Specificazione', 'Termine', 'Luogo'],
+      rightItems: ['Di chi? Di che cosa?', 'A chi? A che cosa?', 'Dove? Verso dove?'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Il complemento di termine risponde ad «a chi?».',
+      explanation: 'Specificazione: di chi/cosa; Termine: a chi/cosa; Luogo: dove.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s2-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni figura retorica al suo esempio poetico.',
+      leftItems: ['Similitudine', 'Metafora', 'Personificazione'],
+      rightItems: ['Veloce come un lampo', 'Quel ragazzo è un leone', 'Il vento sussurra'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'La similitudine usa «come»; la metafora identifica direttamente; la personificazione dà sentimenti a cose.',
+      explanation: 'Similitudine usa «come»; metafora è un paragone senza «come»; personificazione attribuisce sentimenti o azioni a cose.'
+    }
+  },
+  {
+    years: ['S3'],
+    round: {
+      id: 'qb-ita-s3-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni proposizione subordinata al suo tipo.',
+      leftItems: ['Causale', 'Temporale', 'Finale'],
+      rightItems: ['Perché pioveva', 'Mentre camminavo', 'Per superare la prova'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Causale indica il motivo; temporale indica il tempo; finale indica lo scopo.',
+      explanation: 'Causale esprime la causa, temporale il tempo, finale lo scopo.'
     }
   }
   ],
@@ -2514,6 +2617,60 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'Pensa alle unità standard usate negli esperimenti scientifici.',
       explanation: 'Massa: chilogrammo (kg); Forza: Newton (N); Tempo: secondo (s).'
     }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni senso al suo organo corrispondente.',
+      leftItems: ['Vista', 'Udito', 'Olfatto'],
+      rightItems: ['Occhi', 'Orecchie', 'Naso'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Con gli occhi guardiamo, con le orecchie ascoltiamo, con il naso annusiamo.',
+      explanation: 'Occhi = vista, orecchie = udito, naso = olfatto.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sci-s1-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun organulo della cellula alla sua funzione vitale.',
+      leftItems: ['Nucleo', 'Mitocondrio', 'Cloroplasto'],
+      rightItems: ['Custodisce il DNA', 'Produce energia chimica', 'Fotosintesi (nelle piante)'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Il nucleo contiene il genoma, il mitocondrio compie la respirazione cellulare.',
+      explanation: 'Nucleo: DNA; Mitocondrio: energia; Cloroplasto: fotosintesi.'
+    }
+  },
+  {
+    years: ['S3'],
+    round: {
+      id: 'qb-sci-s3-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun concetto di biologia e fisica alla sua definizione.',
+      leftItems: ['DNA', 'Gene', 'Ampere'],
+      rightItems: ['Doppia elica ereditaria', 'Tratto di DNA per un carattere', 'Unità di misura corrente elettrica'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Il DNA custodisce l\'informazione genetica; l\'Ampere misura l\'intensità di corrente.',
+      explanation: 'DNA: molecola ereditaria; Gene: singola istruzione; Ampere: corrente elettrica.'
+    }
   }
   ],
 
@@ -3340,6 +3497,54 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       ],
       hint: 'Vinse la Repubblica e nacque l\'attuale forma di Stato italiana.',
       explanation: 'Il 2 giugno 1946 il popolo italiano scelse la Repubblica con suffragio universale.'
+    }
+  },
+  {
+    years: ['S1', 'S2'],
+    round: {
+      id: 'qb-sto-s1-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascuna figura o istituzione medievale al suo significato storico.',
+      leftItems: ['Sacro Romano Impero', 'Monaci amanuensi', 'I Feudi'],
+      rightItems: ['Incoronazione di Carlo Magno (800 d.C.)', 'Copiavano a mano i codici antichi', 'Terre concesse dal sovrano ai vassalli'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: 'Carlo Magno unificò gran parte d\'Europa nell\'800 d.C.',
+      explanation: 'Sacro Romano Impero = Carlo Magno; Amanuensi = salvaguardia della cultura; Feudi = terre dei vassalli.'
+    }
+  },
+  {
+    years: ['S3'],
+    round: {
+      id: 'qb-sto-s3-m1',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun grande evento storico dell\'età contemporanea al suo anno.',
+      leftItems: ['Rivoluzione Francese', 'Unità d\'Italia', 'Nascita della Repubblica'],
+      rightItems: ['1789', '1861', '1946'],
+      pairs: [
+        [0, 0],
+        [1, 1],
+        [2, 2]
+      ],
+      hint: '1789: Presa della Bastiglia; 1861: Regno d\'Italia; 1946: referendum istituzionale.',
+      explanation: '1789: Rivoluzione Francese; 1861: Unità d\'Italia; 1946: Nascita della Repubblica.'
+    }
+  },
+  {
+    years: ['S3'],
+    round: {
+      id: 'qb-sto-s3-s1',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Metti in ordine cronologico questi eventi storici del Novecento.',
+      sortItems: ['1914: Inizio 1ª Guerra Mondiale', '1939: Inizio 2ª Guerra Mondiale', '1946: Referendum Repubblica', '1948: Entrata in vigore Costituzione'],
+      hint: 'La prima guerra mondiale precede la seconda; la Costituzione è entrata in vigore nel 1948.',
+      explanation: '1914 (1ª Guerra) → 1939 (2ª Guerra) → 1946 (Repubblica) → 1948 (Costituzione).'
     }
   }
   ]
