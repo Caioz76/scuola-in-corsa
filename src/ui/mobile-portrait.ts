@@ -263,7 +263,13 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
     card.appendChild(pill);
   }
 
-  const btnPlayer = items.find((i) => i.label().includes('👤'));
+  const btnPlayer = items.find(
+    (i) =>
+      i.label().includes('Giocatore') ||
+      i.label().includes('👥') ||
+      i.label().includes('🦊') ||
+      i.label().includes('👤')
+  );
   if (btnPlayer) {
     card.appendChild(creaBtnDom(btnPlayer, 'm-btn-secondary'));
   }
@@ -275,11 +281,16 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
 
   const row = document.createElement('div');
   row.className = 'm-grid-2';
-  const imp = items.find((i) => i.label() === 'Impostazioni');
-  const prog = items.find((i) => i.label() === 'Progressi');
+  const imp = items.find((i) => i.label() === 'Configura' || i.label() === 'Impostazioni');
+  const prog = items.find((i) => i.label() === 'Progressi' || i.label().includes('Progressi'));
   if (imp) row.appendChild(creaBtnDom(imp, 'm-btn-secondary'));
   if (prog) row.appendChild(creaBtnDom(prog, 'm-btn-secondary'));
   card.appendChild(row);
+
+  const musica = items.find((i) => i.label().includes('Musica'));
+  if (musica) {
+    card.appendChild(creaBtnDom(musica, 'm-btn-secondary'));
+  }
 
   const fsBtn = document.createElement('button');
   fsBtn.type = 'button';
@@ -328,9 +339,10 @@ function renderSubject(
     Storia: '🏛️ '
   };
 
+  const SUBJECT_NAMES = ['Matematica', 'Italiano', 'Scienze', 'Storia'];
   const grid = document.createElement('div');
   grid.className = 'm-grid-2';
-  const materie = items.filter((i) => i.label() !== 'Tutte le tappe');
+  const materie = items.filter((i) => SUBJECT_NAMES.includes(i.label()));
   materie.forEach((m) => {
     const b = creaBtnDom(m, 'm-btn-subject');
     const starTxt = testi.find(
@@ -352,7 +364,7 @@ function renderSubject(
   const homeBtn = document.createElement('button');
   homeBtn.type = 'button';
   homeBtn.className = 'm-btn m-btn-secondary';
-  homeBtn.textContent = 'Torna al titolo';
+  homeBtn.textContent = 'Torna al menu';
   homeBtn.addEventListener('click', (ev) => {
     ev.preventDefault();
     scena?.scene.start('Title');
@@ -415,7 +427,7 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   if (page === 'radice') {
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Impostazioni';
+    h.textContent = 'Configura';
     card.appendChild(h);
 
     const sub = document.createElement('p');
@@ -539,6 +551,15 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
       list.appendChild(b);
     });
     card.appendChild(list);
+
+    // Navigazione inferiore duplicata per non obbligare a risalire tutta la lista
+    const bNav = document.createElement('div');
+    bNav.className = 'm-grid-2';
+    bNav.style.marginTop = '12px';
+    if (indietro) bNav.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+    if (titolo) bNav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
+    card.appendChild(bNav);
+
     deck.appendChild(card);
     return;
   }
@@ -701,6 +722,23 @@ function renderProgress(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   h.textContent = 'Progressi e stelle';
   card.appendChild(h);
 
+  const indietro = items.find((i) => i.label() === 'Torna al titolo' || i.label() === 'Torna al menu');
+
+  // Pulsante Esci/Torna in ALTO per massima accessibilità immediata su mobile
+  const topNav = document.createElement('div');
+  topNav.style.margin = '4px 0 8px 0';
+  const topBtn = document.createElement('button');
+  topBtn.type = 'button';
+  topBtn.className = 'm-btn m-btn-secondary';
+  topBtn.textContent = '← Torna al Menu Principale';
+  topBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (indietro) indietro.trigger();
+    else window.location.reload();
+  });
+  topNav.appendChild(topBtn);
+  card.appendChild(topNav);
+
   const tot = testi.find((t) => t.text.startsWith('Totale:'));
   const ult = testi.find((t) => t.text.startsWith('Ultima partita:'));
   if (tot || ult) {
@@ -724,7 +762,7 @@ function renderProgress(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(list);
 
-  const indietro = items.find((i) => i.label() === 'Torna al titolo');
+  // Pulsante Esci duplicato anche a fondo lista
   if (indietro) card.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
 
   deck.appendChild(card);

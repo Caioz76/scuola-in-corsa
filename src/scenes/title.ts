@@ -3,12 +3,11 @@ import { GAME_NAME } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { getPlayerName, openNameDialog } from '../core/player';
+import { getPlayerSummary, openPlayerSelectionDialog } from '../core/player';
 import { addWorld } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { toggleFullscreen } from '../ui/fullscreen';
-
-let promptInizialeEseguito = false;
+import { synth } from '../audio/synth';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -163,7 +162,6 @@ export class TitleScene extends Phaser.Scene {
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
     const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
     const graficaLabel = (settings.graphics === '3d' ? '3D' : '2D');
-    const playerName = getPlayerName();
 
     makeText(
       this,
@@ -180,81 +178,81 @@ export class TitleScene extends Phaser.Scene {
       }
     );
 
-    // Badge / Tasto Giocatore per inserire o modificare il nome
-    const btnGiocatore = makeButton(
+    // ── Selezione Squadra / Personaggi Monopoli (1..4 Giocatori) ──
+    const btnGiocatori = makeButton(
       this,
       cfg,
       w / 2,
-      274,
-      playerName ? `👤 Giocatore: ${playerName} (✏️)` : '👤 Inserisci il tuo nome per iniziare',
+      266,
+      getPlayerSummary(),
       {
-        scale: 0.58,
+        scale: 0.65,
         maxTargetScale: 1.03,
-        depth: 10
+        depth: 50
       }
     );
-    btnGiocatore.setKind(playerName ? 'selected' : 'unselected');
+    btnGiocatori.setKind('selected');
 
-    const aggiornaProfiloUI = (nome: string) => {
-      btnGiocatore.setLabel(nome ? `👤 Giocatore: ${nome} (✏️)` : '👤 Inserisci il tuo nome per iniziare');
-      btnGiocatore.setKind(nome ? 'selected' : 'unselected');
+    const aggiornaProfiloUI = () => {
+      btnGiocatori.setLabel(getPlayerSummary());
+      btnGiocatori.setKind('selected');
     };
 
-    btnGiocatore.onTap(() => {
-      openNameDialog((nome) => {
-        aggiornaProfiloUI(nome);
+    btnGiocatori.onTap(() => {
+      openPlayerSelectionDialog(() => {
+        aggiornaProfiloUI();
       });
     });
 
-    const gioca = makeButton(this, cfg, w / 2, 356, 'Gioca', {
-      scale: 1.05,
-      maxTargetScale: 1.08,
-      depth: 10
+    // ── 1. Scelta Principale: GIOCA ──
+    const gioca = makeButton(this, cfg, w / 2, 336, 'Gioca', {
+      scale: 1.02,
+      maxTargetScale: 1.06,
+      depth: 50
     });
     gioca.onTap(() => {
-      if (!getPlayerName()) {
-        openNameDialog((_nome) => {
-          this.scene.start('Subject');
-        });
-      } else {
-        this.scene.start('Subject');
-      }
+      this.scene.start('Subject');
     });
 
-    // All'apertura del gioco, se non è ancora stato inserito un nome,
-    // offre subito la possibilità di inserirlo una sola volta all'avvio.
-    if (!playerName && !promptInizialeEseguito) {
-      promptInizialeEseguito = true;
-      try {
-        sessionStorage.setItem('sic.name_prompted', '1');
-      } catch {
-        // sessionStorage non disponibile
-      }
-      this.time.delayedCall(350, () => {
-        openNameDialog((nome) => {
-          aggiornaProfiloUI(nome);
-        });
-      });
-    }
-
-    const impostazioni = makeButton(this, cfg, w / 2, 442, 'Impostazioni', {
-      scale: 0.64,
-      maxTargetScale: 1.05,
-      depth: 10
+    // ── 2. Scelta Principale: CONFIGURA (precedentemente Impostazioni) ──
+    const configura = makeButton(this, cfg, w / 2, 408, 'Configura', {
+      scale: 0.68,
+      maxTargetScale: 1.04,
+      depth: 50
     });
-    impostazioni.onTap(() => this.scene.start('Settings'));
+    configura.onTap(() => this.scene.start('Settings'));
 
-    const progressi = makeButton(this, cfg, 899, 38, 'Progressi', {
-      scale: 0.52,
-      maxTargetScale: 1.05,
-      depth: 10
+    // ── 3. Progressi e Stelle ──
+    const progressi = makeButton(this, cfg, w / 2, 468, '🏆 Progressi e Stelle', {
+      scale: 0.54,
+      maxTargetScale: 1.03,
+      depth: 50
     });
     progressi.onTap(() => this.scene.start('Progress'));
 
+    // ── Musica 8-Bit (Anni '80 Arcade) ON / OFF ──
+    const btnMusica = makeButton(
+      this,
+      cfg,
+      892,
+      38,
+      synth.musicActive ? '🎵 Musica: ON' : '🔇 Musica: OFF',
+      {
+        scale: 0.52,
+        maxTargetScale: 1.04,
+        depth: 50
+      }
+    );
+    btnMusica.onTap(() => {
+      const active = synth.toggleMusic();
+      btnMusica.setLabel(active ? '🎵 Musica: ON' : '🔇 Musica: OFF');
+    });
+
+    // ── Schermo Intero ──
     const schermoIntero = makeButton(this, cfg, 125, 38, 'Schermo intero', {
       scale: 0.52,
       maxTargetScale: 1.05,
-      depth: 10
+      depth: 50
     });
     schermoIntero.onTap(() => {
       toggleFullscreen().catch(() => undefined);

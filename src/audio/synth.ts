@@ -150,12 +150,17 @@ class SynthEngine {
     }
   }
 
-  // ── Musica di sottofondo: accordi morbidi in loop (C–G–Am–F) ──────────
-  private chords: [number, number, number][] = [
-    [261.63, 329.63, 392.0],   // C
-    [196.0, 246.94, 293.66],   // G
-    [220.0, 261.63, 329.63],   // Am
-    [174.61, 220.0, 261.63]    // F
+  // ── Musica di sottofondo: autentico Chiptune 8-Bit Anni '80 Arcade ──────────
+  private chiptuneMelody = [
+    523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 783.99, 1046.5,
+    880.0, 1046.5, 1318.51, 1046.5, 880.0, 783.99, 659.25, 523.25,
+    659.25, 783.99, 880.0, 1046.5, 1174.66, 1046.5, 880.0, 783.99,
+    1046.5, 1174.66, 1318.51, 1567.98, 1318.51, 1046.5, 880.0, 783.99
+  ];
+
+  private chiptuneBass = [
+    130.81, 130.81, 196.0, 196.0, 220.0, 220.0, 174.61, 196.0,
+    130.81, 130.81, 196.0, 196.0, 220.0, 220.0, 174.61, 196.0
   ];
 
   startMusic(): void {
@@ -165,37 +170,53 @@ class SynthEngine {
     // partirebbero tutte insieme al resume.
     if (!ctx || ctx.state !== 'running' || this.musicTimer !== null) return;
     this.musicStep = 0;
-    this.nextNoteTime = ctx.currentTime + 0.15;
-    this.musicTimer = window.setInterval(() => this.schedule(), 120);
+    this.nextNoteTime = ctx.currentTime + 0.12;
+    this.musicTimer = window.setInterval(() => this.schedule(), 90);
   }
 
   private schedule(): void {
     const ctx = this.ctx;
     const mg = this.musicGain;
-    if (!ctx || !mg) return;
-    const stepDur = 0.34;
-    // Se la scheda è stata in background il timer è stato rallentato: senza
-    // riallineamento si programmerebbero note nel passato (e Web Audio le
-    // rifiuta). Ripartiamo da adesso, senza raffiche.
+    if (!ctx || !mg || !this.musicOn) return;
+    const stepDur = 0.145; // Tempo vivace arcade ~130 BPM
     if (this.nextNoteTime < ctx.currentTime) this.nextNoteTime = ctx.currentTime + 0.05;
-    while (this.nextNoteTime < ctx.currentTime + 0.4) {
-      const chord = this.chords[this.musicStep % this.chords.length];
+    while (this.nextNoteTime < ctx.currentTime + 0.35) {
       const t = this.nextNoteTime;
-      // basso
-      this.tone(ctx, chord[0] / 2, t, stepDur * 0.95, 'sine', mg, 0.5);
-      // triade morbida (leggero offset = "vibrafono")
-      chord.forEach((f, i) =>
-        this.tone(ctx, f, t + i * 0.02, stepDur * 0.9, 'triangle', mg, 0.14)
-      );
-      // melodia: ogni passo dispari
-      if (this.musicStep % 2 === 1) {
-        // Passo dispari: indice intero (prima era 0.5, 1.5… → undefined → NaN).
-        const mel = chord[Math.floor(this.musicStep / 2) % 3];
-        this.tone(ctx, mel * 2, t, 0.22, 'triangle', mg, 0.08);
+      const noteIdx = this.musicStep % this.chiptuneMelody.length;
+      const bassIdx = Math.floor(this.musicStep / 2) % this.chiptuneBass.length;
+
+      // 1. Voce 1: Melodia 8-Bit Square Wave (timbro classico Game Boy / NES)
+      const freq = this.chiptuneMelody[noteIdx];
+      this.tone(ctx, freq, t, stepDur * 0.78, 'square', mg, 0.08);
+
+      // 2. Voce 2: Basso 8-Bit Triangle Wave (in ottava bassa, groove portante)
+      if (this.musicStep % 2 === 0) {
+        const bassFreq = this.chiptuneBass[bassIdx];
+        this.tone(ctx, bassFreq, t, stepDur * 1.6, 'triangle', mg, 0.22);
       }
+
       this.musicStep++;
       this.nextNoteTime += stepDur;
     }
+  }
+
+  get musicActive(): boolean {
+    return this.musicOn;
+  }
+
+  toggleMusic(): boolean {
+    this.musicOn = !this.musicOn;
+    if (this.musicGain) {
+      this.musicGain.gain.value = this.musicOn ? this.musicVol : 0;
+    }
+    if (!this.musicOn) {
+      this.stopMusic();
+    } else {
+      const ctx = this.ensure();
+      if (ctx?.state === 'running') this.startMusic();
+    }
+    window.dispatchEvent(new CustomEvent('sic:music-toggle', { detail: { musicOn: this.musicOn } }));
+    return this.musicOn;
   }
 
   get muted(): boolean {

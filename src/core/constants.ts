@@ -1,6 +1,6 @@
 /** Costanti globali del gioco — il NOME si cambia qui, unico punto. */
 
-export const GAME_NAME = 'Scuola in Corsa';
+export const GAME_NAME = 'Arena dei Saperi';
 export const MASCOT_NAME = 'Pico';
 
 /** Dimensioni logiche (rapporto 16:9). */

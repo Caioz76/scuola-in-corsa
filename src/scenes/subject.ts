@@ -19,13 +19,6 @@ export class SubjectScene extends Phaser.Scene {
     addWorld(this, 'scuola', cfg, { speed: 44 });
     drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
 
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al titolo', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => this.scene.start('Title'));
-
     makeText(this, w / 2, 40, 'Scegli la Materia', cfg, {
       size: 26,
       bold: true,
@@ -89,10 +82,10 @@ export class SubjectScene extends Phaser.Scene {
       }
     }
 
-    const btnTorna = makeButton(this, cfg, w / 2, 510, 'Torna al titolo', {
+    const btnTorna = makeButton(this, cfg, w / 2, 510, 'Torna al menu', {
       scale: 0.60,
       maxTargetScale: 1.04,
-      depth: 10
+      depth: 50
     });
     btnTorna.onTap(() => this.scene.start('Title'));
   }

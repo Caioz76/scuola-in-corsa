@@ -102,7 +102,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    makeText(this, w / 2, 40, 'Menu Impostazioni', cfg, {
+    makeText(this, w / 2, 40, 'Configura', cfg, {
       size: 26,
       bold: true,
       color: '#000000',
