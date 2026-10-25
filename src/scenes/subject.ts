@@ -45,9 +45,10 @@ export class SubjectScene extends Phaser.Scene {
       {
         size: 13.5,
         bold: true,
-        color: '#e6f4fc',
+        color: '#f0f9ff',
         wrap: 680,
-        maxH: 20
+        maxH: 20,
+        outline: true
       }
     );
 

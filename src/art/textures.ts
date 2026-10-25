@@ -405,9 +405,9 @@ export function ensureUI(scene: Phaser.Scene): void {
   make('btn-blue', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
   );
-  // btn-green: attivo / risposta corretta (verde menta brillante Sport)
+  // btn-green: attivo / risposta corretta (verde energico e solido ad altissimo contrasto)
   make('btn-green', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#ebfff2', '#82eba8', '#42c472', '#1e964c', 'rgba(30, 150, 76, 0.05)')
+    button(ctx, 320, 84, '#2dc766', '#1ca64e', '#13833b', '#0b5424', 'rgba(11, 84, 36, 0.08)')
   );
   // btn-orange: avviso / secondario caldo
   make('btn-orange', 320, 84, (ctx) =>

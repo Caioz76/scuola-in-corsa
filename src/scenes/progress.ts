@@ -56,9 +56,10 @@ export class ProgressScene extends Phaser.Scene {
     makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     const righe = allPacks().flatMap((pack) =>
@@ -78,10 +79,11 @@ export class ProgressScene extends Phaser.Scene {
       const xStelle = col === 0 ? 445 : 935;
       makeText(this, xTitolo, y, r.titolo, cfg, {
         size: 13,
+        bold: true,
         align: 'left',
         wrap: 330,
         maxH: 34,
-        color: '#2f3b4c'
+        color: '#0f2942'
       });
       makeText(this, xStelle, y, `★ ${r.stelle} / 3`, cfg, {
         size: 14,
@@ -93,7 +95,8 @@ export class ProgressScene extends Phaser.Scene {
 
     makeText(this, 512, 424, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
       size: 15,
-      color: '#5f7186',
+      bold: true,
+      color: '#102a43',
       wrap: 620,
       maxH: 22
     });

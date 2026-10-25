@@ -147,7 +147,7 @@ export class TitleScene extends Phaser.Scene {
     makeText(this, w / 2, 122, GAME_NAME, cfg, {
       size: 46,
       bold: true,
-      color: '#1d6fb8',
+      color: '#0d5ca0',
       wrap: 560,
       maxH: 52,
       outline: true
@@ -156,7 +156,7 @@ export class TitleScene extends Phaser.Scene {
     makeText(this, w / 2, 168, 'Scegli la materia e corri!', cfg, {
       size: 19,
       bold: true,
-      color: '#5f7186',
+      color: '#102a43',
       wrap: 540,
       maxH: 26
     }).setDepth(5);
@@ -175,7 +175,7 @@ export class TitleScene extends Phaser.Scene {
       {
         size: 13.5,
         bold: true,
-        color: '#2b6cb0',
+        color: '#07457a',
         wrap: 468,
         maxH: 22
       }

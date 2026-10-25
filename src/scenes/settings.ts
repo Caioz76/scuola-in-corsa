@@ -114,9 +114,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Seleziona una categoria per visualizzare le opzioni dedicate:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
@@ -144,7 +145,7 @@ export class SettingsScene extends Phaser.Scene {
       186,
       `Profilo attivo: ${scelto ? scelto.label : 'Standard (Nessun profilo)'} · Personalizza profili e caratteristiche`,
       cfg,
-      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Ramo 2: Anno Scolastico ──
@@ -168,7 +169,7 @@ export class SettingsScene extends Phaser.Scene {
       286,
       `Classe attiva: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli tra Primaria e Secondaria`,
       cfg,
-      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Ramo 3: Gioco & Grafica ──
@@ -192,7 +193,7 @@ export class SettingsScene extends Phaser.Scene {
       386,
       `Stato attuale: Grafica ${graficaTxt} · ${synth.muted ? '🔇 Muto' : '🔊 Audio ON'} · Domande ${impostazioni.randomQuestions !== false ? 'Casuali' : 'Fisse'}`,
       cfg,
-      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Torna al titolo ──
@@ -235,9 +236,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     // Tasto Caratteristiche Custom
@@ -291,7 +293,7 @@ export class SettingsScene extends Phaser.Scene {
       420,
       scelto ? scelto.description : 'Regole standard per tutti i bambini.',
       cfg,
-      { size: 13, color: scelto ? '#1b7440' : '#496682', wrap: 800, maxH: 22 }
+      { size: 13, bold: true, color: scelto ? '#064e22' : '#102a43', wrap: 800, maxH: 22 }
     );
 
     const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
@@ -339,9 +341,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Attiva o disattiva le singole facilitazioni per il bambino:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     const voci = REGOLE_UI.map((id) => RULE_BY_ID.get(id)).filter(
@@ -423,7 +426,7 @@ export class SettingsScene extends Phaser.Scene {
       70,
       `Classe attuale: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli il grado scolastico:`,
       cfg,
-      { size: 13.5, bold: true, color: '#e6f4fc', wrap: 680, maxH: 20 }
+      { size: 13.5, bold: true, color: '#f0f9ff', wrap: 680, maxH: 20, outline: true }
     );
 
     // ── Ramo Primaria ──
@@ -447,7 +450,7 @@ export class SettingsScene extends Phaser.Scene {
       220,
       'Dalla 1ª alla 5ª Primaria · Esercizi graduati per bambini dai 6 ai 10 anni',
       cfg,
-      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Ramo Secondaria ──
@@ -471,7 +474,7 @@ export class SettingsScene extends Phaser.Scene {
       350,
       'Dalla 1ª alla 3ª Secondaria · Quesiti logici e di comprensione per ragazzi dagli 11 ai 14 anni',
       cfg,
-      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Bottom Nav ──
@@ -524,9 +527,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Primaria (1ª–5ª):', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     const attivoId = normalizzaAnno(impostazioni.schoolYear);
@@ -596,9 +600,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Secondaria di 1° grado:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     const attivoId = normalizzaAnno(impostazioni.schoolYear);
@@ -668,9 +673,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Personalizza grafica 2D/3D, domande e audio di gioco:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     // ── Grafica: 2D vs 3D ──
@@ -678,7 +684,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 130, 'Grafica di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#1d6fb8',
+      color: '#094273',
       wrap: 320,
       maxH: 22
     });
@@ -715,7 +721,7 @@ export class SettingsScene extends Phaser.Scene {
         ? 'Modalità 3D attiva: scenario poligonale dinamico con avatar 3D.'
         : 'Modalità 2D attiva: grafica illustrata pulita, rapida e a basso consumo.',
       cfg,
-      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, bold: true, color: '#102a43', wrap: 720, maxH: 20 }
     );
 
     // ── Domande casuali ──
@@ -739,7 +745,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 360, 'Audio di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#1d6fb8',
+      color: '#094273',
       wrap: 320,
       maxH: 22
     });

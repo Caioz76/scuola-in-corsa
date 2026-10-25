@@ -55,9 +55,10 @@ export class LevelsScene extends Phaser.Scene {
     makeText(this, w / 2, 70, 'Scegli direttamente la tappa da affrontare o ripassare:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#e6f4fc',
+      color: '#f0f9ff',
       wrap: 680,
-      maxH: 20
+      maxH: 20,
+      outline: true
     });
 
     MATERIE.forEach((m, row) => {
@@ -66,7 +67,7 @@ export class LevelsScene extends Phaser.Scene {
       makeText(this, 155, y, m.label, cfg, {
         size: 19,
         bold: true,
-        color: '#2f3b4c',
+        color: '#0f2942',
         wrap: 180,
         align: 'left',
         maxH: 34

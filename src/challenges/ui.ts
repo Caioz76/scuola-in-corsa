@@ -80,7 +80,7 @@ export function fitTextToBox(
   }
 }
 
-/** Testo BES-aware (font, scala, spaziatura, anti-sovrapposizione). */
+/** Testo BES-aware (font, scala, spaziatura, anti-sovrapposizione, altissima definizione). */
 export function makeText(
   scene: Phaser.Scene,
   x: number,
@@ -102,17 +102,35 @@ export function makeText(
     align: o.align ?? 'center',
     wordWrap: { width: wrapW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
-    lineSpacing: lineGap
+    lineSpacing: lineGap,
+    padding: { left: 8, right: 8, top: 4, bottom: 4 }
   }).setOrigin(o.originX ?? 0.5, o.originY ?? 0.5);
-  t.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+
+  // Risoluzione elevata (Retina / 4K / Hi-DPI) per eliminare qualsiasi sfocatura
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+  t.setResolution(hiRes);
+
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.maxH !== undefined && o.maxH > 0) {
     fitTextToBox(t, wrapW, o.maxH, 11);
   }
-  if (o.outline) t.setShadow(0, 0, '#ffffff', Math.max(2, Math.round(size * 0.09)), true, false);
+
+  // Contorno vettoriale netto e definito (senza aloni blur che sfuocano il testo)
+  if (o.outline && !cfg.highContrast) {
+    const isChiaro = colore.toLowerCase().startsWith('#f') || colore.toLowerCase().startsWith('#e') || colore === '#ffffff';
+    if (isChiaro) {
+      t.setStroke('#062d47', Math.max(2.5, Math.round(size * 0.12)));
+      t.setShadow(0, 1.5, '#021826', 1, true, true);
+    } else {
+      t.setStroke('#ffffff', Math.max(2.5, Math.round(size * 0.12)));
+    }
+  }
+
   // Alto contrasto: nero pieno, senza ombre decorative.
   if (cfg.highContrast) {
     t.setColor('#000000');
+    t.setStroke('transparent', 0);
     t.setShadow(0, 0, 'transparent', 0);
   }
   return t;
@@ -227,14 +245,15 @@ export function drawSportChannelFrame(
     g.fillRect(x + 12, sy, w - 24, 2);
   }
 
-  // Fascia superiore glossy
+  // Fascia d'intestazione superiore stile Canale Sport (Azzurro Sport profondo)
   if (headerH > 0) {
-    g.fillStyle(0xe8f6ff, 0.94);
+    g.fillStyle(0x0080c6, 0.98);
     g.fillRoundedRect(x + 8, y + 8, w - 16, headerH, 20);
-    g.fillStyle(0xffffff, 0.8);
-    g.fillRoundedRect(x + 14, y + 11, w - 28, Math.round(headerH * 0.45), 14);
-    // Filetto divisorio Azzurro Sport sotto l'header
-    g.lineStyle(2, 0x00a2e8, 0.45);
+    // Riflesso speculare discreto superiore
+    g.fillStyle(0xffffff, 0.24);
+    g.fillRoundedRect(x + 14, y + 11, w - 28, Math.round(headerH * 0.42), 14);
+    // Filetto divisorio inferiore scuro
+    g.lineStyle(2.5, 0x005282, 0.85);
     g.lineBetween(x + 24, y + 8 + headerH, x + w - 24, y + 8 + headerH);
   }
 
@@ -307,12 +326,16 @@ export function makeButton(
     fontFamily: spec.family,
     fontSize: `${baseFontPx}px`,
     fontStyle: 'bold',
-    color: T.body,
+    color: '#0f2942',
     align: 'center',
     wordWrap: { width: boxW, useAdvancedWrap: true },
-    letterSpacing: spec.spacing
+    letterSpacing: spec.spacing,
+    padding: { left: 6, right: 6, top: 2, bottom: 2 }
   }).setOrigin(0.5);
-  text.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+  text.setResolution(hiRes);
   fitTextToBox(text, boxW, boxH, 10);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 10);
@@ -351,11 +374,13 @@ export function makeButton(
       currentKind = kKind;
       if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
       if (kKind === 'disabled' || kKind === 'unselected') {
-        text.setStyle({ color: '#64748b' });
+        text.setStyle({ color: '#334155', stroke: 'transparent', strokeThickness: 0 });
       } else if (kKind === 'selected' || kKind === 'correct') {
-        text.setStyle({ color: '#ffffff' });
+        text.setStyle({ color: '#ffffff', stroke: '#08401e', strokeThickness: 3.5 });
+      } else if (kKind === 'wrong') {
+        text.setStyle({ color: '#ffffff', stroke: '#5c1414', strokeThickness: 3.5 });
       } else {
-        text.setStyle({ color: T.body });
+        text.setStyle({ color: '#0f2942', stroke: 'transparent', strokeThickness: 0 });
       }
     },
     setEnabled(b: boolean): void {
@@ -424,12 +449,15 @@ export function makeChip(
     fontFamily: spec.family,
     fontSize: `${Math.round((o.size ?? 22) * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: T.body,
+    color: '#0f2942',
     align: 'center',
     wordWrap: { width: boxW, useAdvancedWrap: true },
-    letterSpacing: spec.spacing
+    letterSpacing: spec.spacing,
+    padding: { left: 6, right: 6, top: 2, bottom: 2 }
   }).setOrigin(0.5);
-  text.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+  text.setResolution(hiRes);
   fitTextToBox(text, boxW, boxH, 11);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 20);
@@ -524,10 +552,13 @@ export function makeSlot(
     fontFamily: spec.family,
     fontSize: `${Math.round(20 * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: '#5f7186',
-    letterSpacing: spec.spacing
+    color: '#334155',
+    letterSpacing: spec.spacing,
+    padding: { left: 4, right: 4, top: 2, bottom: 2 }
   }).setOrigin(0.5);
-  num.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+  num.setResolution(hiRes);
   const root = scene.add.container(x, y, [sprite, num]);
   root.setDepth(5);
   return {
@@ -608,27 +639,32 @@ export function makeToggle(
   g.lineStyle(2, on ? 0x3aa564 : 0xc9d3e0, 1);
   g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, 9);
 
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+
   const lbl = scene.add
     .text(x - w / 2 + 12, y, label, {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: cfg.highContrast ? '#000000' : T.body,
-      wordWrap: { width: w - 74, useAdvancedWrap: true }
+      color: cfg.highContrast ? '#000000' : '#0f2942',
+      wordWrap: { width: w - 74, useAdvancedWrap: true },
+      padding: { left: 4, right: 4, top: 2, bottom: 2 }
     })
     .setOrigin(0, 0.5)
     .setDepth(11);
-  lbl.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+  lbl.setResolution(hiRes);
   fitTextToBox(lbl, w - 74, h - 6, 10);
   const toggleTxt = scene.add
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
       fontSize: `${Math.min(15, Math.round(13 * cfg.fontScale))}px`,
-      color: on ? T.ok : cfg.highContrast ? '#000000' : T.faint,
-      fontStyle: 'bold'
+      color: on ? '#0d5c2a' : cfg.highContrast ? '#000000' : '#64748b',
+      fontStyle: 'bold',
+      padding: { left: 4, right: 4, top: 2, bottom: 2 }
     })
     .setOrigin(1, 0.5)
     .setDepth(11);
-  toggleTxt.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+  toggleTxt.setResolution(hiRes);
 
   const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
   zona.setDepth(12);
@@ -675,19 +711,23 @@ export function showBanner(
   g.lineStyle(4, kind === 'ok' ? 0x3aa564 : 0xe05a5a, 1);
   g.strokeRoundedRect(cx - w / 2, cy - h / 2, w, h, 20);
 
+  const dpi = window.devicePixelRatio || 1;
+  const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
+
   const t1 = scene.add
     .text(cx, sub ? cy - 27 : cy, text, {
       fontFamily: spec.family,
       fontSize: `${Math.round(27 * cfg.fontScale)}px`,
       fontStyle: 'bold',
-      color: cfg.highContrast ? '#000000' : T.body,
+      color: cfg.highContrast ? '#000000' : '#0f2942',
       align: 'center',
       wordWrap: { width: w - 64, useAdvancedWrap: true },
-      letterSpacing: spec.spacing
+      letterSpacing: spec.spacing,
+      padding: { left: 8, right: 8, top: 4, bottom: 4 }
     })
     .setOrigin(0.5)
     .setDepth(301);
-  t1.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+  t1.setResolution(hiRes);
 
   let t2: Phaser.GameObjects.Text | null = null;
   if (sub) {
@@ -695,14 +735,15 @@ export function showBanner(
       .text(cx, cy + 32, sub, {
         fontFamily: spec.family,
         fontSize: `${Math.round(18 * cfg.fontScale)}px`,
-        color: cfg.highContrast ? '#000000' : T.sub,
+        color: cfg.highContrast ? '#000000' : '#334155',
         align: 'center',
         wordWrap: { width: w - 64, useAdvancedWrap: true },
-        letterSpacing: spec.spacing
+        letterSpacing: spec.spacing,
+        padding: { left: 8, right: 8, top: 4, bottom: 4 }
       })
       .setOrigin(0.5)
       .setDepth(301);
-    t2.setResolution(Math.max(window.devicePixelRatio || 1, 2));
+    t2.setResolution(hiRes);
   }
 
   const objs = [g, t1, ...(t2 ? [t2] : [])];
