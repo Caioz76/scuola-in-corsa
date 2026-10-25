@@ -38,6 +38,10 @@ export const storage = {
     try {
       return JSON.parse(raw) as T;
     } catch {
+      // Se il dato era memorizzato come stringa grezza o testo semplice non-JSON
+      if (typeof fallback === 'string') {
+        return raw as unknown as T;
+      }
       return fallback;
     }
   },

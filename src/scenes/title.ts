@@ -8,6 +8,8 @@ import { addWorld } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { toggleFullscreen } from '../ui/fullscreen';
 
+let promptInizialeEseguito = false;
+
 export class TitleScene extends Phaser.Scene {
   constructor() {
     super('Title');
@@ -193,8 +195,16 @@ export class TitleScene extends Phaser.Scene {
       }
     );
     btnGiocatore.setKind(playerName ? 'selected' : 'unselected');
+
+    const aggiornaProfiloUI = (nome: string) => {
+      btnGiocatore.setLabel(nome ? `👤 Giocatore: ${nome} (✏️)` : '👤 Inserisci il tuo nome per iniziare');
+      btnGiocatore.setKind(nome ? 'selected' : 'unselected');
+    };
+
     btnGiocatore.onTap(() => {
-      openNameDialog(() => this.scene.restart());
+      openNameDialog((nome) => {
+        aggiornaProfiloUI(nome);
+      });
     });
 
     const gioca = makeButton(this, cfg, w / 2, h / 2 + 96, 'Gioca', {
@@ -203,22 +213,27 @@ export class TitleScene extends Phaser.Scene {
     });
     gioca.onTap(() => {
       if (!getPlayerName()) {
-        openNameDialog(() => this.scene.start('Subject'));
+        openNameDialog((_nome) => {
+          this.scene.start('Subject');
+        });
       } else {
         this.scene.start('Subject');
       }
     });
 
-    // All'apertura del gioco, se non è ancora stato inserito un nome in questa sessione,
-    // offre subito la possibilità di inserirlo
-    if (!playerName && !sessionStorage.getItem('sic.name_prompted')) {
+    // All'apertura del gioco, se non è ancora stato inserito un nome,
+    // offre subito la possibilità di inserirlo una sola volta all'avvio.
+    if (!playerName && !promptInizialeEseguito) {
+      promptInizialeEseguito = true;
       try {
         sessionStorage.setItem('sic.name_prompted', '1');
       } catch {
         // sessionStorage non disponibile
       }
-      this.time.delayedCall(450, () => {
-        openNameDialog(() => this.scene.restart());
+      this.time.delayedCall(350, () => {
+        openNameDialog((nome) => {
+          aggiornaProfiloUI(nome);
+        });
       });
     }
 

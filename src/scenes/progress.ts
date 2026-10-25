@@ -26,7 +26,7 @@ export class ProgressScene extends Phaser.Scene {
     drawSportChannelFrame(this, cfg, { x: 28, y: 12, w: 968, h: 468, headerH: 76 });
 
     const nome = getPlayerName();
-    makeText(this, 512, 38, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
+    const txtTitolo = makeText(this, 512, 38, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
       size: 30,
       bold: true,
       color: '#1d6fb8',
@@ -41,7 +41,9 @@ export class ProgressScene extends Phaser.Scene {
       depth: 10
     });
     btnCambiaNome.onTap(() => {
-      openNameDialog(() => this.scene.restart());
+      openNameDialog((nuovoNome) => {
+        txtTitolo.setText(nuovoNome ? `Progressi di ${nuovoNome}` : 'Progressi di Gioco');
+      });
     });
 
     makeText(this, 512, 74, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
