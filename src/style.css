@@ -103,22 +103,9 @@ body.smartphone-orizzontale #ruota-in-verticale {
   text-align: center;
 }
 
-@media (orientation: landscape) and (max-height: 560px) and (hover: none) {
-  #ruota-in-verticale {
-    display: flex !important;
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999;
-    background: rgba(8, 22, 38, 0.92);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    box-sizing: border-box;
-    text-align: center;
-  }
+body.smart-tv #ruota-in-verticale,
+body.dismiss-rotate #ruota-in-verticale {
+  display: none !important;
 }
 
 #ruota-in-verticale .ruota-v-box {
@@ -157,6 +144,26 @@ body.smartphone-orizzontale #ruota-in-verticale {
   line-height: 1.45;
   margin: 0;
   font-family: 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+}
+
+#ruota-in-verticale .ruota-v-btn {
+  margin-top: 16px;
+  padding: 10px 22px;
+  background: #ffffff;
+  color: #0077b8;
+  border: 2px solid #00a2e8;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 162, 232, 0.2);
+  transition: transform 0.15s ease, background 0.15s ease;
+  font-family: inherit;
+}
+
+#ruota-in-verticale .ruota-v-btn:hover {
+  background: #f0f8ff;
+  transform: translateY(-1px);
 }
 
 @keyframes oscillazione-verticale {

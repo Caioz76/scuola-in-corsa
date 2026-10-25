@@ -26,6 +26,8 @@ import {
 } from '../core/player';
 import { totalStarsForPlayer } from '../core/progress';
 import { toggleFullscreen } from './fullscreen';
+import { isSmartTV, isSmartphone } from './device';
+export { isSmartTV, isSmartphone };
 
 interface TextEntry {
   text: string;
@@ -132,6 +134,29 @@ function creaBtnDom(item: MobileItem, extraClass = ''): HTMLButtonElement {
 }
 
 export function initMobilePortrait(game: Phaser.Game): void {
+  const tv = isSmartTV();
+  document.body.classList.toggle('smart-tv', tv);
+
+  let ruotaDismissed = false;
+  try {
+    ruotaDismissed = sessionStorage.getItem('sic.dismiss_rotate') === '1';
+  } catch {}
+
+  const btnChiudiRuota = document.getElementById('ruota-v-chiudi');
+  if (btnChiudiRuota) {
+    btnChiudiRuota.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ruotaDismissed = true;
+      try {
+        sessionStorage.setItem('sic.dismiss_rotate', '1');
+      } catch {}
+      document.body.classList.add('dismiss-rotate');
+      document.body.classList.remove('smartphone-orizzontale');
+      const ruotaEl = document.getElementById('ruota-in-verticale');
+      if (ruotaEl) ruotaEl.style.display = 'none';
+    });
+  }
+
   const deck = document.createElement('div');
   deck.id = 'mobile-deck';
   deck.setAttribute('role', 'region');
@@ -143,13 +168,21 @@ export function initMobilePortrait(game: Phaser.Game): void {
   const aggiorna = (): void => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const tv = isSmartTV();
     const isTouch = typeof navigator !== 'undefined' && (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
-    const minDim = Math.min(vw, vh);
-    const isPhone = isTouch && minDim <= 768;
-    const verticale = vh > vw;
+    const isPhone = isSmartphone({ vw, vh, isTouch });
+    const verticale = !tv && vh > vw;
+
+    document.body.classList.toggle('smart-tv', tv);
     document.body.classList.toggle('verticale', verticale);
     document.body.classList.toggle('smartphone', isPhone);
-    document.body.classList.toggle('smartphone-orizzontale', isPhone && !verticale);
+
+    const mostraRuota = isPhone && !verticale && !ruotaDismissed;
+    document.body.classList.toggle('smartphone-orizzontale', mostraRuota);
+    if (!mostraRuota) {
+      const ruotaEl = document.getElementById('ruota-in-verticale');
+      if (ruotaEl) ruotaEl.style.display = 'none';
+    }
 
     const attive = game.scene.getScenes(true);
     const scena = attive[attive.length - 1] ?? null;

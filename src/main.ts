@@ -15,7 +15,7 @@ import { synth } from './audio/synth';
 import { stato3D, type Stato3D } from './art/three-world';
 import { getActiveRounds } from './content/packs';
 import type { Round } from './content/types';
-import { initMobilePortrait } from './ui/mobile-portrait';
+import { initMobilePortrait, isSmartTV } from './ui/mobile-portrait';
 
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
@@ -68,15 +68,17 @@ adattaScalaGioco();
 
 initMobilePortrait(game);
 
-// Se supportato dal browser, blocca l'orientamento in verticale per smartphone
-try {
-  if (typeof screen !== 'undefined' && screen.orientation && 'lock' in screen.orientation) {
-    (screen.orientation as unknown as { lock: (mode: string) => Promise<void> })
-      .lock('portrait')
-      .catch(() => {});
+// Se supportato dal browser, blocca l'orientamento in verticale solo su smartphone (mai su Smart TV o desktop)
+if (!isSmartTV()) {
+  try {
+    if (typeof screen !== 'undefined' && screen.orientation && 'lock' in screen.orientation) {
+      (screen.orientation as unknown as { lock: (mode: string) => Promise<void> })
+        .lock('portrait')
+        .catch(() => {});
+    }
+  } catch {
+    // Ignora se non supportato
   }
-} catch {
-  // Ignora se non supportato
 }
 
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────
