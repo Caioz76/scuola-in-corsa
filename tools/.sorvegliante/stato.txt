@@ -1,4 +1,0 @@
-compito1=in-corso
-tsc=20
-test=Tests  26 passed (26)
-aggiornato=23/10 07:31:16

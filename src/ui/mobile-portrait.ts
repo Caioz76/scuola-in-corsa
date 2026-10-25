@@ -143,18 +143,23 @@ export function initMobilePortrait(game: Phaser.Game): void {
   } catch {}
 
   const btnChiudiRuota = document.getElementById('ruota-v-chiudi');
+  const btnXRuota = document.getElementById('ruota-v-x');
+  const dismissModal = (ev: Event) => {
+    ev.preventDefault();
+    ruotaDismissed = true;
+    try {
+      sessionStorage.setItem('sic.dismiss_rotate', '1');
+    } catch {}
+    document.body.classList.add('dismiss-rotate');
+    document.body.classList.remove('smartphone-orizzontale');
+    const ruotaEl = document.getElementById('ruota-in-verticale');
+    if (ruotaEl) ruotaEl.style.display = 'none';
+  };
   if (btnChiudiRuota) {
-    btnChiudiRuota.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      ruotaDismissed = true;
-      try {
-        sessionStorage.setItem('sic.dismiss_rotate', '1');
-      } catch {}
-      document.body.classList.add('dismiss-rotate');
-      document.body.classList.remove('smartphone-orizzontale');
-      const ruotaEl = document.getElementById('ruota-in-verticale');
-      if (ruotaEl) ruotaEl.style.display = 'none';
-    });
+    btnChiudiRuota.addEventListener('click', dismissModal);
+  }
+  if (btnXRuota) {
+    btnXRuota.addEventListener('click', dismissModal);
   }
 
   const deck = document.createElement('div');

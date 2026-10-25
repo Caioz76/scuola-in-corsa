@@ -109,6 +109,7 @@ body.dismiss-rotate #ruota-in-verticale {
 }
 
 #ruota-in-verticale .ruota-v-box {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -121,6 +122,36 @@ body.dismiss-rotate #ruota-in-verticale {
   width: 90%;
   box-shadow: 0 16px 36px rgba(0, 100, 180, 0.35);
   box-sizing: border-box;
+}
+
+#ruota-in-verticale .ruota-v-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #bce1fa;
+  background: #ffffff;
+  color: #0077b8;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 100, 180, 0.15);
+}
+
+#ruota-in-verticale .ruota-v-close:hover,
+#ruota-in-verticale .ruota-v-close:active {
+  background: #ff5252;
+  color: #ffffff;
+  border-color: #ff5252;
+  transform: scale(1.08);
 }
 
 #ruota-in-verticale .ruota-v-icona {
