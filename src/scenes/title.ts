@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_NAME } from '../core/constants';
+import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
@@ -151,11 +151,11 @@ export class TitleScene extends Phaser.Scene {
       maxH: 52
     });
 
-    makeText(this, w / 2, 168, 'Scegli la materia e corri!', cfg, {
-      size: 19,
+    makeText(this, w / 2, 168, GAME_PAYOFF, cfg, {
+      size: 16.5,
       bold: true,
       color: '#1e293b',
-      wrap: 540,
+      wrap: 560,
       maxH: 26
     });
 

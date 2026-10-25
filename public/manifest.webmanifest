@@ -1,7 +1,7 @@
 {
-  "name": "Scuola in Corsa",
-  "short_name": "Scuola in Corsa",
-  "description": "Videogioco didattico inclusivo e accessibile BES con corsa ed enigmi educativi",
+  "name": "Talentopolis",
+  "short_name": "Talentopolis",
+  "description": "Gioco educativo interattivo e inclusivo per la scuola primaria e secondaria di I grado, con configurazioni personalizzate per profili BES/DSA.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

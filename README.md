@@ -1,9 +1,10 @@
-# Scuola in Corsa
+# Talentopolis
 
-Gioco didattico 2D e 3D per bambini della scuola primaria, sviluppato con **Phaser 3**,
-**Three.js** e **TypeScript**. Il gioco è pensato per essere **inclusivo per davvero**: ogni
-profilo BES (Bisogni Educativi Speciali) è una configurazione concreta che cambia
-il modo in cui il gioco si comporta, non un'etichetta.
+> **L'avventura dell'apprendimento su misura**
+
+Gioco educativo interattivo e inclusivo per la **scuola primaria e secondaria di I grado** (dalla 1ª elementare alla 3ª media), sviluppato con **Phaser 3**, **Three.js** e **TypeScript**.
+
+Il vero punto di forza di **Talentopolis** risiede nei suoi **profili configurabili BES / DSA**: ogni profilo (Bisogni Educativi Speciali e Disturbi Specifici dell'Apprendimento come Dislessia, ADHD, Discalculia, Ipovisione, Autismo, ecc.) è una configurazione concreta che adatta l'esperienza didattica alle specifiche esigenze di ogni studente, modificando caratteri tipografici ad alta leggibilità, ritmi, contrasti e layout per offrire un'avventura dell'apprendimento realmente su misura.
 
 > **Versione in sviluppo.** Il codice sorgente è in evoluzione; questo documento
 > descrive l'architettura e le funzioni previste.
@@ -27,7 +28,7 @@ il modo in cui il gioco si comporta, non un'etichetta.
 
 ## Cos'è
 
-**Scuola in Corsa** è un gioco a scorrimento in cui il bambino avanza lungo un
+**Talentopolis** è un gioco a scorrimento in cui il bambino o ragazzo avanza lungo un
 percorso e incontra **checkpoint** didattici: a ogni tappa deve risolvere una
 sfida (un quiz, un riconoscimento di immagine, un abbinamento, una sequenza).
 Superata la sfida, il percorso continua.

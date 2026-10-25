@@ -17,7 +17,7 @@ import type Phaser from 'phaser';
 import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { GAME_NAME } from '../core/constants';
+import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
 import { toggleFullscreen } from './fullscreen';
 
 interface TextEntry {
@@ -237,13 +237,10 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
   titleEl.textContent = GAME_NAME;
   card.appendChild(titleEl);
 
-  const sub = testi.find((t) => t.text.includes('Scegli la materia'));
-  if (sub) {
-    const p = document.createElement('p');
-    p.className = 'm-sub';
-    p.textContent = sub.text;
-    card.appendChild(p);
-  }
+  const payoffEl = document.createElement('p');
+  payoffEl.className = 'm-sub m-payoff';
+  payoffEl.textContent = GAME_PAYOFF;
+  card.appendChild(payoffEl);
 
   // Icone decorative delle 4 materie in fila
   const iconsRow = document.createElement('div');
@@ -465,7 +462,7 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   if (page === 'bes') {
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Profili BES';
+    h.textContent = 'Profili BES / DSA — Talentopolis';
     card.appendChild(h);
 
     const sub = document.createElement('p');

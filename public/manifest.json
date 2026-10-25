@@ -1,0 +1,32 @@
+{
+  "name": "Talentopolis",
+  "short_name": "Talentopolis",
+  "description": "Gioco educativo interattivo e inclusivo per la scuola primaria e secondaria di I grado, con configurazioni personalizzate per profili BES/DSA.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "window-controls-overlay"],
+  "orientation": "any",
+  "background_color": "#eaf6ff",
+  "theme_color": "#00a2e8",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

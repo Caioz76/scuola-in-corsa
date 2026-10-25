@@ -1,6 +1,7 @@
 /** Costanti globali del gioco — il NOME si cambia qui, unico punto. */
 
-export const GAME_NAME = 'Arena dei Saperi';
+export const GAME_NAME = 'Talentopolis';
+export const GAME_PAYOFF = "L'avventura dell'apprendimento su misura";
 export const MASCOT_NAME = 'Pico';
 
 /** Dimensioni logiche (rapporto 16:9). */

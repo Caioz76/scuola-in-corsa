@@ -212,11 +212,11 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    makeText(this, w / 2, 40, 'Profili BES', cfg, {
-      size: 26,
+    makeText(this, w / 2, 40, 'Profili BES / DSA — Talentopolis', cfg, {
+      size: 24,
       bold: true,
       color: '#000000',
-      wrap: 520,
+      wrap: 620,
       maxH: 30
     });
 

@@ -1,11 +1,11 @@
 {
-  "name": "scuola-in-corsa",
+  "name": "talentopolis",
   "version": "1.0.0",
   "private": true,
   "license": "UNLICENSED",
   "author": "Claudio Borsotti",
   "type": "module",
-  "description": "Scuola in Corsa — gioco didattico a scorrimento con adattamento BES",
+  "description": "Talentopolis — L'avventura dell'apprendimento su misura",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
