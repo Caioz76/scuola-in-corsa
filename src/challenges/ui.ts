@@ -59,6 +59,8 @@ export interface TextOpts {
   outline?: boolean;
   originX?: number;
   originY?: number;
+  /** Profondità di rendering: default 100 per stare SEMPRE sopra ogni grafica di gioco e menu. */
+  depth?: number;
 }
 
 /**
@@ -116,6 +118,9 @@ export function makeText(
   const dpi = window.devicePixelRatio || 1;
   const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
   t.setResolution(hiRes);
+
+  // Il testo deve SEMPRE essere in primo piano assoluto sopra ogni grafica di gioco e menu
+  t.setDepth(o.depth ?? 100);
 
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.maxH !== undefined && o.maxH > 0) {
@@ -334,7 +339,7 @@ export function makeButton(
   text.setResolution(hiRes);
   fitTextToBox(text, boxW, boxH, 10);
   const root = scene.add.container(x, y, [sprite, text]);
-  root.setDepth(o.depth ?? 10);
+  root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
   const hit = permissiveHit(cfg, sprite.width, sprite.height);
@@ -445,7 +450,7 @@ export function makeChip(
     fontFamily: spec.family,
     fontSize: `${Math.round((o.size ?? 22) * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: '#0f2942',
+    color: '#000000',
     align: 'center',
     wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
@@ -456,7 +461,7 @@ export function makeChip(
   text.setResolution(hiRes);
   fitTextToBox(text, boxW, boxH, 11);
   const root = scene.add.container(x, y, [sprite, text]);
-  root.setDepth(o.depth ?? 20);
+  root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
   const hit = permissiveHit(cfg, sprite.width, sprite.height);
@@ -548,7 +553,7 @@ export function makeSlot(
     fontFamily: spec.family,
     fontSize: `${Math.round(20 * cfg.fontScale)}px`,
     fontStyle: 'bold',
-    color: '#334155',
+    color: '#000000',
     letterSpacing: spec.spacing,
     padding: { left: 4, right: 4, top: 2, bottom: 2 }
   }).setOrigin(0.5);
@@ -556,7 +561,7 @@ export function makeSlot(
   const hiRes = Math.min(4, Math.max(dpi * 2, 2.5));
   num.setResolution(hiRes);
   const root = scene.add.container(x, y, [sprite, num]);
-  root.setDepth(5);
+  root.setDepth(20);
   return {
     root,
     dispose(): void {
@@ -629,7 +634,7 @@ export function makeToggle(
 ): void {
   const h = 32;
   const spec = fontSpec(cfg);
-  const g = scene.add.graphics().setDepth(10);
+  const g = scene.add.graphics().setDepth(50);
   g.fillStyle(on ? 0xdff6e7 : 0xffffff, 0.96);
   g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 9);
   g.lineStyle(2, on ? 0x3aa564 : 0xc9d3e0, 1);
@@ -642,28 +647,29 @@ export function makeToggle(
     .text(x - w / 2 + 12, y, label, {
       fontFamily: spec.family,
       fontSize: `${Math.round(13 * cfg.fontScale)}px`,
-      color: cfg.highContrast ? '#000000' : '#0f2942',
+      fontStyle: 'bold',
+      color: '#000000',
       wordWrap: { width: w - 74, useAdvancedWrap: true },
       padding: { left: 4, right: 4, top: 2, bottom: 2 }
     })
     .setOrigin(0, 0.5)
-    .setDepth(11);
+    .setDepth(60);
   lbl.setResolution(hiRes);
   fitTextToBox(lbl, w - 74, h - 6, 10);
   const toggleTxt = scene.add
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
       fontSize: `${Math.min(15, Math.round(13 * cfg.fontScale))}px`,
-      color: on ? '#0d5c2a' : cfg.highContrast ? '#000000' : '#64748b',
+      color: on ? '#064e22' : '#000000',
       fontStyle: 'bold',
       padding: { left: 4, right: 4, top: 2, bottom: 2 }
     })
     .setOrigin(1, 0.5)
-    .setDepth(11);
+    .setDepth(60);
   toggleTxt.setResolution(hiRes);
 
   const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
-  zona.setDepth(12);
+  zona.setDepth(70);
   zona.on('pointerup', onTap);
   const unregister = registerMobileItem(scene, {
     kind: 'toggle',

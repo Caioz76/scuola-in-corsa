@@ -40,10 +40,9 @@ export class PauseScene extends Phaser.Scene {
     makeText(this, 512, 160, this.conferma ? 'Vuoi uscire?' : 'Pausa', cfg, {
       size: 38,
       bold: true,
-      color: this.conferma ? '#c2554d' : '#1d6fb8',
+      color: this.conferma ? '#c2554d' : '#000000',
       wrap: 440,
-      maxH: 46,
-      outline: true
+      maxH: 46
     });
 
     makeText(
@@ -54,15 +53,16 @@ export class PauseScene extends Phaser.Scene {
         ? 'La tappa non è finita: i progressi di questa partita non vengono salvati.'
         : 'Quando vuoi, si riprende da dove eri rimasto.',
       cfg,
-      { size: 15, color: '#5f7186', wrap: 430, maxH: 42 }
+      { size: 15, bold: true, color: '#000000', wrap: 430, maxH: 42 }
     );
 
     // Con "Pausa quando serve" la pausa diventa anche un momento per respirare.
     if (cfg.pauseAllowed && !this.conferma) {
       makeText(this, 512, 268, 'Fai un respiro: inspira piano, poi espira.', cfg, {
         size: 14,
+        bold: true,
         italic: true,
-        color: '#2f8f6b',
+        color: '#064e22',
         wrap: 430,
         maxH: 26
       });

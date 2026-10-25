@@ -101,10 +101,9 @@ export class GameScene extends Phaser.Scene {
       ? makeText(this, 248, 550, '', cfg, {
           size: 13,
           bold: true,
-          color: '#1d6fb8',
+          color: '#000000',
           wrap: 420,
-          maxH: 22,
-          outline: true
+          maxH: 22
         })
       : null;
 

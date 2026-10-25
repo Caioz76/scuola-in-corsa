@@ -150,7 +150,7 @@ export class TitleScene extends Phaser.Scene {
       color: '#000000',
       wrap: 560,
       maxH: 52
-    }).setDepth(5);
+    });
 
     makeText(this, w / 2, 168, 'Scegli la materia e corri!', cfg, {
       size: 19,
@@ -158,7 +158,7 @@ export class TitleScene extends Phaser.Scene {
       color: '#1e293b',
       wrap: 540,
       maxH: 26
-    }).setDepth(5);
+    });
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
     const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
@@ -178,7 +178,7 @@ export class TitleScene extends Phaser.Scene {
         wrap: 468,
         maxH: 22
       }
-    ).setDepth(5);
+    );
 
     // Badge / Tasto Giocatore per inserire o modificare il nome
     const btnGiocatore = makeButton(
@@ -268,11 +268,11 @@ export class TitleScene extends Phaser.Scene {
       cfg,
       {
         size: 12,
-        color: '#3b4a5a',
+        bold: true,
+        color: '#000000',
         wrap: 620,
-        maxH: 18,
-        outline: true
+        maxH: 18
       }
-    ).setDepth(5);
+    );
   }
 }
