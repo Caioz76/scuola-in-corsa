@@ -3,16 +3,14 @@ import { drawSportChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
-import { starsFor, loadHistory } from '../core/progress';
-import { getPlayerName, openNameDialog } from '../core/player';
+import { starsFor, starsForPlayer, totalStarsForPlayer, resetAllProgress, loadHistory } from '../core/progress';
+import { getPlayerName, getTeamSetup, openNameDialog } from '../core/player';
 import { addWorld } from '../art/world';
 
+let progressPlayerIdx = 1;
+
 /**
- * Progressi per l'insegnante: tutte le tappe, tutte le stelle.
- *
- * Legge solo `sic.progress` (nessun dato personale). Non sostituisce il
- * registro dell'insegnante: serve a vedere a colpo d'occhio dove lo studente
- * è arrivato e quale tappa conviene riprendere.
+ * Progressi per giocatore e materia: tappe e stelle registrate per ciascun soggetto.
  */
 export class ProgressScene extends Phaser.Scene {
   constructor() {
@@ -21,6 +19,9 @@ export class ProgressScene extends Phaser.Scene {
 
   create(): void {
     const cfg = resolveConfig(loadSettings());
+    const team = getTeamSetup();
+    if (progressPlayerIdx > team.numPlayers) progressPlayerIdx = 1;
+    const activePlayer = team.players.find((p) => p.playerIndex === progressPlayerIdx) ?? team.players[0];
 
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
     drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
@@ -33,38 +34,75 @@ export class ProgressScene extends Phaser.Scene {
     btnIndietro.onTap(() => this.scene.start('Title'));
 
     const nome = getPlayerName();
-    const txtTitolo = makeText(this, 512, 40, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
-      size: 26,
-      bold: true,
-      color: '#000000',
-      wrap: 520,
-      maxH: 30
-    });
+    makeText(
+      this,
+      512,
+      40,
+      team.numPlayers > 1
+        ? `Progressi Squadra — ${activePlayer.token.icon} ${activePlayer.token.name} (G${activePlayer.playerIndex})`
+        : `Progressi di ${nome}`,
+      cfg,
+      {
+        size: 24,
+        bold: true,
+        color: '#000000',
+        wrap: 540,
+        maxH: 30
+      }
+    );
 
-    const btnCambiaNome = makeButton(this, cfg, 884, 40, '👤 Profilo', {
+    const btnCambiaNome = makeButton(this, cfg, 884, 40, '👥 Squadra', {
       scale: 0.52,
       maxTargetScale: 1.02,
       depth: 10
     });
     btnCambiaNome.onTap(() => {
-      openNameDialog((nuovoNome) => {
-        txtTitolo.setText(nuovoNome ? `Progressi di ${nuovoNome}` : 'Progressi di Gioco');
+      openNameDialog(() => {
+        this.scene.restart();
       });
     });
 
-    makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
-      size: 13.5,
-      bold: true,
-      color: '#1e293b',
-      wrap: 680,
-      maxH: 20
-    });
+    // Se ci sono più giocatori, mostra i tasti a linguetta per selezionare il soggetto
+    if (team.numPlayers > 1) {
+      const num = team.numPlayers;
+      const step = Math.min(220, 840 / num);
+      const startX = 512 - ((num - 1) * step) / 2;
+      team.players.forEach((p, idx) => {
+        const isCurrent = p.playerIndex === progressPlayerIdx;
+        const tot = totalStarsForPlayer(p.token.id);
+        const b = makeButton(
+          this,
+          cfg,
+          startX + idx * step,
+          74,
+          `${p.token.icon} G${p.playerIndex}: ${tot}★`,
+          { scale: 0.58, maxTargetScale: 1.02, depth: 10 }
+        );
+        b.setKind(isCurrent ? 'selected' : 'unselected');
+        b.onTap(() => {
+          progressPlayerIdx = p.playerIndex;
+          this.scene.restart();
+        });
+      });
+    } else {
+      makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
+        size: 13.5,
+        bold: true,
+        color: '#1e293b',
+        wrap: 680,
+        maxH: 20
+      });
+    }
 
     const righe = allPacks().flatMap((pack) =>
-      pack.levels.map((livello) => ({
-        titolo: `${pack.title} — ${livello.title}`,
-        stelle: starsFor(pack.packId, livello.id)
-      }))
+      pack.levels.map((livello) => {
+        const stPlayer = starsForPlayer(activePlayer.token.id, pack.packId, livello.id);
+        const stGlobal = team.numPlayers === 1 ? starsFor(pack.packId, livello.id) : 0;
+        return {
+          titolo: `${pack.title} — ${livello.title}`,
+          stelle: Math.max(stPlayer, stGlobal)
+        };
+      })
     );
 
     let totale = 0;
@@ -91,13 +129,20 @@ export class ProgressScene extends Phaser.Scene {
       });
     });
 
-    makeText(this, 512, 424, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
-      size: 15,
-      bold: true,
-      color: '#000000',
-      wrap: 620,
-      maxH: 22
-    });
+    makeText(
+      this,
+      512,
+      424,
+      `Totale ${activePlayer.token.name}: ${totale} stelle su ${righe.length * 3}`,
+      cfg,
+      {
+        size: 15,
+        bold: true,
+        color: '#000000',
+        wrap: 620,
+        maxH: 22
+      }
+    );
 
     const storia = loadHistory();
     const ultima = storia[storia.length - 1];
@@ -111,11 +156,22 @@ export class ProgressScene extends Phaser.Scene {
       });
     }
 
-    const indietro = makeButton(this, cfg, 512, 510, 'Torna al titolo', {
+    const indietro = makeButton(this, cfg, 400, 510, 'Torna al titolo', {
       scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
     indietro.onTap(() => this.scene.start('Title'));
+
+    const btnAzzera = makeButton(this, cfg, 660, 510, '🗑️ Azzera progressi', {
+      scale: 0.58,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnAzzera.setKind('wrong');
+    btnAzzera.onTap(() => {
+      resetAllProgress();
+      this.scene.restart();
+    });
   }
 }

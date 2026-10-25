@@ -1301,6 +1301,47 @@ body[data-scena="Game"] #mobile-deck {
   white-space: nowrap;
 }
 
+.sic-slot-prof-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #0369a1;
+  background: #e0f2fe;
+  border-radius: 999px;
+  padding: 1px 6px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.sic-player-profile-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.sic-profile-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sic-profile-select {
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #000000;
+  background: #ffffff;
+  border: 2px solid #00a2e8;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+}
+
 .sic-token-picker-header {
   font-size: 13px;
   font-weight: 700;

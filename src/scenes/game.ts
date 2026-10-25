@@ -7,6 +7,7 @@ import type { RoundOutcome } from '../core/state';
 import { drawSportChannelFrame, showBanner, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
+import { getTeamSetup, getProfileLabel } from '../core/player';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { mostraNav, nascondiNav } from '../ui/nav';
@@ -18,6 +19,7 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const impostazioni = loadSettings();
+    const team = getTeamSetup();
     const cfg = resolveConfig(impostazioni);
     const mode = impostazioni.mode ?? 'quiz';
     const pack = allPacks().find((p) => p.subject === getMateria());
@@ -187,16 +189,33 @@ export class GameScene extends Phaser.Scene {
         });
         return;
       }
-      if (cfg.clearProgress) {
+
+      const roundPlayer = team.players[index % team.players.length];
+      const playerProfileId = roundPlayer.profileId ?? impostazioni.profileId ?? null;
+      const roundCfg = resolveConfig({
+        ...impostazioni,
+        profileId: playerProfileId,
+        overrides: roundPlayer.overrides ?? impostazioni.overrides ?? {}
+      });
+
+      if (team.numPlayers > 1) {
+        contatore.setText(`${roundPlayer.token.icon} G${roundPlayer.playerIndex} · Prova ${index + 1}/${rounds.length}`);
+      } else if (cfg.clearProgress) {
         contatore.setText(`Prova ${index + 1} di ${rounds.length}`);
       }
+
       const round: Round = rounds[index];
-      guidaPico?.setText(testoGuidaPer(round));
+      if (team.numPlayers > 1) {
+        guidaPico?.setText(`Turno di ${roundPlayer.token.icon} ${roundPlayer.token.name} (${getProfileLabel(roundPlayer.profileId)}): ${testoGuidaPer(round)}`);
+      } else {
+        guidaPico?.setText(testoGuidaPer(round));
+      }
+
       const scelta = round.type === 'quiz' || round.type === 'image';
       if (runner) world.setSpeed(scelta ? runSpeed : 0);
       const bannerY = scelta ? 186 : 468;
       let errori = 0;
-      current = showChallenge(this, round, cfg, {
+      current = showChallenge(this, round, roundCfg, {
         onCorrect: () => {
           correct += 1;
           index += 1;

@@ -478,6 +478,20 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
     if (titolo) nav.appendChild(creaBtnDom(titolo, 'm-btn-secondary'));
     card.appendChild(nav);
 
+    const playerBtns = buttons.filter((b) => /G[1-4]:/.test(b.label()));
+    if (playerBtns.length > 0) {
+      const pHeader = document.createElement('div');
+      pHeader.className = 'm-group-title';
+      pHeader.textContent = 'Seleziona il giocatore da configurare:';
+      card.appendChild(pHeader);
+
+      const pRow = document.createElement('div');
+      pRow.className = 'm-grid-2';
+      pRow.style.margin = '6px 0 10px 0';
+      playerBtns.forEach((b) => pRow.appendChild(creaBtnDom(b, 'm-btn-compact')));
+      card.appendChild(pRow);
+    }
+
     const custom = buttons.find((b) => b.label().includes('Personalizza Caratteristiche'));
     if (custom) {
       const cWrap = document.createElement('div');
@@ -736,7 +750,16 @@ function renderProgress(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   topNav.appendChild(topBtn);
   card.appendChild(topNav);
 
-  const tot = testi.find((t) => t.text.startsWith('Totale:'));
+  const playerBtns = items.filter((i) => /G[1-4]:/.test(i.label()));
+  if (playerBtns.length > 0) {
+    const pTabs = document.createElement('div');
+    pTabs.className = 'm-grid-2';
+    pTabs.style.margin = '4px 0 8px 0';
+    playerBtns.forEach((b) => pTabs.appendChild(creaBtnDom(b, 'm-btn-compact')));
+    card.appendChild(pTabs);
+  }
+
+  const tot = testi.find((t) => t.text.startsWith('Totale'));
   const ult = testi.find((t) => t.text.startsWith('Ultima partita:'));
   if (tot || ult) {
     const pill = document.createElement('div');
@@ -759,8 +782,14 @@ function renderProgress(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   });
   card.appendChild(list);
 
-  // Pulsante Esci duplicato anche a fondo lista
-  if (indietro) card.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+  // Azioni a fondo lista: torna al titolo e azzera progressi
+  const azzera = items.find((i) => i.label().includes('Azzera'));
+  const bRow = document.createElement('div');
+  bRow.className = 'm-grid-2';
+  bRow.style.marginTop = '10px';
+  if (indietro) bRow.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
+  if (azzera) bRow.appendChild(creaBtnDom(azzera, 'm-btn-compact'));
+  card.appendChild(bRow);
 
   deck.appendChild(card);
 }

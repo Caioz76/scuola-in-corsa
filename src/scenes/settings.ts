@@ -11,6 +11,7 @@ import {
 import { BES_PROFILES } from '../bes/profiles';
 import { RULE_BY_ID } from '../bes/rules';
 import { loadSettings, saveSettings } from '../core/settings';
+import { getTeamSetup, setPlayerProfile, getProfileLabel, getPlayerSummary } from '../core/player';
 import { addWorld } from '../art/world';
 import { synth } from '../audio/synth';
 
@@ -49,6 +50,7 @@ export type NodoImpostazioni =
   | 'gioco';
 
 let nodoCorrente: NodoImpostazioni = 'radice';
+let playerConfigIndex = 1;
 
 export class SettingsScene extends Phaser.Scene {
   constructor() {
@@ -212,7 +214,12 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    makeText(this, w / 2, 40, 'Profili BES / DSA — Talentopolis', cfg, {
+    const team = getTeamSetup();
+    if (playerConfigIndex > team.numPlayers) playerConfigIndex = 1;
+    const activePlayer = team.players.find((p) => p.playerIndex === playerConfigIndex) ?? team.players[0];
+    const currentProfileId = activePlayer.profileId;
+
+    makeText(this, w / 2, 36, 'Profili BES / DSA — Talentopolis', cfg, {
       size: 24,
       bold: true,
       color: '#000000',
@@ -220,22 +227,55 @@ export class SettingsScene extends Phaser.Scene {
       maxH: 30
     });
 
-    makeText(this, w / 2, 70, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
-      size: 13.5,
-      bold: true,
-      color: '#1e293b',
-      wrap: 680,
-      maxH: 20
-    });
+    if (team.numPlayers > 1) {
+      // Selettore a linguette per ciascun giocatore
+      const num = team.numPlayers;
+      const step = Math.min(220, 840 / num);
+      const startX = w / 2 - ((num - 1) * step) / 2;
+      team.players.forEach((p, idx) => {
+        const isCurrent = p.playerIndex === playerConfigIndex;
+        const b = makeButton(
+          this,
+          cfg,
+          startX + idx * step,
+          72,
+          `${p.token.icon} G${p.playerIndex}: ${getProfileLabel(p.profileId)}`,
+          { scale: 0.58, maxTargetScale: 1.02, depth: 10 }
+        );
+        b.setKind(isCurrent ? 'selected' : 'unselected');
+        b.onTap(() => {
+          playerConfigIndex = p.playerIndex;
+          this.scene.restart();
+        });
+      });
 
+      makeText(
+        this,
+        w / 2,
+        100,
+        `Configura il profilo per G${activePlayer.playerIndex} (${activePlayer.token.icon} ${activePlayer.token.name}):`,
+        cfg,
+        { size: 13, bold: true, color: '#1e293b', wrap: 680, maxH: 18 }
+      );
+    } else {
+      makeText(this, w / 2, 68, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
+        size: 13.5,
+        bold: true,
+        color: '#1e293b',
+        wrap: 680,
+        maxH: 20
+      });
+    }
+
+    const customY = team.numPlayers > 1 ? 126 : 115;
     // Tasto Caratteristiche Custom
     const btnCustom = makeButton(
       this,
       cfg,
       w / 2,
-      115,
+      customY,
       'Personalizza Caratteristiche (Custom)',
-      { scale: 0.72, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.70, maxTargetScale: 1.02, depth: 10 }
     );
     btnCustom.setKind('correct');
     btnCustom.onTap(() => {
@@ -245,38 +285,45 @@ export class SettingsScene extends Phaser.Scene {
 
     // 9 Profili BES in griglia 3x3 simmetrica
     const xs = [232, 512, 792];
-    const ys = [175, 238, 301];
+    const baseGridY = team.numPlayers > 1 ? 180 : 175;
+    const ys = [baseGridY, baseGridY + 63, baseGridY + 126];
     BES_PROFILES.forEach((p, i) => {
       const b = makeButton(this, cfg, xs[i % 3], ys[Math.floor(i / 3)], p.label, {
         scale: 0.72,
         maxTargetScale: 1.0,
         depth: 10
       });
-      const isSel = p.id === impostazioni.profileId;
+      const isSel = p.id === currentProfileId;
       b.setKind(isSel ? 'selected' : 'unselected');
       b.onTap(() => {
-        saveSettings({ ...impostazioni, profileId: p.id, overrides: {} });
+        setPlayerProfile(playerConfigIndex, p.id);
+        if (playerConfigIndex === 1) {
+          saveSettings({ ...impostazioni, profileId: p.id, overrides: {} });
+        }
         this.scene.restart();
       });
     });
 
     // Tasto Nessun Profilo (Standard)
-    const btnStandard = makeButton(this, cfg, w / 2, 368, 'Nessun profilo (Standard)', {
+    const btnStandard = makeButton(this, cfg, w / 2, baseGridY + 190, 'Nessun profilo (Standard)', {
       scale: 0.70,
       maxTargetScale: 1.02,
       depth: 10
     });
-    btnStandard.setKind(impostazioni.profileId === null ? 'selected' : 'unselected');
+    btnStandard.setKind(currentProfileId === null ? 'selected' : 'unselected');
     btnStandard.onTap(() => {
-      saveSettings({ ...impostazioni, profileId: null, overrides: {} });
+      setPlayerProfile(playerConfigIndex, null);
+      if (playerConfigIndex === 1) {
+        saveSettings({ ...impostazioni, profileId: null, overrides: {} });
+      }
       this.scene.restart();
     });
 
-    const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
+    const scelto = BES_PROFILES.find((p) => p.id === currentProfileId);
     makeText(
       this,
       w / 2,
-      420,
+      baseGridY + 236,
       scelto ? scelto.description : 'Regole standard per tutti i bambini.',
       cfg,
       { size: 13, bold: true, color: scelto ? '#064e22' : '#102a43', wrap: 800, maxH: 22 }

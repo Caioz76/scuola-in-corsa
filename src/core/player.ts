@@ -1,9 +1,11 @@
 /**
- * Gestione dei giocatori e della selezione da 1 a 4 personaggi in stile Monopoli.
- * Nessuna digitazione tastiera richiesta: selezione rapida, visiva e adatta ai bambini.
+ * Gestione dei giocatori e della selezione da 1 a 4 personaggi in stile Monopoli,
+ * con configurazione del profilo BES/DSA indipendente per ciascun giocatore.
  */
 
 import { storage } from './storage';
+import { resetAllProgress } from './progress';
+import { BES_PROFILES, PROFILE_BY_ID } from '../bes/profiles';
 
 export interface PlayerToken {
   id: string;
@@ -30,6 +32,8 @@ export const TOKENS: PlayerToken[] = [
 export interface ActivePlayer {
   playerIndex: number; // 1, 2, 3, 4
   token: PlayerToken;
+  profileId: string | null;
+  overrides?: Record<string, boolean>;
 }
 
 export interface TeamSetup {
@@ -42,16 +46,36 @@ const K_TEAM = 'team_setup';
 export function getTeamSetup(): TeamSetup {
   const saved = storage.get<TeamSetup | null>(K_TEAM, null);
   if (saved && saved.numPlayers >= 1 && saved.numPlayers <= 4 && Array.isArray(saved.players) && saved.players.length === saved.numPlayers) {
-    return saved;
+    // Normalizza la presenza di profileId
+    const players = saved.players.map((p, idx) => ({
+      playerIndex: p.playerIndex ?? idx + 1,
+      token: p.token ?? TOKENS[idx % TOKENS.length],
+      profileId: p.profileId ?? null,
+      overrides: p.overrides ?? {}
+    }));
+    return {
+      numPlayers: saved.numPlayers,
+      players
+    };
   }
-  // Default: 1 giocatore con Volpina Sprint
+  // Default: 1 giocatore con Volpina Sprint e nessun profilo BES (standard)
   return {
     numPlayers: 1,
-    players: [{ playerIndex: 1, token: TOKENS[0] }]
+    players: [{ playerIndex: 1, token: TOKENS[0], profileId: null }]
   };
 }
 
 export function saveTeamSetup(setup: TeamSetup): void {
+  const old = storage.get<TeamSetup | null>(K_TEAM, null);
+  // Se sono cambiati i giocatori (numero o identità personaggi), azzera la pagina dei progressi!
+  if (old && Array.isArray(old.players)) {
+    const countChanged = old.numPlayers !== setup.numPlayers;
+    const tokensChanged = old.players.some((p, i) => !setup.players[i] || p.token.id !== setup.players[i].token.id);
+    if (countChanged || tokensChanged) {
+      resetAllProgress();
+    }
+  }
+
   storage.set(K_TEAM, setup);
   try {
     localStorage.setItem('sic.team_setup', JSON.stringify(setup));
@@ -61,12 +85,39 @@ export function saveTeamSetup(setup: TeamSetup): void {
   }
 }
 
+export function setPlayerProfile(playerIndex: number, profileId: string | null): void {
+  const setup = getTeamSetup();
+  const player = setup.players.find((p) => p.playerIndex === playerIndex);
+  if (player) {
+    player.profileId = profileId;
+    saveTeamSetup(setup);
+  }
+}
+
+export function getPlayerProfile(playerIndex: number): string | null {
+  const setup = getTeamSetup();
+  const player = setup.players.find((p) => p.playerIndex === playerIndex);
+  return player?.profileId ?? null;
+}
+
+export function getProfileLabel(profileId: string | null): string {
+  if (!profileId) return 'Standard';
+  return PROFILE_BY_ID.get(profileId)?.label ?? profileId;
+}
+
 export function getPlayerSummary(): string {
   const setup = getTeamSetup();
   if (setup.numPlayers === 1) {
-    return `${setup.players[0].token.icon} ${setup.players[0].token.name}`;
+    const p = setup.players[0];
+    const prof = p.profileId ? ` · ${getProfileLabel(p.profileId)}` : '';
+    return `${p.token.icon} ${p.token.name}${prof}`;
   }
-  const icons = setup.players.map((p) => `${p.token.icon} G${p.playerIndex}`).join(' · ');
+  const icons = setup.players
+    .map((p) => {
+      const prof = p.profileId ? ` (${getProfileLabel(p.profileId)})` : '';
+      return `${p.token.icon} G${p.playerIndex}${prof}`;
+    })
+    .join(' · ');
   return `👥 ${setup.numPlayers} Giocatori (${icons})`;
 }
 
@@ -76,14 +127,14 @@ export function getPlayerName(): string {
 }
 
 export function setPlayerName(_name: string): void {
-  // Mantenuto per compatibilità con test esistenti
+  // Mantenuto per compatibilità
 }
 
 let lastClosedTime = 0;
 let isOpening = false;
 
 /**
- * Modale grafico per selezionare da 1 a 4 giocatori e per ognuno il personaggio (stile Monopoli).
+ * Modale grafico per selezionare da 1 a 4 giocatori, il personaggio e il profilo BES/DSA associato.
  */
 export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void): void {
   if (isOpening || Date.now() - lastClosedTime < 350) return;
@@ -92,13 +143,15 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
   isOpening = true;
   const currentSetup = getTeamSetup();
   let currentNum = currentSetup.numPlayers;
-  // Mappa di assegnazione: per ogni giocatore (1..4) il relativo token
+  // Mappa di assegnazione: per ogni giocatore (1..4) token e profilo
   let chosenTokens: PlayerToken[] = [...currentSetup.players.map((p) => p.token)];
+  let chosenProfiles: (string | null)[] = [...currentSetup.players.map((p) => p.profileId ?? null)];
 
   // Assicurati che ci siano abbastanza token diversi se numPlayers viene alzato
   while (chosenTokens.length < 4) {
     const nextAvail = TOKENS.find((t) => !chosenTokens.some((c) => c.id === t.id)) || TOKENS[chosenTokens.length % TOKENS.length];
     chosenTokens.push(nextAvail);
+    chosenProfiles.push(null);
   }
 
   let activeSlot = 1; // Giocatore attualmente in modifica token (1..currentNum)
@@ -114,7 +167,7 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
     modal.innerHTML = `
       <div class="sic-dialog-icon">🎮</div>
       <h2 class="sic-dialog-title">Chi Gioca?</h2>
-      <p class="sic-dialog-sub">Scegli il numero di giocatori e il personaggio per ciascuno:</p>
+      <p class="sic-dialog-sub">Scegli il numero di giocatori, il personaggio e il profilo BES/DSA per ciascuno:</p>
       
       <!-- Scelta Numero Giocatori (1..4) -->
       <div class="sic-players-count-row">
@@ -130,25 +183,42 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
           .join('')}
       </div>
 
-      <!-- Schede Giocatori Attivi con Personaggio Scelto -->
+      <!-- Schede Giocatori Attivi con Personaggio e Profilo Scelto -->
       <div class="sic-slots-row">
         ${Array.from({ length: currentNum }, (_, i) => i + 1)
           .map((idx) => {
             const tok = chosenTokens[idx - 1];
+            const prof = chosenProfiles[idx - 1];
             const isEditing = activeSlot === idx;
             return `
             <button type="button" class="sic-slot-card ${isEditing ? 'is-editing' : ''}" data-slot="${idx}" style="border-color: ${tok.color};">
               <span class="sic-slot-num" style="background: ${tok.color};">G${idx}</span>
               <span class="sic-slot-icon">${tok.icon}</span>
               <span class="sic-slot-name">${tok.name}</span>
+              <span class="sic-slot-prof-badge">${getProfileLabel(prof)}</span>
             </button>
           `;
           })
           .join('')}
       </div>
 
+      <!-- Profilo BES/DSA dedicato al giocatore attivo -->
+      <div class="sic-player-profile-row">
+        <label for="sic-prof-select" class="sic-profile-label">
+          🧩 <strong>Profilo BES/DSA per G${activeSlot} (${chosenTokens[activeSlot - 1]?.name}):</strong>
+        </label>
+        <select id="sic-prof-select" class="sic-profile-select">
+          <option value="" ${!chosenProfiles[activeSlot - 1] ? 'selected' : ''}>Nessun profilo (Standard)</option>
+          ${BES_PROFILES.map((p) => `
+            <option value="${p.id}" ${chosenProfiles[activeSlot - 1] === p.id ? 'selected' : ''}>
+              ${p.label} — ${p.description}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+
       <div class="sic-token-picker-header">
-        Tocca un personaggio per <strong>Giocatore ${activeSlot}</strong>:
+        Scegli il personaggio per <strong>Giocatore ${activeSlot}</strong>:
       </div>
 
       <!-- Elenco Personaggi Stile Monopoli -->
@@ -201,6 +271,13 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
       });
     });
 
+    // Handler Cambio Profilo BES/DSA per Giocatore Attivo
+    const selProf = modal.querySelector<HTMLSelectElement>('#sic-prof-select');
+    selProf?.addEventListener('change', () => {
+      chosenProfiles[activeSlot - 1] = selProf.value ? selProf.value : null;
+      renderModalContent();
+    });
+
     // Handler Scelta Personaggio
     modal.querySelectorAll<HTMLButtonElement>('.sic-token-choice:not([disabled])').forEach((btn) => {
       btn.addEventListener('click', (ev) => {
@@ -225,7 +302,8 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
         numPlayers: currentNum,
         players: Array.from({ length: currentNum }, (_, i) => ({
           playerIndex: i + 1,
-          token: chosenTokens[i]
+          token: chosenTokens[i],
+          profileId: chosenProfiles[i] ?? null
         }))
       };
       saveTeamSetup(finalSetup);

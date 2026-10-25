@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 import { drawSportChannelFrame, makeText, makeButton } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { setStars, pushResult } from '../core/progress';
+import { setStars, setPlayerStars, pushResult } from '../core/progress';
 import { allPacks } from '../content/packs';
 import { setLevel } from './shared';
-import { getPlayerName } from '../core/player';
+import { getPlayerName, getTeamSetup } from '../core/player';
 import type { RoundOutcome } from '../core/state';
 import { addWorld, themeFor } from '../art/world';
 import { start2DCelebration } from '../art/celebration';
@@ -37,6 +37,10 @@ export class ResultsScene extends Phaser.Scene {
             ? 1
             : 0;
 
+    const team = getTeamSetup();
+    team.players.forEach((p) => {
+      setPlayerStars(p.token.id, packId, levelId, stelle);
+    });
     setStars(packId, levelId, stelle);
     setLevel(levelId);
 
@@ -86,7 +90,8 @@ export class ResultsScene extends Phaser.Scene {
 
     // ── Testi ad altissimo contrasto sopra la scheda (depth: 10) ──
     const nomeGiocatore = getPlayerName();
-    makeText(this, 512, 72, nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!', cfg, {
+    const titoloFine = team.numPlayers > 1 ? 'Bravissima Squadra!' : (nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!');
+    makeText(this, 512, 72, titoloFine, cfg, {
       size: 34,
       bold: true,
       color: '#000000',
