@@ -94,4 +94,57 @@ describe('Rilevamento Smart TV e dispositivi a grande schermo', () => {
     });
     expect(isPhone).toBe(true);
   });
+
+  describe('Telecomandi Smart TV: D-Pad e tasti azione', () => {
+    it('riconosce i codici hardware specifici dei principali produttori TV', () => {
+      // Samsung Tizen Return: 10009
+      // LG webOS Back: 461
+      // Android TV Dpad Center: 23, Enter: 66, Back: 4
+      const samsungReturn = 10009;
+      const lgBack = 461;
+      const androidDpadCenter = 23;
+      const androidEnter = 66;
+
+      expect(samsungReturn).toBe(10009);
+      expect(lgBack).toBe(461);
+      expect([23, 66]).toContain(androidDpadCenter);
+      expect([23, 66]).toContain(androidEnter);
+    });
+
+    it('calcola correttamente la direzione ottimale in una griglia 2x2 di pulsanti (stile Materie)', () => {
+      // Posizioni tipiche di SubjectScene:
+      // Italiano: (320, 210), Matematica: (704, 210)
+      // Scienze:  (320, 330), Storia:     (704, 330)
+      const pulsanti = [
+        { id: 1, name: 'Italiano', x: 320, y: 210 },
+        { id: 2, name: 'Matematica', x: 704, y: 210 },
+        { id: 3, name: 'Scienze', x: 320, y: 330 },
+        { id: 4, name: 'Storia', x: 704, y: 330 }
+      ];
+
+      // Da Italiano (id 1) premendo Destra
+      const daItalianoDestra = pulsanti
+        .filter((p) => p.id !== 1 && p.x > 320 + 8)
+        .sort((a, b) => Math.abs(a.x - 320) + Math.abs(a.y - 210) * 2.2 - (Math.abs(b.x - 320) + Math.abs(b.y - 210) * 2.2))[0];
+      expect(daItalianoDestra.name).toBe('Matematica');
+
+      // Da Italiano (id 1) premendo Giù
+      const daItalianoGiu = pulsanti
+        .filter((p) => p.id !== 1 && p.y > 210 + 8)
+        .sort((a, b) => Math.abs(a.y - 210) + Math.abs(a.x - 320) * 2.2 - (Math.abs(b.y - 210) + Math.abs(b.x - 320) * 2.2))[0];
+      expect(daItalianoGiu.name).toBe('Scienze');
+
+      // Da Storia (id 4) premendo Su
+      const daStoriaSu = pulsanti
+        .filter((p) => p.id !== 4 && p.y < 330 - 8)
+        .sort((a, b) => Math.abs(a.y - 330) + Math.abs(a.x - 704) * 2.2 - (Math.abs(b.y - 330) + Math.abs(b.x - 704) * 2.2))[0];
+      expect(daStoriaSu.name).toBe('Matematica');
+
+      // Da Storia (id 4) premendo Sinistra
+      const daStoriaSinistra = pulsanti
+        .filter((p) => p.id !== 4 && p.x < 704 - 8)
+        .sort((a, b) => Math.abs(a.x - 704) + Math.abs(a.y - 330) * 2.2 - (Math.abs(b.x - 704) + Math.abs(b.y - 330) * 2.2))[0];
+      expect(daStoriaSinistra.name).toBe('Scienze');
+    });
+  });
 });

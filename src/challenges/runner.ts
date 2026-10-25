@@ -155,6 +155,8 @@ function makeSign(
     enabled: () => enabled && root.active,
     x: () => lx,
     y: () => GATE_Y,
+    w: () => 220,
+    h: () => 64,
     trigger: () => {
       if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
     }

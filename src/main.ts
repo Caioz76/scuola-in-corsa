@@ -16,6 +16,7 @@ import { stato3D, type Stato3D } from './art/three-world';
 import { getActiveRounds } from './content/packs';
 import type { Round } from './content/types';
 import { initMobilePortrait, isSmartTV } from './ui/mobile-portrait';
+import { initTVNavigation } from './ui/tv-navigation';
 
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
@@ -67,6 +68,7 @@ window.addEventListener('orientationchange', () => {
 adattaScalaGioco();
 
 initMobilePortrait(game);
+initTVNavigation(game);
 
 // Se supportato dal browser, blocca l'orientamento in verticale solo su smartphone (mai su Smart TV o desktop)
 if (!isSmartTV()) {

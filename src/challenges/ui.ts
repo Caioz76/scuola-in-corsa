@@ -162,12 +162,14 @@ export type MobileItemState =
 
 export interface MobileItem {
   id: number;
-  kind: 'button' | 'chip' | 'toggle' | 'sign';
+  kind: 'button' | 'chip' | 'toggle' | 'sign' | 'zone' | 'gate';
   label: () => string;
   state: () => MobileItemState;
   enabled: () => boolean;
   x: () => number;
   y: () => number;
+  w?: () => number;
+  h?: () => number;
   trigger: () => void;
 }
 
@@ -358,6 +360,8 @@ export function makeButton(
     enabled: () => enabled && root.active && root.visible,
     x: () => root.x,
     y: () => root.y,
+    w: () => BTN_W * s,
+    h: () => BTN_H * s,
     trigger: () => {
       if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
     }
@@ -480,6 +484,8 @@ export function makeChip(
     enabled: () => enabled && root.active && root.visible,
     x: () => root.x,
     y: () => root.y,
+    w: () => (o.w ?? 256) * ts,
+    h: () => (o.h ?? 96) * ts,
     trigger: () => {
       if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
     }
@@ -680,6 +686,8 @@ export function makeToggle(
     enabled: () => zona.active,
     x: () => x,
     y: () => y,
+    w: () => w,
+    h: () => h,
     trigger: () => {
       if (zona.active) onTap();
     }

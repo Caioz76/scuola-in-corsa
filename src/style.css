@@ -108,6 +108,18 @@ body.dismiss-rotate #ruota-in-verticale {
   display: none !important;
 }
 
+/* Navigazione Smart TV da Telecomando (Focus ad alta visibilità per divano) */
+.tv-focused,
+body.smart-tv :focus-visible,
+.sic-dialog-card button:focus-visible,
+.sic-dialog-card select:focus-visible {
+  outline: 4px solid #00f0ff !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.9) !important;
+  transform: scale(1.05) !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
 #ruota-in-verticale .ruota-v-box {
   position: relative;
   display: flex;
