@@ -13,6 +13,7 @@ import { start2DCelebration } from '../art/celebration';
 
 export class ResultsScene extends Phaser.Scene {
   private stopCelebration?: () => void;
+  public playerStats?: PlayerRoundStat[];
 
   constructor() {
     super('Results');
@@ -122,6 +123,7 @@ export class ResultsScene extends Phaser.Scene {
         correct: 1,
         stars: stelle
       }));
+      this.playerStats = stats;
 
       const num = team.numPlayers;
       const colW = Math.min(205, (cardW - 40) / num);
@@ -131,9 +133,9 @@ export class ResultsScene extends Phaser.Scene {
       team.players.forEach((p, i) => {
         const cx = startX + i * colW;
         const st = stats.find((s) => s.playerIndex === p.playerIndex) ?? {
-          correct: 1,
-          roundsPlayed: 1,
-          stars: stelle
+          correct: 0,
+          roundsPlayed: 0,
+          stars: 0
         };
         const hexColor = parseInt(p.token.color.replace('#', '0x'), 16) || 0x00a2e8;
 
@@ -193,10 +195,13 @@ export class ResultsScene extends Phaser.Scene {
           }
         );
 
+        const isPerfeito = st.roundsPlayed > 0 && st.correct === st.roundsPlayed;
+        const colStat = isPerfeito ? '#16a34a' : st.correct > 0 ? '#d97706' : '#dc2626';
+
         makeText(this, cx, 280, `${st.correct} / ${st.roundsPlayed} corrette`, cfg, {
           size: 13,
           bold: true,
-          color: '#000000',
+          color: colStat,
           align: 'center',
           wrap: colW - 16,
           maxH: 20
@@ -206,7 +211,7 @@ export class ResultsScene extends Phaser.Scene {
         makeText(this, cx, 302, `${pct}% successo`, cfg, {
           size: 12.5,
           bold: true,
-          color: '#16a34a',
+          color: colStat,
           align: 'center',
           wrap: colW - 16,
           maxH: 20

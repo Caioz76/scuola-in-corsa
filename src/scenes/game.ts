@@ -315,11 +315,14 @@ export class GameScene extends Phaser.Scene {
       let errori = 0;
       current = showChallenge(this, round, roundCfg, {
         onCorrect: () => {
-          correct += 1;
-          playerStats[roundPlayer.playerIndex].correct += 1;
+          const alPrimoColpo = errori === 0;
+          if (alPrimoColpo) {
+            correct += 1;
+            playerStats[roundPlayer.playerIndex].correct += 1;
+          }
           index += 1;
-          outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
-          guidaPico?.setText('Pico: Bravissimo, avanti così!');
+          outcomes.push({ roundId: round.id, correct: alPrimoColpo, attempts: errori, timeMs: 0 });
+          guidaPico?.setText(alPrimoColpo ? 'Pico: Bravissimo, avanti così!' : 'Pico: Bene, completata! Continuiamo!');
           if (runner) world.setSpeed(Math.max(560, runSpeed + 80));
           else world.dash();
           world.setProgress(index, rounds.length);
@@ -327,9 +330,10 @@ export class GameScene extends Phaser.Scene {
           const nextP = team.players[index % team.players.length];
           const okMsg =
             team.numPlayers > 1 && index < rounds.length
-              ? `Ottimo ${roundPlayer.token.name}! Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`
+              ? `Turno completato! Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`
               : null;
-          const ok = showBanner(this, cfg, 'Giusto!', okMsg, 'ok', { y: bannerY });
+          const bannerTitle = alPrimoColpo ? 'Giusto!' : 'Completata!';
+          const ok = showBanner(this, cfg, bannerTitle, okMsg, 'ok', { y: bannerY });
           this.time.delayedCall(900 * ritmo, () => {
             ok.dispose();
             next();

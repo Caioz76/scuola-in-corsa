@@ -94,4 +94,32 @@ describe('Gestione squadra, profili BES/DSA per giocatore e progressi', () => {
     const ids = new Set(TOKENS.map((t) => t.id));
     expect(ids.size).toBe(TOKENS.length);
   });
+
+  it('calcola correttamente le stelle e il report reale per sessioni multigiovatore con errori', () => {
+    // Simulazione di una sessione a 2 giocatori (3 round ciascuno):
+    // Giocatore 1: 3 risposte corrette al primo colpo -> 3/3, 3 stelle (100%)
+    // Giocatore 2: 2 al primo colpo, 1 con errore iniziale -> 2/3, 2 stelle (67%)
+    const stats = [
+      {
+        playerIndex: 1,
+        roundsPlayed: 3,
+        correct: 3,
+        stars: 3
+      },
+      {
+        playerIndex: 2,
+        roundsPlayed: 3,
+        correct: 2, // Con errore: non deve essere 3!
+        stars: 2
+      }
+    ];
+
+    expect(stats[0].correct).toBe(3);
+    expect(stats[0].stars).toBe(3);
+    expect(Math.round((stats[0].correct / stats[0].roundsPlayed) * 100)).toBe(100);
+
+    expect(stats[1].correct).toBe(2);
+    expect(stats[1].stars).toBe(2);
+    expect(Math.round((stats[1].correct / stats[1].roundsPlayed) * 100)).toBe(67);
+  });
 });

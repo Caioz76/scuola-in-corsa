@@ -219,7 +219,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     } else if (key === 'Game') {
       renderGame(deck, items, testi, iconaUrl, scena);
     } else if (key === 'Pause' || key === 'Results') {
-      renderModalScene(deck, items, testi);
+      renderModalScene(deck, items, testi, scena);
     }
 
     if (scrollPrev > 0) deck.scrollTop = scrollPrev;
@@ -840,11 +840,21 @@ function renderProgress(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   deck.appendChild(card);
 }
 
-function renderModalScene(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]): void {
+function renderModalScene(
+  deck: HTMLElement,
+  items: MobileItem[],
+  testi: TextEntry[],
+  scena?: Phaser.Scene | null
+): void {
   const card = document.createElement('div');
   card.className = 'm-card';
 
-  const isResults = testi.some((t) => t.text.includes('Riepilogo') || t.text.includes('Tappa completata') || t.text.includes('Bravissim'));
+  const isResults = testi.some(
+    (t) =>
+      t.text.includes('Riepilogo') ||
+      t.text.includes('Tappa completata') ||
+      t.text.includes('Bravissim')
+  );
   const team = getTeamSetup();
 
   if (isResults && team.numPlayers > 1) {
@@ -855,22 +865,43 @@ function renderModalScene(deck: HTMLElement, items: MobileItem[], testi: TextEnt
 
     const subEl = document.createElement('div');
     subEl.className = 'm-sub';
-    subEl.textContent = 'Risultati e progressi ottenuti da ciascun giocatore:';
+    subEl.textContent = 'Risultati e progressi reali ottenuti da ciascun giocatore:';
     card.appendChild(subEl);
 
     const vList = document.createElement('div');
     vList.className = 'm-vertical-results-list';
 
+    const resultsScene = scena as
+      | (Phaser.Scene & { playerStats?: import('../scenes/game').PlayerRoundStat[] })
+      | null;
+    const pStats = resultsScene?.playerStats ?? [];
+
     team.players.forEach((p) => {
+      const st = pStats.find((s) => s.playerIndex === p.playerIndex) ?? {
+        correct: 0,
+        roundsPlayed: 0,
+        stars: 0
+      };
+      const isPerfeito = st.roundsPlayed > 0 && st.correct === st.roundsPlayed;
+      const pct = st.roundsPlayed > 0 ? Math.round((st.correct / st.roundsPlayed) * 100) : 0;
+      const badgeCls = isPerfeito ? 'ok' : st.correct > 0 ? 'partial' : 'bad';
+      const badgeTxt = isPerfeito
+        ? `Tutte corrette! (${st.correct}/${st.roundsPlayed})`
+        : `${st.correct}/${st.roundsPlayed} corrette (${pct}%)`;
+
       const row = document.createElement('div');
       row.className = 'm-player-vertical-card';
       row.style.borderLeft = `5px solid ${p.token.color}`;
       row.innerHTML = `
         <div class="m-player-v-logo" style="background: ${p.token.bg}; border-color: ${p.token.color};">${p.token.icon}</div>
         <div class="m-player-v-info">
-          <div class="m-player-v-name">${p.token.name} (G${p.playerIndex})</div>
+          <div class="m-player-v-name">${p.token.name} <span class="m-player-v-idx">(G${p.playerIndex})</span></div>
           <div class="m-player-v-prof">${getProfileLabel(p.profileId)}</div>
-          <div class="m-player-v-stars">Progresso: ${totalStarsForPlayer(p.token.id)} ★ totali</div>
+          <div class="m-player-v-score">
+            <span class="m-player-v-badge ${badgeCls}">${badgeTxt}</span>
+            <span class="m-player-v-stars">${'★ '.repeat(st.stars)}${'☆ '.repeat(3 - st.stars)}</span>
+          </div>
+          <div class="m-player-v-total">Progresso globale: ${totalStarsForPlayer(p.token.id)} ★ totali</div>
         </div>
       `;
       vList.appendChild(row);
