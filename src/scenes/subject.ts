@@ -5,6 +5,7 @@ import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks, defaultLevelForYear } from '../content/packs';
 import { starsFor } from '../core/progress';
+import { getTeamSetup, getPlayerSummary } from '../core/player';
 import { addWorld } from '../art/world';
 
 export class SubjectScene extends Phaser.Scene {
@@ -27,18 +28,19 @@ export class SubjectScene extends Phaser.Scene {
       maxH: 30
     });
 
-    const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
+    const team = getTeamSetup();
+    const playerText = team.numPlayers > 1 ? `👥 Squadra: ${getPlayerSummary()}` : `👤 Giocatore: ${getPlayerSummary()}`;
     makeText(
       this,
       w / 2,
       70,
-      infoAnno ? `Classe attiva: ${infoAnno.label} · Scegli una disciplina:` : 'Scegli la disciplina con cui allenarti:',
+      `${playerText}  ·  Scegli una disciplina:`,
       cfg,
       {
         size: 13.5,
         bold: true,
-        color: '#1e293b',
-        wrap: 680,
+        color: '#0369a1',
+        wrap: 700,
         maxH: 20
       }
     );

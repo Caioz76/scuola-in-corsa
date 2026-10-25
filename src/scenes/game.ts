@@ -7,7 +7,7 @@ import type { RoundOutcome } from '../core/state';
 import { drawSportChannelFrame, showBanner, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { getTeamSetup, getProfileLabel, type PlayerToken } from '../core/player';
+import { getTeamSetup, getProfileLabel, type PlayerToken, type ActivePlayer, type TeamSetup } from '../core/player';
 import { setPlayerStars } from '../core/progress';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
@@ -23,6 +23,9 @@ export interface PlayerRoundStat {
 }
 
 export class GameScene extends Phaser.Scene {
+  public roundPlayer?: ActivePlayer;
+  public team?: TeamSetup;
+
   constructor() {
     super('Game');
   }
@@ -95,31 +98,19 @@ export class GameScene extends Phaser.Scene {
     // Solo testo nero (#000000) e centratura perfetta.
     const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
 
-    if (team.numPlayers > 1) {
-      makeText(this, 108, 23, testoTitolo, cfg, {
-        size: 12.5,
-        bold: true,
-        color: '#000000',
-        align: 'left',
-        wrap: 230,
-        maxH: 22,
-        originX: 0,
-        originY: 0.5
-      }).setDepth(100);
-    } else {
-      makeText(this, w / 2, 23, testoTitolo, cfg, {
-        size: 14,
-        bold: true,
-        color: '#000000',
-        align: 'center',
-        wrap: 580,
-        maxH: 22,
-        originX: 0.5,
-        originY: 0.5
-      }).setDepth(100);
-    }
+    // Titolo della tappa a sinistra nella barra superiore
+    makeText(this, 108, 23, testoTitolo, cfg, {
+      size: 12.5,
+      bold: true,
+      color: '#000000',
+      align: 'left',
+      wrap: 250,
+      maxH: 22,
+      originX: 0,
+      originY: 0.5
+    }).setDepth(100);
 
-    // Badge grafico del turno giocatore (con logo del personaggio in risalto)
+    // Badge grafico del turno/giocatore con logo del personaggio sempre visibile al centro
     const turnBannerGfx = this.add.graphics().setDepth(102);
     let turnLogoObj: Phaser.GameObjects.Text | null = null;
     let turnTextObj: Phaser.GameObjects.Text | null = null;
@@ -256,6 +247,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       const roundPlayer = team.players[index % team.players.length];
+      this.roundPlayer = roundPlayer;
+      this.team = team;
       playerStats[roundPlayer.playerIndex].roundsPlayed += 1;
 
       const playerProfileId = roundPlayer.profileId ?? impostazioni.profileId ?? null;
@@ -265,50 +258,58 @@ export class GameScene extends Phaser.Scene {
         overrides: roundPlayer.overrides ?? impostazioni.overrides ?? {}
       });
 
-      if (team.numPlayers > 1) {
-        // Disegna il badge del turno con il logo del giocatore
-        turnBannerGfx.clear();
-        const hexColor = parseInt(roundPlayer.token.color.replace('#', '0x'), 16) || 0x00a2e8;
-        turnBannerGfx.fillStyle(0xffffff, 0.98);
-        turnBannerGfx.fillRoundedRect(w / 2 - 190, 5, 380, 36, 18);
-        turnBannerGfx.lineStyle(2.5, hexColor, 1);
-        turnBannerGfx.strokeRoundedRect(w / 2 - 190, 5, 380, 36, 18);
+      // Disegna SEMPRE il badge del giocatore con il logo (icona) e il nome ben visibili al centro
+      turnBannerGfx.clear();
+      const hexColor = parseInt(roundPlayer.token.color.replace('#', '0x'), 16) || 0x00a2e8;
+      const hexBg = parseInt(roundPlayer.token.bg.replace('#', '0x'), 16) || 0xffffff;
 
-        if (turnLogoObj) turnLogoObj.destroy();
-        if (turnTextObj) turnTextObj.destroy();
+      turnBannerGfx.fillStyle(0xffffff, 0.98);
+      turnBannerGfx.fillRoundedRect(w / 2 - 190, 5, 380, 36, 18);
+      turnBannerGfx.lineStyle(2.5, hexColor, 1);
+      turnBannerGfx.strokeRoundedRect(w / 2 - 190, 5, 380, 36, 18);
 
-        turnLogoObj = this.add
-          .text(w / 2 - 165, 23, roundPlayer.token.icon, {
-            fontSize: '22px'
-          })
-          .setOrigin(0.5)
-          .setDepth(105);
+      if (turnLogoObj) turnLogoObj.destroy();
+      if (turnTextObj) turnTextObj.destroy();
 
-        turnTextObj = this.add
-          .text(w / 2 - 142, 13, `Turno di: ${roundPlayer.token.name} (G${roundPlayer.playerIndex})`, {
-            fontSize: '14px',
-            fontStyle: 'bold',
-            color: '#000000',
-            fontFamily:
-              roundCfg.font === 'dyslexia' ? 'OpenDyslexic, sans-serif' : 'system-ui, sans-serif'
-          })
-          .setDepth(105);
+      turnLogoObj = this.add
+        .text(w / 2 - 165, 23, roundPlayer.token.icon, {
+          fontSize: '22px'
+        })
+        .setOrigin(0.5)
+        .setDepth(105);
 
-        contatore.setText(`Prova ${index + 1}/${rounds.length}`);
-      } else if (cfg.clearProgress) {
-        contatore.setText(`Prova ${index + 1} di ${rounds.length}`);
-      }
+      const labelTurno =
+        team.numPlayers > 1
+          ? `Turno di: ${roundPlayer.token.name} (G${roundPlayer.playerIndex})`
+          : `Giocatore: ${roundPlayer.token.name}`;
+
+      turnTextObj = this.add
+        .text(w / 2 - 142, 13, labelTurno, {
+          fontSize: '14px',
+          fontStyle: 'bold',
+          color: '#000000',
+          fontFamily:
+            roundCfg.font === 'dyslexia' ? 'OpenDyslexic, sans-serif' : 'system-ui, sans-serif'
+        })
+        .setDepth(105);
+
+      contatore.setText(`Prova ${index + 1}/${rounds.length}`);
 
       const round: Round = rounds[index];
-      if (team.numPlayers > 1) {
-        guidaPico?.setText(`🎯 È il turno di ${roundPlayer.token.icon} ${roundPlayer.token.name} (${getProfileLabel(roundPlayer.profileId)}): ${testoGuidaPer(round)}`);
-      } else {
-        guidaPico?.setText(testoGuidaPer(round));
-      }
+      guidaPico?.setText(`🎯 ${roundPlayer.token.icon} ${roundPlayer.token.name}: ${testoGuidaPer(round)}`);
 
       const scelta = round.type === 'quiz' || round.type === 'image';
       if (runner) world.setSpeed(scelta ? runSpeed : 0);
       const bannerY = scelta ? 186 : 468;
+
+      if (index === 0) {
+        const welcomeMsg =
+          team.numPlayers > 1
+            ? `Inizia ${roundPlayer.token.icon} ${roundPlayer.token.name} (G${roundPlayer.playerIndex})!`
+            : `Buon allenamento con ${roundPlayer.token.icon} ${roundPlayer.token.name}!`;
+        const startBanner = showBanner(this, roundCfg, 'Pronti, via!', welcomeMsg, 'ok', { y: bannerY });
+        this.time.delayedCall(1300 * ritmo, () => startBanner.dispose());
+      }
       let errori = 0;
       current = showChallenge(this, round, roundCfg, {
         onCorrect: () => {

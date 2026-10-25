@@ -18,7 +18,7 @@ import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
-import { getTeamSetup, getProfileLabel } from '../core/player';
+import { getTeamSetup, getProfileLabel, getPlayerSummary } from '../core/player';
 import { totalStarsForPlayer } from '../core/progress';
 import { toggleFullscreen } from './fullscreen';
 
@@ -204,7 +204,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     } else if (key === 'Progress') {
       renderProgress(deck, items, testi);
     } else if (key === 'Game') {
-      renderGame(deck, items, testi, iconaUrl);
+      renderGame(deck, items, testi, iconaUrl, scena);
     } else if (key === 'Pause' || key === 'Results') {
       renderModalScene(deck, items, testi);
     }
@@ -322,6 +322,16 @@ function renderSubject(
   h.className = 'm-header';
   h.textContent = 'Scegli la materia';
   card.appendChild(h);
+
+  const team = getTeamSetup();
+  const playerBadge = document.createElement('div');
+  playerBadge.className = 'm-pill';
+  playerBadge.style.background = '#e0f2fe';
+  playerBadge.style.color = '#0369a1';
+  playerBadge.style.fontWeight = '800';
+  playerBadge.textContent =
+    team.numPlayers > 1 ? `👥 Squadra: ${getPlayerSummary()}` : `👤 Giocatore: ${getPlayerSummary()}`;
+  card.appendChild(playerBadge);
 
   const classeTxt = testi.find((t) => t.text.startsWith('Classe attiva:'));
   if (classeTxt) {
@@ -863,19 +873,36 @@ function renderGame(
   deck: HTMLElement,
   items: MobileItem[],
   testi: TextEntry[],
-  iconaUrl: string | null
+  iconaUrl: string | null,
+  scena: Phaser.Scene | null
 ): void {
   const card = document.createElement('div');
   card.className = 'm-card';
 
-  // Badge prominente del turno con logo del giocatore attivo
-  const turno = testi.find((t) => t.text.startsWith('Turno di:'));
-  if (turno) {
-    const turnCard = document.createElement('div');
-    turnCard.className = 'm-turn-banner';
-    turnCard.innerHTML = `<span class="m-turn-icon">🎯</span><span class="m-turn-title">${turno.text}</span>`;
-    card.appendChild(turnCard);
-  }
+  const team = getTeamSetup();
+  const gameScena = scena as { roundPlayer?: import('../core/player').ActivePlayer } | null;
+  const activePlayer = gameScena?.roundPlayer ?? team.players[0];
+
+  // Badge prominente del turno con logo (icona), nome e profilo del giocatore (sempre presente)
+  const turnCard = document.createElement('div');
+  turnCard.className = 'm-turn-banner';
+  turnCard.style.borderLeft = `6px solid ${activePlayer.token.color}`;
+  turnCard.style.background = activePlayer.token.bg;
+  turnCard.innerHTML = `
+    <span class="m-turn-avatar" style="font-size: 28px; line-height: 1;">${activePlayer.token.icon}</span>
+    <div class="m-turn-info" style="display: flex; flex-direction: column; text-align: left; gap: 1px;">
+      <div class="m-turn-label" style="font-size: 11px; font-weight: 800; color: #475569;">
+        ${team.numPlayers > 1 ? `TURNO DI G${activePlayer.playerIndex}` : 'GIOCATORE ATTIVO'}
+      </div>
+      <div class="m-turn-name" style="font-size: 15px; font-weight: 900; color: #000000;">
+        ${activePlayer.token.name}
+      </div>
+      <div class="m-turn-profile" style="font-size: 11px; font-weight: 700; color: #0369a1;">
+        Profilo: ${getProfileLabel(activePlayer.profileId)}
+      </div>
+    </div>
+  `;
+  card.appendChild(turnCard);
 
   // Intestazione tappa + contatore
   const headerTappa = testi.find((t) => Math.abs(t.y - 20) < 12 && t.x < 650);
