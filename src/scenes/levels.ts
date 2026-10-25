@@ -23,7 +23,7 @@ const MATERIE: Array<{ id: Materia; label: string }> = [
   { id: 'storia', label: 'Storia' }
 ];
 
-const X_TAPPE = [420, 680, 915];
+const X_TAPPE = [380, 615, 850];
 
 export class LevelsScene extends Phaser.Scene {
   constructor() {
@@ -32,41 +32,51 @@ export class LevelsScene extends Phaser.Scene {
 
   create(): void {
     const cfg = resolveConfig(loadSettings());
+    const w = this.scale.gameSize.width;
 
     addWorld(this, 'scuola', cfg, { speed: 24 });
-    drawSportChannelFrame(this, cfg, { x: 24, y: 14, w: 976, h: 468, headerH: 88 });
+    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
 
-    makeText(this, 512, 46, 'Tutte le tappe', cfg, {
-      size: 30,
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna indietro', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => this.scene.start('Subject'));
+
+    makeText(this, w / 2, 40, 'Tutte le Tappe', cfg, {
+      size: 26,
       bold: true,
-      color: '#1d6fb8',
-      wrap: 620,
-      maxH: 38,
+      color: '#ffffff',
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
-    makeText(this, 512, 86, 'Scegli direttamente la tappa da giocare.', cfg, {
-      size: 14,
-      color: '#5f7186',
-      wrap: 720,
-      maxH: 22
+    makeText(this, w / 2, 70, 'Scegli direttamente la tappa da affrontare o ripassare:', cfg, {
+      size: 13.5,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 680,
+      maxH: 20
     });
 
     MATERIE.forEach((m, row) => {
-      const y = 150 + row * 92;
+      const y = 145 + row * 80;
       const pack = allPacks().find((p) => p.subject === m.id);
-      makeText(this, 135, y, m.label, cfg, {
+      makeText(this, 155, y, m.label, cfg, {
         size: 19,
         bold: true,
         color: '#2f3b4c',
-        wrap: 210,
+        wrap: 180,
+        align: 'left',
         maxH: 34
       });
 
       pack?.levels.forEach((livello, i) => {
-        const x = X_TAPPE[i] ?? 420 + i * 250;
+        const x = X_TAPPE[i] ?? 380 + i * 235;
         const stelle = starsFor(pack.packId, livello.id);
         const b = makeButton(this, cfg, x, y, `Tappa ${i + 1} · ★ ${stelle}`, {
-          scale: 0.72,
+          scale: 0.68,
           maxTargetScale: 1.0,
           depth: 10
         });
@@ -79,9 +89,10 @@ export class LevelsScene extends Phaser.Scene {
       });
     });
 
-    const indietro = makeButton(this, cfg, 512, 525, 'Indietro', {
-      scale: 0.62,
-      maxTargetScale: 1.04
+    const indietro = makeButton(this, cfg, w / 2, 510, 'Torna alle materie', {
+      scale: 0.60,
+      maxTargetScale: 1.04,
+      depth: 10
     });
     indietro.onTap(() => this.scene.start('Subject'));
   }

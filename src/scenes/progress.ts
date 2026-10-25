@@ -23,20 +23,27 @@ export class ProgressScene extends Phaser.Scene {
     const cfg = resolveConfig(loadSettings());
 
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
-    drawSportChannelFrame(this, cfg, { x: 28, y: 12, w: 968, h: 468, headerH: 76 });
+    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
+
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al titolo', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => this.scene.start('Title'));
 
     const nome = getPlayerName();
-    const txtTitolo = makeText(this, 512, 38, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
-      size: 30,
+    const txtTitolo = makeText(this, 512, 40, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
+      size: 26,
       bold: true,
-      color: '#1d6fb8',
-      wrap: 580,
-      maxH: 36,
+      color: '#ffffff',
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
-    const btnCambiaNome = makeButton(this, cfg, 874, 38, '👤 Profilo', {
-      scale: 0.44,
+    const btnCambiaNome = makeButton(this, cfg, 884, 40, '👤 Profilo', {
+      scale: 0.52,
       maxTargetScale: 1.02,
       depth: 10
     });
@@ -46,11 +53,12 @@ export class ProgressScene extends Phaser.Scene {
       });
     });
 
-    makeText(this, 512, 74, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
-      size: 14,
-      color: '#5f7186',
-      wrap: 760,
-      maxH: 22
+    makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
+      size: 13.5,
+      bold: true,
+      color: '#e6f4fc',
+      wrap: 680,
+      maxH: 20
     });
 
     const righe = allPacks().flatMap((pack) =>
@@ -102,9 +110,10 @@ export class ProgressScene extends Phaser.Scene {
       });
     }
 
-    const indietro = makeButton(this, cfg, 512, 526, 'Torna al titolo', {
-      scale: 0.62,
-      maxTargetScale: 1.04
+    const indietro = makeButton(this, cfg, 512, 510, 'Torna al titolo', {
+      scale: 0.60,
+      maxTargetScale: 1.04,
+      depth: 10
     });
     indietro.onTap(() => this.scene.start('Title'));
   }

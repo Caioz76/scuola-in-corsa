@@ -41,42 +41,42 @@ export class TitleScene extends Phaser.Scene {
       card.fillRoundedRect(w / 2 - 312, 88, 624, 410, 32);
 
       // Corpo principale bianco porcellana Sport
-      card.fillStyle(0xffffff, 0.9);
-      card.fillRoundedRect(w / 2 - 308, 84, 616, 404, 30);
+      card.fillStyle(0xffffff, 0.92);
+      card.fillRoundedRect(w / 2 - 310, 72, 620, 430, 30);
 
       // Scanline orizzontali tipiche del menu Sport Console
       card.fillStyle(0x00a2e8, 0.038);
-      for (let sy = 98; sy < 476; sy += 6) {
+      for (let sy = 84; sy < 490; sy += 6) {
         card.fillRect(w / 2 - 294, sy, 588, 2);
       }
 
       // Fascia luminosa superiore (effetto glossy Sport)
       card.fillStyle(0xe6f5ff, 0.88);
-      card.fillRoundedRect(w / 2 - 296, 94, 592, 122, 24);
+      card.fillRoundedRect(w / 2 - 296, 80, 592, 114, 24);
       card.fillStyle(0xffffff, 0.78);
-      card.fillRoundedRect(w / 2 - 284, 98, 568, 42, 18);
+      card.fillRoundedRect(w / 2 - 284, 84, 568, 38, 18);
 
       // Swoosh sportivi diagonali Azzurro Sport (#00a2e8) e Arancio Sport (#ff9f1c)
       card.fillStyle(0x00a2e8, 0.22);
-      card.fillTriangle(w / 2 - 294, 96, w / 2 - 196, 96, w / 2 - 294, 168);
+      card.fillTriangle(w / 2 - 294, 82, w / 2 - 196, 82, w / 2 - 294, 154);
       card.fillStyle(0xff9f1c, 0.24);
-      card.fillTriangle(w / 2 + 294, 96, w / 2 + 196, 96, w / 2 + 294, 168);
+      card.fillTriangle(w / 2 + 294, 82, w / 2 + 196, 82, w / 2 + 294, 154);
 
       // Filetto divisorio Azzurro Sport sotto il titolo
       card.lineStyle(2.5, 0x00a2e8, 0.55);
-      card.lineBetween(w / 2 - 240, 216, w / 2 + 240, 216);
+      card.lineBetween(w / 2 - 240, 196, w / 2 + 240, 196);
 
       // Doppia cornice luminosa Azzurro Sport (#00a2e8) + bianco speculare
       card.lineStyle(3.5, 0x00a2e8, 0.85);
-      card.strokeRoundedRect(w / 2 - 308, 84, 616, 404, 30);
+      card.strokeRoundedRect(w / 2 - 310, 72, 620, 430, 30);
       card.lineStyle(2, 0xffffff, 0.98);
-      card.strokeRoundedRect(w / 2 - 303, 89, 606, 394, 27);
+      card.strokeRoundedRect(w / 2 - 305, 77, 610, 420, 27);
 
       // Pillola informativa stile canale Sport sotto il sottotitolo
       card.fillStyle(0xe8f6ff, 0.98);
-      card.fillRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
+      card.fillRoundedRect(w / 2 - 244, 203, 488, 32, 16);
       card.lineStyle(2, 0x00a2e8, 0.85);
-      card.strokeRoundedRect(w / 2 - 244, h / 2 - 32, 488, 34, 17);
+      card.strokeRoundedRect(w / 2 - 244, 203, 488, 32, 16);
 
       // Badge delle 4 materie ai lati della card (medaglioni lucidi Sport)
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
@@ -144,21 +144,21 @@ export class TitleScene extends Phaser.Scene {
       card.strokeRoundedRect(w / 2 - 306, 88, 612, 398, 20);
     }
 
-    makeText(this, w / 2, h / 2 - 124, GAME_NAME, cfg, {
-      size: 50,
+    makeText(this, w / 2, 122, GAME_NAME, cfg, {
+      size: 46,
       bold: true,
       color: '#1d6fb8',
       wrap: 560,
-      maxH: 58,
+      maxH: 52,
       outline: true
     }).setDepth(5);
 
-    makeText(this, w / 2, h / 2 - 60, 'Scegli la materia e corri!', cfg, {
-      size: 21,
+    makeText(this, w / 2, 168, 'Scegli la materia e corri!', cfg, {
+      size: 19,
       bold: true,
       color: '#5f7186',
       wrap: 540,
-      maxH: 30
+      maxH: 26
     }).setDepth(5);
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
@@ -169,15 +169,15 @@ export class TitleScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      h / 2 - 15,
+      219,
       `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`,
       cfg,
       {
-        size: 14,
+        size: 13.5,
         bold: true,
         color: '#2b6cb0',
         wrap: 468,
-        maxH: 24
+        maxH: 22
       }
     ).setDepth(5);
 
@@ -186,10 +186,10 @@ export class TitleScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      h / 2 + 28,
+      274,
       playerName ? `👤 Giocatore: ${playerName} (✏️)` : '👤 Inserisci il tuo nome per iniziare',
       {
-        scale: 0.54,
+        scale: 0.58,
         maxTargetScale: 1.03,
         depth: 10
       }
@@ -207,7 +207,8 @@ export class TitleScene extends Phaser.Scene {
       });
     });
 
-    const gioca = makeButton(this, cfg, w / 2, h / 2 + 96, 'Gioca', {
+    const gioca = makeButton(this, cfg, w / 2, 356, 'Gioca', {
+      scale: 1.05,
       maxTargetScale: 1.08,
       depth: 10
     });
@@ -237,22 +238,22 @@ export class TitleScene extends Phaser.Scene {
       });
     }
 
-    const impostazioni = makeButton(this, cfg, w / 2, h / 2 + 180, 'Impostazioni', {
-      scale: 0.62,
+    const impostazioni = makeButton(this, cfg, w / 2, 442, 'Impostazioni', {
+      scale: 0.64,
       maxTargetScale: 1.05,
       depth: 10
     });
     impostazioni.onTap(() => this.scene.start('Settings'));
 
-    const progressi = makeButton(this, cfg, 872, 44, 'Progressi', {
-      scale: 0.55,
+    const progressi = makeButton(this, cfg, 899, 38, 'Progressi', {
+      scale: 0.52,
       maxTargetScale: 1.05,
       depth: 10
     });
     progressi.onTap(() => this.scene.start('Progress'));
 
-    const schermoIntero = makeButton(this, cfg, 152, 44, 'Schermo intero', {
-      scale: 0.55,
+    const schermoIntero = makeButton(this, cfg, 125, 38, 'Schermo intero', {
+      scale: 0.52,
       maxTargetScale: 1.05,
       depth: 10
     });
@@ -263,7 +264,7 @@ export class TitleScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      558,
+      545,
       '© Claudio Borsotti · Applicazione in fase di sviluppo',
       cfg,
       {

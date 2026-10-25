@@ -66,7 +66,7 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     addWorld(this, 'scuola', cfg, { pico: false, speed: 20 });
-    drawSportChannelFrame(this, cfg, { x: 24, y: 8, w: 976, h: 536, headerH: 86 });
+    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
 
     if (nodoCorrente === 'bes') {
       this.creaBes(impostazioni, cfg, w);
@@ -102,21 +102,21 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    makeText(this, w / 2, 28, 'Menu Impostazioni', cfg, {
+    makeText(this, w / 2, 40, 'Menu Impostazioni', cfg, {
       size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 480,
+      wrap: 520,
       maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Seleziona una categoria da personalizzare ad albero:', cfg, {
-      size: 14,
+    makeText(this, w / 2, 70, 'Seleziona una categoria per visualizzare le opzioni dedicate:', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
-      maxH: 22
+      wrap: 680,
+      maxH: 20
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
@@ -128,9 +128,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      142,
+      145,
       `Bisogni Educativi Speciali (BES)`,
-      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
     btnBes.setKind(scelto ? 'selected' : 'unselected');
     btnBes.onTap(() => {
@@ -141,7 +141,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      188,
+      186,
       `Profilo attivo: ${scelto ? scelto.label : 'Standard (Nessun profilo)'} · Personalizza profili e caratteristiche`,
       cfg,
       { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
@@ -152,9 +152,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      252,
+      245,
       `Anno Scolastico & Difficoltà`,
-      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
     btnAnno.setKind('unselected');
     btnAnno.onTap(() => {
@@ -165,7 +165,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      298,
+      286,
       `Classe attiva: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli tra Primaria e Secondaria`,
       cfg,
       { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
@@ -176,9 +176,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      362,
+      345,
       `Gioco & Grafica`,
-      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
     btnGioco.setKind('unselected');
     btnGioco.onTap(() => {
@@ -189,15 +189,15 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      408,
+      386,
       `Stato attuale: Grafica ${graficaTxt} · ${synth.muted ? '🔇 Muto' : '🔊 Audio ON'} · Domande ${impostazioni.randomQuestions !== false ? 'Casuali' : 'Fisse'}`,
       cfg,
       { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
     );
 
     // ── Torna al titolo ──
-    const btnTitolo = makeButton(this, cfg, w / 2, 490, 'Torna al titolo', {
-      scale: 0.72,
+    const btnTitolo = makeButton(this, cfg, w / 2, 480, 'Torna al titolo', {
+      scale: 0.65,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -213,7 +213,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -223,20 +223,20 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Profili BES', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Profili BES', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 420,
-      maxH: 28,
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
-      size: 13,
+    makeText(this, w / 2, 70, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
+      wrap: 680,
       maxH: 20
     });
 
@@ -245,9 +245,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      100,
+      115,
       'Personalizza Caratteristiche (Custom)',
-      { scale: 0.76, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.72, maxTargetScale: 1.02, depth: 10 }
     );
     btnCustom.setKind('correct');
     btnCustom.onTap(() => {
@@ -255,12 +255,12 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    // 9 Profili BES in griglia 3x3
-    const xs = [200, 512, 824];
-    const ys = [164, 238, 312];
+    // 9 Profili BES in griglia 3x3 simmetrica
+    const xs = [232, 512, 792];
+    const ys = [175, 238, 301];
     BES_PROFILES.forEach((p, i) => {
       const b = makeButton(this, cfg, xs[i % 3], ys[Math.floor(i / 3)], p.label, {
-        scale: 0.78,
+        scale: 0.72,
         maxTargetScale: 1.0,
         depth: 10
       });
@@ -273,8 +273,8 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     // Tasto Nessun Profilo (Standard)
-    const btnStandard = makeButton(this, cfg, w / 2, 386, 'Nessun profilo (Standard)', {
-      scale: 0.7,
+    const btnStandard = makeButton(this, cfg, w / 2, 368, 'Nessun profilo (Standard)', {
+      scale: 0.70,
       maxTargetScale: 1.02,
       depth: 10
     });
@@ -288,14 +288,14 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      436,
+      420,
       scelto ? scelto.description : 'Regole standard per tutti i bambini.',
       cfg,
-      { size: 13, color: scelto ? '#1b7440' : '#496682', wrap: 840, maxH: 22 }
+      { size: 13, color: scelto ? '#1b7440' : '#496682', wrap: 800, maxH: 22 }
     );
 
-    const btnTornaMenu = makeButton(this, cfg, 380, 492, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -304,8 +304,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 492, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -317,7 +317,7 @@ export class SettingsScene extends Phaser.Scene {
 
   // ── 3. SOTTO-RAMO CARATTERISTICHE BES (Custom) ──────────────────────
   private creaBesCustom(cfg: ReturnType<typeof resolveConfig>, w: number): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai profili', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai profili', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -327,20 +327,20 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Caratteristiche BES (Custom)', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Caratteristiche BES (Custom)', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 520,
-      maxH: 28,
+      wrap: 540,
+      maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Attiva o disattiva le singole facilitazioni per il bambino:', cfg, {
-      size: 13,
+    makeText(this, w / 2, 70, 'Attiva o disattiva le singole facilitazioni per il bambino:', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
+      wrap: 680,
       maxH: 20
     });
 
@@ -354,9 +354,9 @@ export class SettingsScene extends Phaser.Scene {
       makeToggle(
         this,
         cfg,
-        colonna === 0 ? 268 : 756,
-        100 + riga * 34,
-        460,
+        colonna === 0 ? 274 : 750,
+        110 + riga * 34,
+        440,
         regola.label,
         cfg.rules[regola.id] === true,
         () => {
@@ -370,8 +370,8 @@ export class SettingsScene extends Phaser.Scene {
       );
     });
 
-    const btnTornaProfili = makeButton(this, cfg, 380, 506, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTornaProfili = makeButton(this, cfg, 370, 510, 'Torna ai profili', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -380,8 +380,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 506, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -397,7 +397,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -407,12 +407,12 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Anno Scolastico', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Anno Scolastico', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 420,
-      maxH: 28,
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
@@ -420,10 +420,10 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      58,
+      70,
       `Classe attuale: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli il grado scolastico:`,
       cfg,
-      { size: 13, bold: true, color: '#e6f4fc', wrap: 620, maxH: 20 }
+      { size: 13.5, bold: true, color: '#e6f4fc', wrap: 680, maxH: 20 }
     );
 
     // ── Ramo Primaria ──
@@ -431,9 +431,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      176,
+      175,
       'Scuola Primaria (Elementare)',
-      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
     btnPrimaria.setKind(infoAnno.ciclo === 'primaria' ? 'selected' : 'unselected');
     btnPrimaria.onTap(() => {
@@ -444,7 +444,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      222,
+      220,
       'Dalla 1ª alla 5ª Primaria · Esercizi graduati per bambini dai 6 ai 10 anni',
       cfg,
       { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
@@ -455,9 +455,9 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      304,
+      305,
       'Scuola Secondaria di 1° Grado (Media)',
-      { scale: 0.95, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
     btnSecondaria.setKind(infoAnno.ciclo === 'secondaria' ? 'selected' : 'unselected');
     btnSecondaria.onTap(() => {
@@ -475,8 +475,8 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     // ── Bottom Nav ──
-    const btnTornaMenu = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -485,8 +485,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -502,7 +502,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai gradi', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai gradi', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -512,20 +512,20 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Scuola Primaria', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Scuola Primaria', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 420,
-      maxH: 28,
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Seleziona l\'anno di riferimento della Scuola Primaria:', cfg, {
-      size: 13,
+    makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Primaria (1ª–5ª):', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
+      wrap: 680,
       maxH: 20
     });
 
@@ -533,9 +533,9 @@ export class SettingsScene extends Phaser.Scene {
     const primaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'primaria');
 
     primaria.forEach((anno, i) => {
-      const y = 130 + i * 62;
+      const y = 140 + i * 65;
       const b = makeButton(this, cfg, w / 2, y, anno.label, {
-        scale: 0.74,
+        scale: 0.72,
         maxTargetScale: 1.02,
         depth: 10
       });
@@ -547,8 +547,8 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    const btnTorna = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTorna = makeButton(this, cfg, 370, 510, 'Torna ai gradi', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -557,8 +557,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -574,7 +574,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna ai gradi', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai gradi', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -584,20 +584,20 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Scuola Secondaria I Grado', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Scuola Secondaria I Grado', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
       wrap: 520,
-      maxH: 28,
+      maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Seleziona l\'anno di riferimento della Scuola Secondaria di 1° grado:', cfg, {
-      size: 13,
+    makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Secondaria di 1° grado:', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
+      wrap: 680,
       maxH: 20
     });
 
@@ -605,9 +605,9 @@ export class SettingsScene extends Phaser.Scene {
     const secondaria = ANNI_SCOLASTICI.filter((a) => a.ciclo === 'secondaria');
 
     secondaria.forEach((anno, i) => {
-      const y = 160 + i * 82;
+      const y = 175 + i * 90;
       const b = makeButton(this, cfg, w / 2, y, anno.label, {
-        scale: 0.88,
+        scale: 0.78,
         maxTargetScale: 1.02,
         depth: 10
       });
@@ -619,8 +619,8 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    const btnTorna = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTorna = makeButton(this, cfg, 370, 510, 'Torna ai gradi', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -629,8 +629,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -646,7 +646,7 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 148, 36, 'Torna al menu', {
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
       scale: 0.52,
       maxTargetScale: 1.03,
       depth: 10
@@ -656,60 +656,66 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    makeText(this, w / 2, 28, 'Gioco & Grafica', cfg, {
-      size: 24,
+    makeText(this, w / 2, 40, 'Gioco & Grafica', cfg, {
+      size: 26,
       bold: true,
       color: '#ffffff',
-      wrap: 420,
-      maxH: 28,
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Personalizza grafica 2D/3D, domande e audio:', cfg, {
-      size: 13,
+    makeText(this, w / 2, 70, 'Personalizza grafica 2D/3D, domande e audio di gioco:', cfg, {
+      size: 13.5,
       bold: true,
       color: '#e6f4fc',
-      wrap: 620,
+      wrap: 680,
       maxH: 20
     });
 
     // ── Grafica: 2D vs 3D ──
     const grafica = impostazioni.graphics ?? '2d';
-    makeText(this, 260, 140, 'Grafica di gioco:', cfg, {
+    makeText(this, w / 2, 130, 'Grafica di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#2f3b4c',
-      wrap: 180,
-      maxH: 24
+      color: '#1d6fb8',
+      wrap: 320,
+      maxH: 22
     });
-    (
-      [
-        ['2d', '2D (Classica)', 452],
-        ['3d', '3D (Tre Dimensioni)', 676]
-      ] as const
-    ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 140, label, {
-        scale: 0.54,
-        maxTargetScale: 1.02,
-        depth: 10
-      });
-      b.setKind(grafica === id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        if (grafica === id) return;
-        saveSettings({ ...impostazioni, graphics: id });
-        this.scene.restart();
-      });
+
+    const btn2D = makeButton(this, cfg, 360, 175, '2D (Classica)', {
+      scale: 0.65,
+      maxTargetScale: 1.02,
+      depth: 10
+    });
+    btn2D.setKind(grafica === '2d' ? 'selected' : 'unselected');
+    btn2D.onTap(() => {
+      if (grafica === '2d') return;
+      saveSettings({ ...impostazioni, graphics: '2d' });
+      this.scene.restart();
+    });
+
+    const btn3D = makeButton(this, cfg, 664, 175, '3D (Tre Dimensioni)', {
+      scale: 0.65,
+      maxTargetScale: 1.02,
+      depth: 10
+    });
+    btn3D.setKind(grafica === '3d' ? 'selected' : 'unselected');
+    btn3D.onTap(() => {
+      if (grafica === '3d') return;
+      saveSettings({ ...impostazioni, graphics: '3d' });
+      this.scene.restart();
     });
 
     makeText(
       this,
       w / 2,
-      188,
+      225,
       grafica === '3d'
-        ? 'Modalità 3D attiva: scenario poligonale interattivo con mascotte 3D.'
+        ? 'Modalità 3D attiva: scenario poligonale dinamico con avatar 3D.'
         : 'Modalità 2D attiva: grafica illustrata pulita, rapida e a basso consumo.',
       cfg,
-      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+      { size: 13, color: '#3b5168', wrap: 720, maxH: 20 }
     );
 
     // ── Domande casuali ──
@@ -718,8 +724,8 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      260,
-      560,
+      290,
+      580,
       'Domande casuali ad ogni partita (consigliato)',
       casuali,
       () => {
@@ -730,20 +736,21 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     // ── Audio ON / OFF ──
-    makeText(this, 320, 348, 'Audio di gioco:', cfg, {
+    makeText(this, w / 2, 360, 'Audio di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#2f3b4c',
-      wrap: 160,
-      maxH: 24
+      color: '#1d6fb8',
+      wrap: 320,
+      maxH: 22
     });
+
     const btnAudio = makeButton(
       this,
       cfg,
-      540,
-      348,
+      w / 2,
+      405,
       synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
-      { scale: 0.56, maxTargetScale: 1.02, depth: 10 }
+      { scale: 0.62, maxTargetScale: 1.02, depth: 10 }
     );
     btnAudio.setKind(synth.muted ? 'disabled' : 'correct');
     btnAudio.onTap(() => {
@@ -753,8 +760,8 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     // ── Bottom Nav ──
-    const btnTornaMenu = makeButton(this, cfg, 380, 488, 'Torna ai profili', {
-      scale: 0.62,
+    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -763,8 +770,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 644, 488, 'Torna al titolo', {
-      scale: 0.62,
+    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
+      scale: 0.60,
       maxTargetScale: 1.04,
       depth: 10
     });

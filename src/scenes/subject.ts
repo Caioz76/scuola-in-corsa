@@ -15,43 +15,55 @@ export class SubjectScene extends Phaser.Scene {
   create(): void {
     const cfg = resolveConfig(loadSettings());
     const w = this.scale.gameSize.width;
-    const h = this.scale.gameSize.height;
 
     addWorld(this, 'scuola', cfg, { speed: 44 });
-    drawSportChannelFrame(this, cfg, { x: 108, y: 36, w: 808, h: 432, headerH: 112 });
+    drawSportChannelFrame(this, cfg, { x: 32, y: 16, w: 960, h: 544, headerH: 80 });
 
-    makeText(this, w / 2, 82, 'Scegli la materia', cfg, {
-      size: 36,
+    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al titolo', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
+      depth: 10
+    });
+    btnIndietro.onTap(() => this.scene.start('Title'));
+
+    makeText(this, w / 2, 40, 'Scegli la Materia', cfg, {
+      size: 26,
       bold: true,
-      color: '#1d6fb8',
-      wrap: 620,
-      maxH: 46,
+      color: '#ffffff',
+      wrap: 520,
+      maxH: 30,
       outline: true
     });
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
-    if (infoAnno) {
-      makeText(this, w / 2, 132, `Classe attiva: ${infoAnno.label}`, cfg, {
-        size: 15,
-        color: '#5f7186',
-        wrap: 620,
-        maxH: 24
-      });
-    }
+    makeText(
+      this,
+      w / 2,
+      70,
+      infoAnno ? `Classe attiva: ${infoAnno.label} · Scegli una disciplina:` : 'Scegli la disciplina con cui allenarti:',
+      cfg,
+      {
+        size: 13.5,
+        bold: true,
+        color: '#e6f4fc',
+        wrap: 680,
+        maxH: 20
+      }
+    );
 
     // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
-    const tappe = makeButton(this, cfg, 872, 44, 'Tutte le tappe', {
-      scale: 0.55,
-      maxTargetScale: 1.05,
+    const tappe = makeButton(this, cfg, 884, 40, 'Tutte le tappe', {
+      scale: 0.52,
+      maxTargetScale: 1.03,
       depth: 10
     });
     tappe.onTap(() => this.scene.start('Levels'));
 
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
-      { id: 'matematica', label: 'Matematica', x: w / 2 - 190, y: h / 2 - 40 },
-      { id: 'italiano', label: 'Italiano', x: w / 2 + 190, y: h / 2 - 40 },
-      { id: 'scienze', label: 'Scienze', x: w / 2 - 190, y: h / 2 + 80 },
-      { id: 'storia', label: 'Storia', x: w / 2 + 190, y: h / 2 + 80 }
+      { id: 'matematica', label: 'Matematica', x: 320, y: 190 },
+      { id: 'italiano', label: 'Italiano', x: 704, y: 190 },
+      { id: 'scienze', label: 'Scienze', x: 320, y: 330 },
+      { id: 'storia', label: 'Storia', x: 704, y: 330 }
     ];
 
     for (const v of voci) {
@@ -69,7 +81,7 @@ export class SubjectScene extends Phaser.Scene {
       const livello = pack ? defaultLevelForYear(pack, cfg.schoolYear) : undefined;
       if (pack && livello) {
         const stelle = starsFor(pack.packId, livello.id);
-        makeText(this, v.x, v.y + 52, `★ ${stelle} / 3`, cfg, {
+        makeText(this, v.x, v.y + 50, `★ ${stelle} / 3`, cfg, {
           size: 16,
           bold: stelle > 0,
           color: stelle > 0 ? '#d99a00' : '#8a99ad',
@@ -77,5 +89,12 @@ export class SubjectScene extends Phaser.Scene {
         });
       }
     }
+
+    const btnTorna = makeButton(this, cfg, w / 2, 510, 'Torna al titolo', {
+      scale: 0.60,
+      maxTargetScale: 1.04,
+      depth: 10
+    });
+    btnTorna.onTap(() => this.scene.start('Title'));
   }
 }
