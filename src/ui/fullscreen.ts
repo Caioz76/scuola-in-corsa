@@ -34,8 +34,7 @@ export function showIPhoneFullscreenNotice(): void {
         <strong>Come avere lo schermo intero senza barre:</strong><br>
         1. Tocca il tasto <strong>Condividi</strong> in basso (icona <strong>⎋</strong>)<br>
         2. Scegli <strong>"Aggiungi a Schermata Home"</strong><br>
-        3. Avvia l'app direttamente dalla tua schermata Home!<br><br>
-        <em>Suggerimento: puoi anche ruotare l'iPhone in orizzontale.</em>
+        3. Avvia Talentopolis direttamente dalla schermata Home in modalità app nativa!
       </p>
       <div class="sic-dialog-buttons">
         <button type="button" class="sic-dialog-btn sic-dialog-btn-pri" id="sic-iphone-close">Ho capito</button>

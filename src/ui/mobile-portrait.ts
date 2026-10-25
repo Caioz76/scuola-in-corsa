@@ -138,8 +138,13 @@ export function initMobilePortrait(game: Phaser.Game): void {
   const aggiorna = (): void => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const isTouch = typeof navigator !== 'undefined' && (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
+    const minDim = Math.min(vw, vh);
+    const isPhone = isTouch && minDim <= 768;
     const verticale = vh > vw;
     document.body.classList.toggle('verticale', verticale);
+    document.body.classList.toggle('smartphone', isPhone);
+    document.body.classList.toggle('smartphone-orizzontale', isPhone && !verticale);
 
     const attive = game.scene.getScenes(true);
     const scena = attive[attive.length - 1] ?? null;
@@ -397,9 +402,9 @@ function renderLevels(deck: HTMLElement, items: MobileItem[], _testi: TextEntry[
   const bottoniTappe = items.filter((i) => i.label().startsWith('Tappa'));
 
   nomiMaterie.forEach((nome, rowIdx) => {
-    const yAtteso = 150 + rowIdx * 92;
+    const yAtteso = 145 + rowIdx * 80;
     const diRiga = bottoniTappe
-      .filter((b) => Math.abs(b.y() - yAtteso) < 25)
+      .filter((b) => Math.abs(b.y() - yAtteso) < 35)
       .sort((a, b) => a.x() - b.x());
     if (diRiga.length === 0) return;
 
@@ -417,7 +422,7 @@ function renderLevels(deck: HTMLElement, items: MobileItem[], _testi: TextEntry[
     card.appendChild(grp);
   });
 
-  const indietro = items.find((i) => i.label() === 'Indietro');
+  const indietro = items.find((i) => i.label() === 'Indietro' || i.label().includes('indietro') || i.label().includes('Torna'));
   if (indietro) card.appendChild(creaBtnDom(indietro, 'm-btn-secondary'));
 
   deck.appendChild(card);
@@ -977,8 +982,9 @@ function renderGame(
   // 2) Prove con Chip: Abbinamenti (Match) oppure Riordino/Sequenza (Order)
   const chips = items.filter((i) => i.kind === 'chip');
   if (chips.length > 0) {
-    const sinistre = chips.filter((c) => Math.abs(c.x() - 276) < 25).sort((a, b) => a.y() - b.y());
-    const destre = chips.filter((c) => Math.abs(c.x() - 748) < 25).sort((a, b) => a.y() - b.y());
+    const midX = scena ? scena.scale.gameSize.width / 2 : 512;
+    const sinistre = chips.filter((c) => c.x() < midX).sort((a, b) => a.y() - b.y());
+    const destre = chips.filter((c) => c.x() >= midX).sort((a, b) => a.y() - b.y());
 
     if (sinistre.length > 0 && destre.length === sinistre.length) {
       const instr = document.createElement('div');

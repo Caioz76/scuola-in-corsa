@@ -97,27 +97,15 @@ adattaScalaGioco();
 
 initMobilePortrait(game);
 
-// Gestione avviso rotazione su mobile: chiudibile con bottone per consentire il gioco in verticale
-const btnRuotaChiudi = document.getElementById('ruota-chiudi');
-const elRuota = document.getElementById('ruota');
-if (btnRuotaChiudi && elRuota) {
-  const chiudiRuota = () => {
-    elRuota.classList.add('chiuso');
-    document.body.classList.add('ruota-chiuso');
-    try {
-      sessionStorage.setItem('sic.ruota_chiuso', '1');
-    } catch {
-      // storage non disponibile
-    }
-  };
-  btnRuotaChiudi.addEventListener('click', chiudiRuota);
-  try {
-    if (sessionStorage.getItem('sic.ruota_chiuso') === '1') {
-      chiudiRuota();
-    }
-  } catch {
-    // storage non disponibile
+// Se supportato dal browser, blocca l'orientamento in verticale per smartphone
+try {
+  if (typeof screen !== 'undefined' && screen.orientation && 'lock' in screen.orientation) {
+    (screen.orientation as unknown as { lock: (mode: string) => Promise<void> })
+      .lock('portrait')
+      .catch(() => {});
   }
+} catch {
+  // Ignora se non supportato
 }
 
 // ── Gancio per i test e2e (sessione A) ──────────────────────────────
