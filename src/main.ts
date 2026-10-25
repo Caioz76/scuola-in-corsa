@@ -29,6 +29,12 @@ const game = new Phaser.Game({
   // lasciar vedere il 3D. In 2D il fondo è coperto dalla scenografia o dal body.
   transparent: true,
   backgroundColor: '#eaf6ff',
+  roundPixels: true,
+  render: {
+    antialias: true,
+    roundPixels: true,
+    powerPreference: 'high-performance'
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH

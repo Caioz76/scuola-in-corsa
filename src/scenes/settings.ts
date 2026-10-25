@@ -121,7 +121,6 @@ export class SettingsScene extends Phaser.Scene {
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
     const infoAnno = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
-    const modalitaTxt = impostazioni.mode === 'runner' ? 'Runner' : 'Quiz';
     const graficaTxt = impostazioni.graphics === '3d' ? '3D' : '2D';
 
     // ── Ramo 1: BES ──
@@ -191,7 +190,7 @@ export class SettingsScene extends Phaser.Scene {
       this,
       w / 2,
       408,
-      `Stato attuale: ${modalitaTxt} · Grafica ${graficaTxt} · ${synth.muted ? '🔇 Muto' : '🔊 Audio ON'}`,
+      `Stato attuale: Grafica ${graficaTxt} · ${synth.muted ? '🔇 Muto' : '🔊 Audio ON'} · Domande ${impostazioni.randomQuestions !== false ? 'Casuali' : 'Fisse'}`,
       cfg,
       { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
     );
@@ -666,7 +665,7 @@ export class SettingsScene extends Phaser.Scene {
       outline: true
     });
 
-    makeText(this, w / 2, 58, 'Personalizza modalità di gameplay, rendering e audio:', cfg, {
+    makeText(this, w / 2, 58, 'Personalizza grafica 2D/3D, domande e audio:', cfg, {
       size: 13,
       bold: true,
       color: '#e6f4fc',
@@ -674,51 +673,23 @@ export class SettingsScene extends Phaser.Scene {
       maxH: 20
     });
 
-    // ── Modalità: Quiz vs Runner ──
-    const mode = impostazioni.mode ?? 'quiz';
-    makeText(this, 260, 126, 'Modalità:', cfg, {
-      size: 16,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 160,
-      maxH: 24
-    });
-    (
-      [
-        ['quiz', 'Quiz (bottoni)', 448],
-        ['runner', 'Runner (cartelli)', 664]
-      ] as const
-    ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 126, label, {
-        scale: 0.52,
-        maxTargetScale: 1.02,
-        depth: 10
-      });
-      b.setKind(mode === id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        if (mode === id) return;
-        saveSettings({ ...impostazioni, mode: id });
-        this.scene.restart();
-      });
-    });
-
     // ── Grafica: 2D vs 3D ──
     const grafica = impostazioni.graphics ?? '2d';
-    makeText(this, 260, 196, 'Grafica:', cfg, {
+    makeText(this, 260, 140, 'Grafica di gioco:', cfg, {
       size: 16,
       bold: true,
       color: '#2f3b4c',
-      wrap: 160,
+      wrap: 180,
       maxH: 24
     });
     (
       [
-        ['2d', '2D', 448],
-        ['3d', '3D', 664]
+        ['2d', '2D (Classica)', 452],
+        ['3d', '3D (Tre Dimensioni)', 676]
       ] as const
     ).forEach(([id, label, x]) => {
-      const b = makeButton(this, cfg, x, 196, label, {
-        scale: 0.52,
+      const b = makeButton(this, cfg, x, 140, label, {
+        scale: 0.54,
         maxTargetScale: 1.02,
         depth: 10
       });
@@ -730,32 +701,16 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    // ── Velocità Scorrimento Runner ──
-    makeText(this, 260, 266, 'Velocità Runner:', cfg, {
-      size: 16,
-      bold: true,
-      color: '#2f3b4c',
-      wrap: 160,
-      maxH: 24
-    });
-    const velocitaOpzioni: Array<{ id: 'slow' | 'normal' | 'fast'; label: string; x: number }> = [
-      { id: 'slow', label: 'Lenta', x: 420 },
-      { id: 'normal', label: 'Normale', x: 556 },
-      { id: 'fast', label: 'Veloce', x: 692 }
-    ];
-    const currentVel = impostazioni.runnerSpeedMultiplier ?? 'normal';
-    velocitaOpzioni.forEach((v) => {
-      const b = makeButton(this, cfg, v.x, 266, v.label, {
-        scale: 0.44,
-        maxTargetScale: 1.0,
-        depth: 10
-      });
-      b.setKind(currentVel === v.id ? 'selected' : 'unselected');
-      b.onTap(() => {
-        saveSettings({ ...impostazioni, runnerSpeedMultiplier: v.id });
-        this.scene.restart();
-      });
-    });
+    makeText(
+      this,
+      w / 2,
+      188,
+      grafica === '3d'
+        ? 'Modalità 3D attiva: scenario poligonale interattivo con mascotte 3D.'
+        : 'Modalità 2D attiva: grafica illustrata pulita, rapida e a basso consumo.',
+      cfg,
+      { size: 12.5, color: '#3b5168', wrap: 720, maxH: 20 }
+    );
 
     // ── Domande casuali ──
     const casuali = impostazioni.randomQuestions !== false;
@@ -763,8 +718,8 @@ export class SettingsScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      336,
-      540,
+      260,
+      560,
       'Domande casuali ad ogni partita (consigliato)',
       casuali,
       () => {
@@ -775,18 +730,18 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     // ── Audio ON / OFF ──
-    makeText(this, 320, 404, 'Audio:', cfg, {
+    makeText(this, 320, 348, 'Audio di gioco:', cfg, {
       size: 16,
       bold: true,
       color: '#2f3b4c',
-      wrap: 120,
+      wrap: 160,
       maxH: 24
     });
     const btnAudio = makeButton(
       this,
       cfg,
       540,
-      404,
+      348,
       synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
       { scale: 0.56, maxTargetScale: 1.02, depth: 10 }
     );

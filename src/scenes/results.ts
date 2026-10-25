@@ -5,6 +5,7 @@ import { loadSettings } from '../core/settings';
 import { setStars, pushResult } from '../core/progress';
 import { allPacks } from '../content/packs';
 import { setLevel } from './shared';
+import { getPlayerName } from '../core/player';
 import type { RoundOutcome } from '../core/state';
 import { addWorld, themeFor } from '../art/world';
 import { start2DCelebration } from '../art/celebration';
@@ -82,7 +83,8 @@ export class ResultsScene extends Phaser.Scene {
     this.stopCelebration = start2DCelebration(this);
 
     // ── Testi ad altissimo contrasto sopra la scheda (depth: 10) ──
-    makeText(this, 512, 72, 'Tappa completata!', cfg, {
+    const nomeGiocatore = getPlayerName();
+    makeText(this, 512, 72, nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!', cfg, {
       size: 34,
       bold: true,
       color: '#ffffff',

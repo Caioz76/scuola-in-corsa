@@ -4,6 +4,7 @@ import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { allPacks } from '../content/packs';
 import { starsFor, loadHistory } from '../core/progress';
+import { getPlayerName, openNameDialog } from '../core/player';
 import { addWorld } from '../art/world';
 
 /**
@@ -24,14 +25,25 @@ export class ProgressScene extends Phaser.Scene {
     addWorld(this, 'scuola', cfg, { pico: 'cheer', speed: 22 });
     drawSportChannelFrame(this, cfg, { x: 28, y: 12, w: 968, h: 468, headerH: 76 });
 
-    makeText(this, 512, 38, 'Progressi', cfg, {
+    const nome = getPlayerName();
+    makeText(this, 512, 38, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
       size: 30,
       bold: true,
       color: '#1d6fb8',
-      wrap: 620,
+      wrap: 580,
       maxH: 36,
       outline: true
     });
+
+    const btnCambiaNome = makeButton(this, cfg, 874, 38, '👤 Profilo', {
+      scale: 0.44,
+      maxTargetScale: 1.02,
+      depth: 10
+    });
+    btnCambiaNome.onTap(() => {
+      openNameDialog(() => this.scene.restart());
+    });
+
     makeText(this, 512, 74, 'Stelle conquistate in ogni tappa (massimo 3 per tappa).', cfg, {
       size: 14,
       color: '#5f7186',

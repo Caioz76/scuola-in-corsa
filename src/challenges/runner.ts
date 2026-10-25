@@ -97,6 +97,7 @@ function makeSign(
       letterSpacing: spec.spacing
     })
     .setOrigin(0.5);
+  text.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   fitTextToBox(text, w - 30, 82, 12);
   const h = Math.min(110, Math.max(70, Math.round(text.height) + 26));
 
@@ -373,6 +374,7 @@ export class RunnerChallenge implements Challenge {
         color: cfg.highContrast ? '#000000' : '#2b7fd4'
       })
       .setOrigin(0.5);
+    badge.setResolution(Math.max(window.devicePixelRatio || 1, 2));
 
     this.gate = scene.add
       .container(W + this.totale / 2 + 40, GATE_Y, [

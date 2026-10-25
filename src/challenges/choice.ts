@@ -124,6 +124,7 @@ export class ChoiceChallenge implements Challenge {
       .text(x, y, s, { fontFamily: 'Verdana, sans-serif', fontSize: `${size}px`, color: '#2f3b4c' })
       .setOrigin(0.5)
       .setDepth(7);
+    t.setResolution(Math.max(window.devicePixelRatio || 1, 2));
     this.supportTexts.push(t);
   }
 

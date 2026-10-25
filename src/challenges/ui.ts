@@ -104,6 +104,7 @@ export function makeText(
     letterSpacing: spec.spacing,
     lineSpacing: lineGap
   }).setOrigin(o.originX ?? 0.5, o.originY ?? 0.5);
+  t.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   if (o.italic) t.setStyle({ fontStyle: 'italic' });
   if (o.maxH !== undefined && o.maxH > 0) {
     fitTextToBox(t, wrapW, o.maxH, 11);
@@ -311,6 +312,7 @@ export function makeButton(
     wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
+  text.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   fitTextToBox(text, boxW, boxH, 10);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 10);
@@ -427,6 +429,7 @@ export function makeChip(
     wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
+  text.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   fitTextToBox(text, boxW, boxH, 11);
   const root = scene.add.container(x, y, [sprite, text]);
   root.setDepth(o.depth ?? 20);
@@ -524,6 +527,7 @@ export function makeSlot(
     color: '#5f7186',
     letterSpacing: spec.spacing
   }).setOrigin(0.5);
+  num.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   const root = scene.add.container(x, y, [sprite, num]);
   root.setDepth(5);
   return {
@@ -613,8 +617,9 @@ export function makeToggle(
     })
     .setOrigin(0, 0.5)
     .setDepth(11);
+  lbl.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   fitTextToBox(lbl, w - 74, h - 6, 10);
-  scene.add
+  const toggleTxt = scene.add
     .text(x + w / 2 - 12, y, on ? 'ON' : 'OFF', {
       fontFamily: spec.family,
       fontSize: `${Math.min(15, Math.round(13 * cfg.fontScale))}px`,
@@ -623,6 +628,7 @@ export function makeToggle(
     })
     .setOrigin(1, 0.5)
     .setDepth(11);
+  toggleTxt.setResolution(Math.max(window.devicePixelRatio || 1, 2));
 
   const zona = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
   zona.setDepth(12);
@@ -681,6 +687,7 @@ export function showBanner(
     })
     .setOrigin(0.5)
     .setDepth(301);
+  t1.setResolution(Math.max(window.devicePixelRatio || 1, 2));
 
   let t2: Phaser.GameObjects.Text | null = null;
   if (sub) {
@@ -695,6 +702,7 @@ export function showBanner(
       })
       .setOrigin(0.5)
       .setDepth(301);
+    t2.setResolution(Math.max(window.devicePixelRatio || 1, 2));
   }
 
   const objs = [g, t1, ...(t2 ? [t2] : [])];

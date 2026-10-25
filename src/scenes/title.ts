@@ -3,6 +3,7 @@ import { GAME_NAME } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
+import { getPlayerName, openNameDialog } from '../core/player';
 import { addWorld } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { toggleFullscreen } from '../ui/fullscreen';
@@ -160,13 +161,14 @@ export class TitleScene extends Phaser.Scene {
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
     const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
-    const modeLabel = settings.mode === 'runner' ? 'Runner' : 'Quiz';
-    const graficaLabel = (settings.graphics === '3d' ? '3d' : '2d').toUpperCase();
+    const graficaLabel = (settings.graphics === '3d' ? '3D' : '2D');
+    const playerName = getPlayerName();
+
     makeText(
       this,
       w / 2,
       h / 2 - 15,
-      `Classe: ${labelAnno}  ·  Modalità: ${modeLabel} ${graficaLabel}`,
+      `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`,
       cfg,
       {
         size: 14,
@@ -177,13 +179,50 @@ export class TitleScene extends Phaser.Scene {
       }
     ).setDepth(5);
 
-    const gioca = makeButton(this, cfg, w / 2, h / 2 + 70, 'Gioca', {
+    // Badge / Tasto Giocatore per inserire o modificare il nome
+    const btnGiocatore = makeButton(
+      this,
+      cfg,
+      w / 2,
+      h / 2 + 28,
+      playerName ? `👤 Giocatore: ${playerName} (✏️)` : '👤 Inserisci il tuo nome per iniziare',
+      {
+        scale: 0.54,
+        maxTargetScale: 1.03,
+        depth: 10
+      }
+    );
+    btnGiocatore.setKind(playerName ? 'selected' : 'unselected');
+    btnGiocatore.onTap(() => {
+      openNameDialog(() => this.scene.restart());
+    });
+
+    const gioca = makeButton(this, cfg, w / 2, h / 2 + 96, 'Gioca', {
       maxTargetScale: 1.08,
       depth: 10
     });
-    gioca.onTap(() => this.scene.start('Subject'));
+    gioca.onTap(() => {
+      if (!getPlayerName()) {
+        openNameDialog(() => this.scene.start('Subject'));
+      } else {
+        this.scene.start('Subject');
+      }
+    });
 
-    const impostazioni = makeButton(this, cfg, w / 2, h / 2 + 170, 'Impostazioni', {
+    // All'apertura del gioco, se non è ancora stato inserito un nome in questa sessione,
+    // offre subito la possibilità di inserirlo
+    if (!playerName && !sessionStorage.getItem('sic.name_prompted')) {
+      try {
+        sessionStorage.setItem('sic.name_prompted', '1');
+      } catch {
+        // sessionStorage non disponibile
+      }
+      this.time.delayedCall(450, () => {
+        openNameDialog(() => this.scene.restart());
+      });
+    }
+
+    const impostazioni = makeButton(this, cfg, w / 2, h / 2 + 180, 'Impostazioni', {
       scale: 0.62,
       maxTargetScale: 1.05,
       depth: 10

@@ -154,16 +154,10 @@ export function initMobilePortrait(game: Phaser.Game): void {
       return;
     }
 
-    const impostazioni = loadSettings();
-    // Nel Runner 3D attivo durante la partita lavorano il canvas 3D + #comandi-runner + #risposte-runner
-    const inRunner3D =
-      document.body.classList.contains('con-3d') &&
-      impostazioni.mode === 'runner' &&
-      key === 'Game';
-    if (inRunner3D || key === 'Boot') {
+    if (key === 'Boot') {
       sincronizzaVisibilitaCanvas(scena, false);
       deck.style.display = 'none';
-      ultimaChiave = `hidden:${key}:${inRunner3D}`;
+      ultimaChiave = `hidden:${key}`;
       return;
     }
 
@@ -171,6 +165,7 @@ export function initMobilePortrait(game: Phaser.Game): void {
     sincronizzaVisibilitaCanvas(scena, true);
     deck.style.display = 'flex';
 
+    const impostazioni = loadSettings();
     const cfg = resolveConfig(impostazioni);
     deck.classList.toggle('bes-dislessia', cfg.font === 'dyslexia');
     deck.classList.toggle('bes-hc', cfg.highContrast);
@@ -266,6 +261,11 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
     pill.className = 'm-pill';
     pill.textContent = info.text;
     card.appendChild(pill);
+  }
+
+  const btnPlayer = items.find((i) => i.label().includes('👤'));
+  if (btnPlayer) {
+    card.appendChild(creaBtnDom(btnPlayer, 'm-btn-secondary'));
   }
 
   const gioca = items.find((i) => i.label() === 'Gioca');
@@ -659,27 +659,14 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
       card.appendChild(aw);
     }
 
-    // Modalità & Grafica
+    // Grafica 2D vs 3D
     const modeRow = document.createElement('div');
-    modeRow.className = 'm-grid-4';
-    ['Quiz (bottoni)', 'Runner (cartelli)', '2D', '3D'].forEach((lbl) => {
+    modeRow.className = 'm-grid-2';
+    ['2D', '3D', '2D (Classica)', '3D (Tre Dimensioni)'].forEach((lbl) => {
       const b = buttons.find((it) => it.label() === lbl);
       if (b) modeRow.appendChild(creaBtnDom(b, 'm-btn-compact'));
     });
     card.appendChild(modeRow);
-
-    // Velocità Runner
-    const velButtons = buttons.filter((b) => ['Lenta', 'Normale', 'Veloce'].includes(b.label()));
-    if (velButtons.length > 0) {
-      const lbl = document.createElement('div');
-      lbl.className = 'm-group-title';
-      lbl.textContent = 'Velocità di corsa Runner';
-      card.appendChild(lbl);
-      const vg = document.createElement('div');
-      vg.className = 'm-grid-3';
-      velButtons.forEach((b) => vg.appendChild(creaBtnDom(b, 'm-btn-compact')));
-      card.appendChild(vg);
-    }
 
     // Toggle domande casuali
     const tCasuali = toggles.find((t) => t.label().includes('casuali'));
