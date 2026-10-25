@@ -253,10 +253,9 @@ export class RunnerChallenge implements Challenge {
     this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
       size: 25,
       bold: true,
-      color: T.body,
+      color: '#000000',
       wrap: promptWrap,
-      maxH: 54,
-      outline: true
+      maxH: 54
     });
     if (round.hint && cfg.showHintUpfront) this.showHintNow();
 

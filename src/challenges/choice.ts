@@ -63,10 +63,9 @@ export class ChoiceChallenge implements Challenge {
     this.promptText = makeText(scene, promptX, 66, promptStr, cfg, {
       size: 25,
       bold: true,
-      color: '#2f3b4c',
+      color: '#000000',
       wrap: promptWrap,
-      maxH: 54,
-      outline: true
+      maxH: 54
     });
 
     // ── Hint ──

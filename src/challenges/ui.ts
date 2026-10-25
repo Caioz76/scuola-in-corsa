@@ -91,7 +91,13 @@ export function makeText(
 ): Phaser.GameObjects.Text {
   const spec = fontSpec(cfg);
   const size = Math.round((o.size ?? 22) * cfg.fontScale);
-  const colore = cfg.highContrast ? hcColor(o.color ?? T.body) : (o.color ?? T.body);
+  const rawColor = o.color ?? '#000000';
+  // Preferenza utente: niente testo bianco con bordo nero, solo nero pieno puro e pulito (#000000)
+  const isBianco =
+    rawColor.toLowerCase() === '#ffffff' ||
+    rawColor.toLowerCase() === '#f0f9ff' ||
+    rawColor.toLowerCase() === '#e6f4fc';
+  const colore = cfg.highContrast || isBianco ? '#000000' : rawColor;
   const wrapW = o.wrap ?? 820;
   const lineGap = Math.round(size * 0.14);
   const t = scene.add.text(x, y, str, {
@@ -116,16 +122,9 @@ export function makeText(
     fitTextToBox(t, wrapW, o.maxH, 11);
   }
 
-  // Contorno vettoriale netto e definito (senza aloni blur che sfuocano il testo)
-  if (o.outline && !cfg.highContrast) {
-    const isChiaro = colore.toLowerCase().startsWith('#f') || colore.toLowerCase().startsWith('#e') || colore === '#ffffff';
-    if (isChiaro) {
-      t.setStroke('#062d47', Math.max(2.5, Math.round(size * 0.12)));
-      t.setShadow(0, 1.5, '#021826', 1, true, true);
-    } else {
-      t.setStroke('#ffffff', Math.max(2.5, Math.round(size * 0.12)));
-    }
-  }
+  // Preferenza utente: niente contorni neri su testo bianco o aloni, solo nero pieno pulito
+  t.setStroke('transparent', 0);
+  t.setShadow(0, 0, 'transparent', 0);
 
   // Alto contrasto: nero pieno, senza ombre decorative.
   if (cfg.highContrast) {
@@ -245,16 +244,13 @@ export function drawSportChannelFrame(
     g.fillRect(x + 12, sy, w - 24, 2);
   }
 
-  // Fascia d'intestazione superiore stile Canale Sport (Azzurro Sport profondo)
+  // Fascia d'intestazione superiore chiara con filetto divisorio Azzurro Sport
   if (headerH > 0) {
-    g.fillStyle(0x0080c6, 0.98);
-    g.fillRoundedRect(x + 8, y + 8, w - 16, headerH, 20);
-    // Riflesso speculare discreto superiore
-    g.fillStyle(0xffffff, 0.24);
-    g.fillRoundedRect(x + 14, y + 11, w - 28, Math.round(headerH * 0.42), 14);
-    // Filetto divisorio inferiore scuro
-    g.lineStyle(2.5, 0x005282, 0.85);
-    g.lineBetween(x + 24, y + 8 + headerH, x + w - 24, y + 8 + headerH);
+    g.fillStyle(0xf0f7fc, 0.96);
+    g.fillRoundedRect(x + 6, y + 6, w - 12, headerH, 20);
+    // Filetto divisorio inferiore Azzurro Sport
+    g.lineStyle(2, 0x00a2e8, 0.65);
+    g.lineBetween(x + 20, y + 6 + headerH, x + w - 20, y + 6 + headerH);
   }
 
   // Strisce dinamiche diagonali negli angoli superiori
@@ -326,7 +322,7 @@ export function makeButton(
     fontFamily: spec.family,
     fontSize: `${baseFontPx}px`,
     fontStyle: 'bold',
-    color: '#0f2942',
+    color: '#000000',
     align: 'center',
     wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
@@ -374,13 +370,13 @@ export function makeButton(
       currentKind = kKind;
       if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
       if (kKind === 'disabled' || kKind === 'unselected') {
-        text.setStyle({ color: '#334155', stroke: 'transparent', strokeThickness: 0 });
+        text.setStyle({ color: '#475569', stroke: 'transparent', strokeThickness: 0 });
       } else if (kKind === 'selected' || kKind === 'correct') {
-        text.setStyle({ color: '#ffffff', stroke: '#08401e', strokeThickness: 3.5 });
+        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
       } else if (kKind === 'wrong') {
-        text.setStyle({ color: '#ffffff', stroke: '#5c1414', strokeThickness: 3.5 });
+        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
       } else {
-        text.setStyle({ color: '#0f2942', stroke: 'transparent', strokeThickness: 0 });
+        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
       }
     },
     setEnabled(b: boolean): void {
@@ -719,7 +715,7 @@ export function showBanner(
       fontFamily: spec.family,
       fontSize: `${Math.round(27 * cfg.fontScale)}px`,
       fontStyle: 'bold',
-      color: cfg.highContrast ? '#000000' : '#0f2942',
+      color: '#000000',
       align: 'center',
       wordWrap: { width: w - 64, useAdvancedWrap: true },
       letterSpacing: spec.spacing,
@@ -735,7 +731,8 @@ export function showBanner(
       .text(cx, cy + 32, sub, {
         fontFamily: spec.family,
         fontSize: `${Math.round(18 * cfg.fontScale)}px`,
-        color: cfg.highContrast ? '#000000' : '#334155',
+        fontStyle: 'bold',
+        color: '#1e293b',
         align: 'center',
         wordWrap: { width: w - 64, useAdvancedWrap: true },
         letterSpacing: spec.spacing,

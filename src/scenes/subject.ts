@@ -29,10 +29,9 @@ export class SubjectScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Scegli la Materia', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
@@ -45,10 +44,9 @@ export class SubjectScene extends Phaser.Scene {
       {
         size: 13.5,
         bold: true,
-        color: '#f0f9ff',
+        color: '#1e293b',
         wrap: 680,
-        maxH: 20,
-        outline: true
+        maxH: 20
       }
     );
 

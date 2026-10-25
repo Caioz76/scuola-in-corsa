@@ -44,66 +44,45 @@ export class GameScene extends Phaser.Scene {
     const runSpeed = cfg.runnerSpeed > 0 ? cfg.runnerSpeed : 480;
     const treD = (impostazioni.graphics ?? '2d') === '3d' && !cfg.highContrast;
 
-    // Barra superiore e quadro domanda in stile Sport (solo in 2D con decorazioni attive)
+    const w = this.scale.gameSize.width;
+
+    // Barra superiore e quadro domanda in stile Sport (in 2D o capsula dedicata in 3D)
     if (!treD) {
-      drawSportChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 30, depth: -10 });
+      drawSportChannelFrame(this, cfg, { x: 96, y: 6, w: 832, h: 124, headerH: 34, depth: -10 });
+    } else {
+      // In 3D: capsula superiore dedicata su fondo chiaro per garantire massima leggibilità
+      const pillBg = this.add.graphics().setDepth(90);
+      pillBg.fillStyle(0xffffff, 0.95);
+      pillBg.fillRoundedRect(96, 6, 832, 34, 17);
+      pillBg.lineStyle(2, 0x00a2e8, 0.7);
+      pillBg.strokeRoundedRect(96, 6, 832, 34, 17);
     }
 
     // Intestazione in alto: materia, tappa, livello scolastico e contatore prove.
-    // Progettata per separare nettamente le aree di testo ed evitare qualsiasi sovrapposizione.
+    // Centrata nel monitor, in primo piano assoluto (depth: 100), solo testo nero (#000000).
     const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
-    let contatore: Phaser.GameObjects.Text;
 
-    if (treD && runner) {
-      // Runner 3D: HUD e turbo in alto a destra, navigazione a sinistra.
-      // Titolo e contatore avanzamento disposti al centro su due righe distinte (nessun urto).
-      makeText(this, 460, 15, testoTitolo, cfg, {
-        size: 13,
-        bold: true,
-        color: '#1b3650',
-        wrap: 440,
-        maxH: 18,
-        outline: true,
-        originX: 0.5,
-        originY: 0.5
-      });
-      contatore = makeText(this, 460, 35, '', cfg, {
-        size: 13,
-        bold: true,
-        color: '#1f8a4c',
-        wrap: 240,
-        maxH: 18,
-        outline: true,
-        originX: 0.5,
-        originY: 0.5
-      });
-    } else {
-      // 2D e Quiz 3D: titolo a sinistra dentro la cornice, contatore a destra.
-      const startX = treD ? 230 : 124;
-      const wrapTitolo = treD ? 480 : 540;
-      makeText(this, startX, 21, testoTitolo, cfg, {
-        size: 14,
-        bold: true,
-        color: treD ? '#1b3650' : '#49617b',
-        align: 'left',
-        wrap: wrapTitolo,
-        maxH: 22,
-        outline: treD,
-        originX: 0,
-        originY: 0.5
-      });
-      contatore = makeText(this, 904, 21, '', cfg, {
-        size: 14,
-        bold: true,
-        color: '#1f8a4c',
-        align: 'right',
-        wrap: 180,
-        maxH: 22,
-        outline: treD,
-        originX: 1,
-        originY: 0.5
-      });
-    }
+    makeText(this, w / 2, 23, testoTitolo, cfg, {
+      size: 14,
+      bold: true,
+      color: '#000000',
+      align: 'center',
+      wrap: 580,
+      maxH: 22,
+      originX: 0.5,
+      originY: 0.5
+    }).setDepth(100);
+
+    const contatore = makeText(this, 904, 23, '', cfg, {
+      size: 13.5,
+      bold: true,
+      color: '#000000',
+      align: 'right',
+      wrap: 180,
+      maxH: 22,
+      originX: 1,
+      originY: 0.5
+    }).setDepth(100);
 
     const world = treD
       ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? runSpeed : 38)

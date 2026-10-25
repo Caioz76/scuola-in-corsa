@@ -105,19 +105,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Menu Impostazioni', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Seleziona una categoria per visualizzare le opzioni dedicate:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     const scelto = BES_PROFILES.find((p) => p.id === impostazioni.profileId);
@@ -227,19 +225,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Profili BES', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Seleziona un profilo guidato o personalizza le caratteristiche:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     // Tasto Caratteristiche Custom
@@ -332,19 +328,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Caratteristiche BES (Custom)', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 540,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Attiva o disattiva le singole facilitazioni per il bambino:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     const voci = REGOLE_UI.map((id) => RULE_BY_ID.get(id)).filter(
@@ -413,10 +407,9 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Anno Scolastico', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     const infoAnno = ANNO_BY_ID.get(normalizzaAnno(impostazioni.schoolYear))!;
@@ -426,7 +419,7 @@ export class SettingsScene extends Phaser.Scene {
       70,
       `Classe attuale: ${infoAnno.label} (Difficoltà ${infoAnno.difficulty}/3) · Scegli il grado scolastico:`,
       cfg,
-      { size: 13.5, bold: true, color: '#f0f9ff', wrap: 680, maxH: 20, outline: true }
+      { size: 13.5, bold: true, color: '#1e293b', wrap: 680, maxH: 20 }
     );
 
     // ── Ramo Primaria ──
@@ -518,19 +511,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Scuola Primaria', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Primaria (1ª–5ª):', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     const attivoId = normalizzaAnno(impostazioni.schoolYear);
@@ -591,19 +582,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Scuola Secondaria I Grado', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Seleziona la classe di riferimento della Scuola Secondaria di 1° grado:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     const attivoId = normalizzaAnno(impostazioni.schoolYear);
@@ -664,19 +653,17 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 40, 'Gioco & Grafica', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     makeText(this, w / 2, 70, 'Personalizza grafica 2D/3D, domande e audio di gioco:', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     // ── Grafica: 2D vs 3D ──
@@ -684,7 +671,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 130, 'Grafica di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#094273',
+      color: '#000000',
       wrap: 320,
       maxH: 22
     });
@@ -745,7 +732,7 @@ export class SettingsScene extends Phaser.Scene {
     makeText(this, w / 2, 360, 'Audio di Gioco', cfg, {
       size: 16,
       bold: true,
-      color: '#094273',
+      color: '#000000',
       wrap: 320,
       maxH: 22
     });

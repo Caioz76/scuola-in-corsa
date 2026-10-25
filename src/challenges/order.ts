@@ -98,10 +98,9 @@ export class OrderChallenge implements Challenge {
     this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
       size: 25,
       bold: true,
-      color: '#2f3b4c',
+      color: '#000000',
       wrap: promptWrap,
-      maxH: 54,
-      outline: true
+      maxH: 54
     });
     if (round.hint && cfg.showHintUpfront) {
       this.showHintNow();
@@ -117,7 +116,7 @@ export class OrderChallenge implements Challenge {
           ? `Trascina (o tocca) gli elementi negli slot, dall'1 al ${this.n}`
           : `Tocca gli elementi nell'ordine giusto, dall'1 al ${this.n}`,
       cfg,
-      { size: 14, color: '#5f7186', wrap: 740, maxH: 22 }
+      { size: 14, bold: true, color: '#1e293b', wrap: 740, maxH: 22 }
     );
 
     // ── Slot numerati ──

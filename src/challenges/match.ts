@@ -98,10 +98,9 @@ export class MatchChallenge implements Challenge {
     this.promptText = makeText(scene, promptX, 66, testoSemplice(round.prompt, cfg), cfg, {
       size: 25,
       bold: true,
-      color: '#2f3b4c',
+      color: '#000000',
       wrap: promptWrap,
-      maxH: 54,
-      outline: true
+      maxH: 54
     });
     if (round.hint && cfg.showHintUpfront) {
       this.showHintNow();
@@ -114,7 +113,7 @@ export class MatchChallenge implements Challenge {
         ? 'Tocca le coppie giuste'
         : 'Abbina: tocca un elemento e poi il suo compagno giusto',
       cfg,
-      { size: 14, color: '#5f7186', wrap: 740, maxH: 22 }
+      { size: 14, bold: true, color: '#1e293b', wrap: 740, maxH: 22 }
     );
 
     // ── Colonne ──

@@ -36,10 +36,9 @@ export class ProgressScene extends Phaser.Scene {
     const txtTitolo = makeText(this, 512, 40, nome ? `Progressi di ${nome}` : 'Progressi di Gioco', cfg, {
       size: 26,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 520,
-      maxH: 30,
-      outline: true
+      maxH: 30
     });
 
     const btnCambiaNome = makeButton(this, cfg, 884, 40, '👤 Profilo', {
@@ -56,10 +55,9 @@ export class ProgressScene extends Phaser.Scene {
     makeText(this, 512, 70, 'Stelle conquistate in ogni tappa (massimo 3 per tappa):', cfg, {
       size: 13.5,
       bold: true,
-      color: '#f0f9ff',
+      color: '#1e293b',
       wrap: 680,
-      maxH: 20,
-      outline: true
+      maxH: 20
     });
 
     const righe = allPacks().flatMap((pack) =>
@@ -83,7 +81,7 @@ export class ProgressScene extends Phaser.Scene {
         align: 'left',
         wrap: 330,
         maxH: 34,
-        color: '#0f2942'
+        color: '#000000'
       });
       makeText(this, xStelle, y, `★ ${r.stelle} / 3`, cfg, {
         size: 14,
@@ -96,7 +94,7 @@ export class ProgressScene extends Phaser.Scene {
     makeText(this, 512, 424, `Totale: ${totale} stelle su ${righe.length * 3}`, cfg, {
       size: 15,
       bold: true,
-      color: '#102a43',
+      color: '#000000',
       wrap: 620,
       maxH: 22
     });

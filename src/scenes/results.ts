@@ -75,9 +75,11 @@ export class ResultsScene extends Phaser.Scene {
     cardBg.lineStyle(1.5, 0xffffff, 0.95);
     cardBg.strokeRoundedRect(147, 31, 730, 322, 25);
 
-    // Fascia d'intestazione superiore lucida
-    cardBg.fillStyle(0x00a2e8, 0.92);
+    // Fascia d'intestazione superiore chiara con filetto divisorio
+    cardBg.fillStyle(0xf0f7fc, 0.96);
     cardBg.fillRoundedRect(150, 34, 724, 74, 22);
+    cardBg.lineStyle(2, 0x00a2e8, 0.65);
+    cardBg.lineBetween(164, 108, 860, 108);
 
     // Effetto coriandoli celebrativi in caduta libera!
     this.stopCelebration = start2DCelebration(this);
@@ -87,23 +89,22 @@ export class ResultsScene extends Phaser.Scene {
     makeText(this, 512, 72, nomeGiocatore ? `Bravissimo, ${nomeGiocatore}!` : 'Tappa completata!', cfg, {
       size: 34,
       bold: true,
-      color: '#ffffff',
+      color: '#000000',
       wrap: 700,
-      maxH: 42,
-      outline: true
+      maxH: 42
     });
 
     makeText(this, 512, 134, 'Risposte corrette:', cfg, {
       size: 20,
       bold: true,
-      color: '#0f2942',
+      color: '#000000',
       maxH: 26
     });
 
     makeText(this, 512, 162, `${correct} su ${total}`, cfg, {
       size: 26,
       bold: true,
-      color: '#0284c7',
+      color: '#000000',
       maxH: 32
     });
 
@@ -111,7 +112,7 @@ export class ResultsScene extends Phaser.Scene {
       makeText(this, 512, 186, `${pack.title} — ${pack.levels[idx].title}`, cfg, {
         size: 16,
         bold: true,
-        color: '#0066a4',
+        color: '#000000',
         wrap: 700,
         maxH: 24
       });
