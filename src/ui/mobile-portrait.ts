@@ -18,6 +18,8 @@ import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
+import { getTeamSetup, getProfileLabel } from '../core/player';
+import { totalStarsForPlayer } from '../core/progress';
 import { toggleFullscreen } from './fullscreen';
 
 interface TextEntry {
@@ -798,6 +800,50 @@ function renderModalScene(deck: HTMLElement, items: MobileItem[], testi: TextEnt
   const card = document.createElement('div');
   card.className = 'm-card';
 
+  const isResults = testi.some((t) => t.text.includes('Riepilogo') || t.text.includes('Tappa completata') || t.text.includes('Bravissim'));
+  const team = getTeamSetup();
+
+  if (isResults && team.numPlayers > 1) {
+    const headerEl = document.createElement('div');
+    headerEl.className = 'm-header';
+    headerEl.textContent = '🏆 Riepilogo della Sessione';
+    card.appendChild(headerEl);
+
+    const subEl = document.createElement('div');
+    subEl.className = 'm-sub';
+    subEl.textContent = 'Risultati e progressi ottenuti da ciascun giocatore:';
+    card.appendChild(subEl);
+
+    const vList = document.createElement('div');
+    vList.className = 'm-vertical-results-list';
+
+    team.players.forEach((p) => {
+      const row = document.createElement('div');
+      row.className = 'm-player-vertical-card';
+      row.style.borderLeft = `5px solid ${p.token.color}`;
+      row.innerHTML = `
+        <div class="m-player-v-logo" style="background: ${p.token.bg}; border-color: ${p.token.color};">${p.token.icon}</div>
+        <div class="m-player-v-info">
+          <div class="m-player-v-name">${p.token.name} (G${p.playerIndex})</div>
+          <div class="m-player-v-prof">${getProfileLabel(p.profileId)}</div>
+          <div class="m-player-v-stars">Progresso: ${totalStarsForPlayer(p.token.id)} ★ totali</div>
+        </div>
+      `;
+      vList.appendChild(row);
+    });
+
+    card.appendChild(vList);
+
+    const col = document.createElement('div');
+    col.className = 'm-stack';
+    col.style.marginTop = '14px';
+    items.forEach((it) => col.appendChild(creaBtnDom(it)));
+    card.appendChild(col);
+
+    deck.appendChild(card);
+    return;
+  }
+
   testi.forEach((t, idx) => {
     const el = document.createElement('div');
     el.className = idx === 0 ? 'm-header' : 'm-sub';
@@ -822,9 +868,18 @@ function renderGame(
   const card = document.createElement('div');
   card.className = 'm-card';
 
+  // Badge prominente del turno con logo del giocatore attivo
+  const turno = testi.find((t) => t.text.startsWith('Turno di:'));
+  if (turno) {
+    const turnCard = document.createElement('div');
+    turnCard.className = 'm-turn-banner';
+    turnCard.innerHTML = `<span class="m-turn-icon">🎯</span><span class="m-turn-title">${turno.text}</span>`;
+    card.appendChild(turnCard);
+  }
+
   // Intestazione tappa + contatore
   const headerTappa = testi.find((t) => Math.abs(t.y - 20) < 12 && t.x < 650);
-  const contatore = testi.find((t) => t.text.startsWith('Prova '));
+  const contatore = testi.find((t) => t.text.startsWith('Prova ') || t.text.includes(' · Prova '));
   if (headerTappa || contatore) {
     const topMeta = document.createElement('div');
     topMeta.className = 'm-pill';

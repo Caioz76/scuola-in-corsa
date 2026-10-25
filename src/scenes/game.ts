@@ -7,10 +7,20 @@ import type { RoundOutcome } from '../core/state';
 import { drawSportChannelFrame, showBanner, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { getTeamSetup, getProfileLabel } from '../core/player';
+import { getTeamSetup, getProfileLabel, type PlayerToken } from '../core/player';
+import { setPlayerStars } from '../core/progress';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { mostraNav, nascondiNav } from '../ui/nav';
+
+export interface PlayerRoundStat {
+  playerIndex: number;
+  token: PlayerToken;
+  profileId: string | null;
+  roundsPlayed: number;
+  correct: number;
+  stars: number;
+}
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -38,7 +48,28 @@ export class GameScene extends Phaser.Scene {
 
     // Estrazione delle prove della partita (casuale dal bacino dell'anno scolastico,
     // oppure fissa se randomQuestions === false).
-    const rounds = selectRoundsForGame(pack, level, impostazioni);
+    let rounds = selectRoundsForGame(pack, level, impostazioni);
+    if (team.numPlayers > 1) {
+      // Assicura che ogni giocatore abbia lo stesso numero di turni (sessione equilibrata)
+      const turnsPerPlayer = Math.max(1, Math.floor(rounds.length / team.numPlayers));
+      const totalRounds = turnsPerPlayer * team.numPlayers;
+      if (rounds.length >= totalRounds && totalRounds >= team.numPlayers) {
+        rounds = rounds.slice(0, totalRounds);
+      }
+    }
+
+    const playerStats: Record<number, PlayerRoundStat> = {};
+    team.players.forEach((p) => {
+      playerStats[p.playerIndex] = {
+        playerIndex: p.playerIndex,
+        token: p.token,
+        profileId: p.profileId,
+        roundsPlayed: 0,
+        correct: 0,
+        stars: 0
+      };
+    });
+
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
 
     // Il mondo: scenografia della materia, pista e Pico che corre.
@@ -61,19 +92,37 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Intestazione in alto: materia, tappa, livello scolastico e contatore prove.
-    // Centrata nel monitor, in primo piano assoluto (depth: 100), solo testo nero (#000000).
+    // Solo testo nero (#000000) e centratura perfetta.
     const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
 
-    makeText(this, w / 2, 23, testoTitolo, cfg, {
-      size: 14,
-      bold: true,
-      color: '#000000',
-      align: 'center',
-      wrap: 580,
-      maxH: 22,
-      originX: 0.5,
-      originY: 0.5
-    }).setDepth(100);
+    if (team.numPlayers > 1) {
+      makeText(this, 108, 23, testoTitolo, cfg, {
+        size: 12.5,
+        bold: true,
+        color: '#000000',
+        align: 'left',
+        wrap: 230,
+        maxH: 22,
+        originX: 0,
+        originY: 0.5
+      }).setDepth(100);
+    } else {
+      makeText(this, w / 2, 23, testoTitolo, cfg, {
+        size: 14,
+        bold: true,
+        color: '#000000',
+        align: 'center',
+        wrap: 580,
+        maxH: 22,
+        originX: 0.5,
+        originY: 0.5
+      }).setDepth(100);
+    }
+
+    // Badge grafico del turno giocatore (con logo del personaggio in risalto)
+    const turnBannerGfx = this.add.graphics().setDepth(102);
+    let turnLogoObj: Phaser.GameObjects.Text | null = null;
+    let turnTextObj: Phaser.GameObjects.Text | null = null;
 
     const contatore = makeText(this, 904, 23, '', cfg, {
       size: 13.5,
@@ -179,18 +228,36 @@ export class GameScene extends Phaser.Scene {
         current = null;
       }
       if (index >= rounds.length) {
+        if (team.numPlayers > 1) {
+          team.players.forEach((p) => {
+            const st = playerStats[p.playerIndex];
+            const rPlayed = st.roundsPlayed;
+            st.stars =
+              rPlayed > 0 && st.correct === rPlayed
+                ? 3
+                : st.correct >= Math.ceil(rPlayed * 0.6)
+                  ? 2
+                  : st.correct >= 1
+                    ? 1
+                    : 0;
+            setPlayerStars(p.token.id, pack.packId, level.id, st.stars);
+          });
+        }
         this.scene.start('Results', {
           packId: pack.packId,
           levelId: level.id,
           correct,
           total: rounds.length,
           durationMs: Date.now() - inizio,
-          outcomes
+          outcomes,
+          playerStats: Object.values(playerStats)
         });
         return;
       }
 
       const roundPlayer = team.players[index % team.players.length];
+      playerStats[roundPlayer.playerIndex].roundsPlayed += 1;
+
       const playerProfileId = roundPlayer.profileId ?? impostazioni.profileId ?? null;
       const roundCfg = resolveConfig({
         ...impostazioni,
@@ -199,14 +266,42 @@ export class GameScene extends Phaser.Scene {
       });
 
       if (team.numPlayers > 1) {
-        contatore.setText(`${roundPlayer.token.icon} G${roundPlayer.playerIndex} · Prova ${index + 1}/${rounds.length}`);
+        // Disegna il badge del turno con il logo del giocatore
+        turnBannerGfx.clear();
+        const hexColor = parseInt(roundPlayer.token.color.replace('#', '0x'), 16) || 0x00a2e8;
+        turnBannerGfx.fillStyle(0xffffff, 0.98);
+        turnBannerGfx.fillRoundedRect(w / 2 - 190, 5, 380, 36, 18);
+        turnBannerGfx.lineStyle(2.5, hexColor, 1);
+        turnBannerGfx.strokeRoundedRect(w / 2 - 190, 5, 380, 36, 18);
+
+        if (turnLogoObj) turnLogoObj.destroy();
+        if (turnTextObj) turnTextObj.destroy();
+
+        turnLogoObj = this.add
+          .text(w / 2 - 165, 23, roundPlayer.token.icon, {
+            fontSize: '22px'
+          })
+          .setOrigin(0.5)
+          .setDepth(105);
+
+        turnTextObj = this.add
+          .text(w / 2 - 142, 13, `Turno di: ${roundPlayer.token.name} (G${roundPlayer.playerIndex})`, {
+            fontSize: '14px',
+            fontStyle: 'bold',
+            color: '#000000',
+            fontFamily:
+              roundCfg.font === 'dyslexia' ? 'OpenDyslexic, sans-serif' : 'system-ui, sans-serif'
+          })
+          .setDepth(105);
+
+        contatore.setText(`Prova ${index + 1}/${rounds.length}`);
       } else if (cfg.clearProgress) {
         contatore.setText(`Prova ${index + 1} di ${rounds.length}`);
       }
 
       const round: Round = rounds[index];
       if (team.numPlayers > 1) {
-        guidaPico?.setText(`Turno di ${roundPlayer.token.icon} ${roundPlayer.token.name} (${getProfileLabel(roundPlayer.profileId)}): ${testoGuidaPer(round)}`);
+        guidaPico?.setText(`🎯 È il turno di ${roundPlayer.token.icon} ${roundPlayer.token.name} (${getProfileLabel(roundPlayer.profileId)}): ${testoGuidaPer(round)}`);
       } else {
         guidaPico?.setText(testoGuidaPer(round));
       }
@@ -218,13 +313,20 @@ export class GameScene extends Phaser.Scene {
       current = showChallenge(this, round, roundCfg, {
         onCorrect: () => {
           correct += 1;
+          playerStats[roundPlayer.playerIndex].correct += 1;
           index += 1;
           outcomes.push({ roundId: round.id, correct: true, attempts: errori, timeMs: 0 });
           guidaPico?.setText('Pico: Bravissimo, avanti così!');
           if (runner) world.setSpeed(Math.max(560, runSpeed + 80));
           else world.dash();
           world.setProgress(index, rounds.length);
-          const ok = showBanner(this, cfg, 'Giusto!', null, 'ok', { y: bannerY });
+
+          const nextP = team.players[index % team.players.length];
+          const okMsg =
+            team.numPlayers > 1 && index < rounds.length
+              ? `Ottimo ${roundPlayer.token.name}! Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`
+              : null;
+          const ok = showBanner(this, cfg, 'Giusto!', okMsg, 'ok', { y: bannerY });
           this.time.delayedCall(900 * ritmo, () => {
             ok.dispose();
             next();
@@ -247,6 +349,11 @@ export class GameScene extends Phaser.Scene {
             outcomes.push({ roundId: round.id, correct: false, attempts: errori, timeMs: 0 });
             world.stumble();
             world.setProgress(index, rounds.length);
+
+            const nextP = team.players[index % team.players.length];
+            if (team.numPlayers > 1 && index < rounds.length) {
+              guidaPico?.setText(`Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`);
+            }
             this.time.delayedCall(2600 * ritmo, () => next());
           }
         }
