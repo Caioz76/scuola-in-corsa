@@ -350,9 +350,50 @@ export function makeButton(
   let enabled = true;
   let currentKind: BtnKind = 'normal';
   const tapCallbacks: Array<() => void> = [];
-  sprite.on('pointerup', () => {
-    if (enabled) tapCallbacks.forEach((fn) => fn());
+
+  const updateVisualState = () => {
+    const texKey = KIND_TEX[currentKind] ?? 'btn-blue';
+    if (scene.textures.exists(texKey)) sprite.setTexture(texKey);
+    if (currentKind === 'disabled' || currentKind === 'unselected') {
+      text.setStyle({ color: '#475569', stroke: 'transparent', strokeThickness: 0 });
+    } else {
+      text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
+    }
+  };
+
+  sprite.on('pointerover', () => {
+    if (!enabled) return;
+    if (currentKind !== 'selected' && currentKind !== 'correct' && currentKind !== 'wrong') {
+      sprite.setTint(0xe6f7ff);
+    }
+    root.setScale(1.025);
   });
+
+  sprite.on('pointerout', () => {
+    if (!enabled) return;
+    sprite.clearTint();
+    root.setScale(1.0);
+    updateVisualState();
+  });
+
+  sprite.on('pointerdown', () => {
+    if (!enabled) return;
+    root.setScale(0.97);
+    if (scene.textures.exists('btn-green')) {
+      sprite.setTexture('btn-green');
+    }
+  });
+
+  sprite.on('pointerup', () => {
+    if (!enabled) return;
+    sprite.clearTint();
+    root.setScale(1.0);
+    if (scene.textures.exists('btn-green')) {
+      sprite.setTexture('btn-green');
+    }
+    tapCallbacks.forEach((fn) => fn());
+  });
+
   const unregister = registerMobileItem(scene, {
     kind: 'button',
     label: () => text.text,
@@ -363,7 +404,12 @@ export function makeButton(
     w: () => BTN_W * s,
     h: () => BTN_H * s,
     trigger: () => {
-      if (enabled && root.active) tapCallbacks.forEach((fn) => fn());
+      if (enabled && root.active) {
+        if (scene.textures.exists('btn-green')) {
+          sprite.setTexture('btn-green');
+        }
+        tapCallbacks.forEach((fn) => fn());
+      }
     }
   });
   root.once(Phaser.GameObjects.Events.DESTROY, unregister);
@@ -377,16 +423,7 @@ export function makeButton(
     },
     setKind(kKind: BtnKind): void {
       currentKind = kKind;
-      if (scene.textures.exists(KIND_TEX[kKind])) sprite.setTexture(KIND_TEX[kKind]);
-      if (kKind === 'disabled' || kKind === 'unselected') {
-        text.setStyle({ color: '#475569', stroke: 'transparent', strokeThickness: 0 });
-      } else if (kKind === 'selected' || kKind === 'correct') {
-        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
-      } else if (kKind === 'wrong') {
-        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
-      } else {
-        text.setStyle({ color: '#000000', stroke: 'transparent', strokeThickness: 0 });
-      }
+      updateVisualState();
     },
     setEnabled(b: boolean): void {
       enabled = b;

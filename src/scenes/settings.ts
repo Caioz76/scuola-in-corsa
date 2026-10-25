@@ -133,7 +133,6 @@ export class SettingsScene extends Phaser.Scene {
       `Bisogni Educativi Speciali (BES)`,
       { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
-    btnBes.setKind(scelto ? 'selected' : 'unselected');
     btnBes.onTap(() => {
       nodoCorrente = 'bes';
       this.scene.restart();
@@ -157,7 +156,6 @@ export class SettingsScene extends Phaser.Scene {
       `Anno Scolastico & Difficoltà`,
       { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
-    btnAnno.setKind('unselected');
     btnAnno.onTap(() => {
       nodoCorrente = 'anno';
       this.scene.restart();
@@ -181,7 +179,6 @@ export class SettingsScene extends Phaser.Scene {
       `Gioco & Grafica`,
       { scale: 0.85, maxTargetScale: 1.02, depth: 10 }
     );
-    btnGioco.setKind('unselected');
     btnGioco.onTap(() => {
       nodoCorrente = 'gioco';
       this.scene.restart();
@@ -277,7 +274,6 @@ export class SettingsScene extends Phaser.Scene {
       'Personalizza Caratteristiche (Custom)',
       { scale: 0.70, maxTargetScale: 1.02, depth: 10 }
     );
-    btnCustom.setKind('correct');
     btnCustom.onTap(() => {
       nodoCorrente = 'bes-custom';
       this.scene.restart();
@@ -352,16 +348,6 @@ export class SettingsScene extends Phaser.Scene {
 
   // ── 3. SOTTO-RAMO CARATTERISTICHE BES (Custom) ──────────────────────
   private creaBesCustom(cfg: ReturnType<typeof resolveConfig>, w: number): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai profili', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'bes';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Caratteristiche BES (Custom)', cfg, {
       size: 26,
       bold: true,
@@ -431,16 +417,6 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'radice';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Anno Scolastico', cfg, {
       size: 26,
       bold: true,
@@ -535,16 +511,6 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai gradi', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'anno';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Scuola Primaria', cfg, {
       size: 26,
       bold: true,
@@ -606,16 +572,6 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna ai gradi', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'anno';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Scuola Secondaria I Grado', cfg, {
       size: 26,
       bold: true,
@@ -677,16 +633,6 @@ export class SettingsScene extends Phaser.Scene {
     cfg: ReturnType<typeof resolveConfig>,
     w: number
   ): void {
-    const btnIndietro = makeButton(this, cfg, 130, 40, 'Torna al menu', {
-      scale: 0.52,
-      maxTargetScale: 1.03,
-      depth: 10
-    });
-    btnIndietro.onTap(() => {
-      nodoCorrente = 'radice';
-      this.scene.restart();
-    });
-
     makeText(this, w / 2, 40, 'Gioco & Grafica', cfg, {
       size: 26,
       bold: true,
@@ -782,11 +728,11 @@ export class SettingsScene extends Phaser.Scene {
       synth.muted ? '🔇 Audio OFF' : '🔊 Audio ON',
       { scale: 0.62, maxTargetScale: 1.02, depth: 10 }
     );
-    btnAudio.setKind(synth.muted ? 'disabled' : 'correct');
+    if (synth.muted) btnAudio.setKind('disabled');
     btnAudio.onTap(() => {
       const muto = synth.toggleMute();
       btnAudio.setLabel(muto ? '🔇 Audio OFF' : '🔊 Audio ON');
-      btnAudio.setKind(muto ? 'disabled' : 'correct');
+      btnAudio.setKind(muto ? 'disabled' : 'normal');
     });
 
     // ── Bottom Nav ──

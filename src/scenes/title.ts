@@ -191,11 +191,9 @@ export class TitleScene extends Phaser.Scene {
         depth: 50
       }
     );
-    btnGiocatori.setKind('selected');
 
     const aggiornaProfiloUI = () => {
       btnGiocatori.setLabel(getPlayerSummary());
-      btnGiocatori.setKind('selected');
     };
 
     btnGiocatori.onTap(() => {

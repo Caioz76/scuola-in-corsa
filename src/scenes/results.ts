@@ -345,7 +345,6 @@ export class ResultsScene extends Phaser.Scene {
         maxTargetScale: 1.02,
         depth: 10
       });
-      avanti.setKind('correct');
       avanti.onTap(() => {
         this.stopCelebration?.();
         setLevel(prossima.id);

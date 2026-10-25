@@ -82,7 +82,6 @@ export class LevelsScene extends Phaser.Scene {
           maxTargetScale: 1.0,
           depth: 10
         });
-        if (stelle === 3) b.setKind('correct');
         b.onTap(() => {
           setMateria(m.id);
           setLevel(livello.id);
