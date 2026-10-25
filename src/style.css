@@ -978,6 +978,81 @@ body[data-scena="Game"] #mobile-deck {
   color: #000000;
 }
 
+#mobile-deck .m-btn-player-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
+  border: 2px solid #00a2e8;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0, 162, 232, 0.16);
+  text-align: left;
+  cursor: pointer;
+}
+
+#mobile-deck .m-btn-player-select:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffffff 0%, #e8f5ff 100%);
+  border-color: #0088cc;
+  transform: translateY(-1px);
+}
+
+#mobile-deck .m-player-sel-icon {
+  font-size: calc(28px * var(--m-font-scale, 1));
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#mobile-deck .m-player-sel-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+#mobile-deck .m-player-sel-label {
+  font-size: calc(11px * var(--m-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #0077b6;
+}
+
+#mobile-deck .m-player-sel-name {
+  font-size: calc(14.5px * var(--m-font-scale, 1));
+  font-weight: 800;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#mobile-deck .m-player-sel-badge {
+  font-size: calc(12px * var(--m-font-scale, 1));
+  font-weight: 800;
+  background: #e0f2fe;
+  color: #0284c7;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#mobile-deck.bes-hc .m-player-sel-label {
+  color: #002244 !important;
+}
+
+#mobile-deck.bes-hc .m-player-sel-name {
+  color: #000000 !important;
+}
+
+#mobile-deck.bes-hc .m-player-sel-badge {
+  background: #002244 !important;
+  color: #ffffff !important;
+}
+
 #mobile-deck .m-btn-fullscreen {
   min-height: 44px;
   background: #f0f7fc;

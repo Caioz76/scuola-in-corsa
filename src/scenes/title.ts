@@ -199,6 +199,7 @@ export class TitleScene extends Phaser.Scene {
     };
 
     btnGiocatori.onTap(() => {
+      synth.play('click');
       openPlayerSelectionDialog(() => {
         aggiornaProfiloUI();
       });
@@ -211,6 +212,7 @@ export class TitleScene extends Phaser.Scene {
       depth: 50
     });
     gioca.onTap(() => {
+      synth.play('start');
       this.scene.start('Subject');
     });
 
@@ -220,7 +222,10 @@ export class TitleScene extends Phaser.Scene {
       maxTargetScale: 1.04,
       depth: 50
     });
-    configura.onTap(() => this.scene.start('Settings'));
+    configura.onTap(() => {
+      synth.play('click');
+      this.scene.start('Settings');
+    });
 
     // ── 3. Progressi e Stelle ──
     const progressi = makeButton(this, cfg, w / 2, 468, '🏆 Progressi e Stelle', {
@@ -228,13 +233,16 @@ export class TitleScene extends Phaser.Scene {
       maxTargetScale: 1.03,
       depth: 50
     });
-    progressi.onTap(() => this.scene.start('Progress'));
+    progressi.onTap(() => {
+      synth.play('click');
+      this.scene.start('Progress');
+    });
 
     // ── Musica 8-Bit (Anni '80 Arcade) ON / OFF ──
     const btnMusica = makeButton(
       this,
       cfg,
-      w - 110,
+      892,
       38,
       synth.musicActive ? '🎵 Musica: ON' : '🔇 Musica: OFF',
       {
@@ -246,15 +254,17 @@ export class TitleScene extends Phaser.Scene {
     btnMusica.onTap(() => {
       const active = synth.toggleMusic();
       btnMusica.setLabel(active ? '🎵 Musica: ON' : '🔇 Musica: OFF');
+      if (active) synth.play('click');
     });
 
     // ── Schermo Intero ──
-    const schermoIntero = makeButton(this, cfg, 125, 38, 'Schermo intero', {
+    const schermoIntero = makeButton(this, cfg, 132, 38, 'Schermo intero', {
       scale: 0.52,
       maxTargetScale: 1.05,
       depth: 50
     });
     schermoIntero.onTap(() => {
+      synth.play('click');
       toggleFullscreen().catch(() => undefined);
     });
 

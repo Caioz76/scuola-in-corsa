@@ -48,16 +48,18 @@ class SynthEngine {
     // Con l'audio tutto spento (es. profilo Sordità) non serve un AudioContext.
     if (!this.sfxOn && !this.musicOn) return;
     const ctx = this.ensure();
-    if (!ctx || !this.musicOn) return;
-    // `resume()` è asincrono: la musica parte solo a contesto davvero attivo.
-    if (ctx.state === 'running') this.startMusic();
-    else
+    if (!ctx) return;
+    // `resume()` è asincrono: sblocca il contesto per gli effetti (SFX) e avvia la musica se attiva
+    if (ctx.state === 'running') {
+      if (this.musicOn && this.musicTimer === null) this.startMusic();
+    } else {
       void ctx
         .resume()
         .then(() => {
-          if (this.musicOn) this.startMusic();
+          if (this.musicOn && this.musicTimer === null) this.startMusic();
         })
         .catch(() => {});
+    }
   }
 
   /** Contesto audio attivo (gli e2e verificano che il gesto lo sblocchi). */
@@ -112,6 +114,9 @@ class SynthEngine {
     if (!this.sfxOn) return;
     const ctx = this.ensure();
     if (!ctx || !this.sfxGain) return;
+    if (ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
     const t = ctx.currentTime + 0.01;
     const d = this.sfxGain;
     switch (name) {
@@ -213,7 +218,14 @@ class SynthEngine {
       this.stopMusic();
     } else {
       const ctx = this.ensure();
-      if (ctx?.state === 'running') this.startMusic();
+      if (!ctx) return false;
+      if (ctx.state === 'running') {
+        this.startMusic();
+      } else {
+        void ctx.resume().then(() => {
+          if (this.musicOn) this.startMusic();
+        }).catch(() => {});
+      }
     }
     window.dispatchEvent(new CustomEvent('sic:music-toggle', { detail: { musicOn: this.musicOn } }));
     return this.musicOn;

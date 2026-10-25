@@ -20,21 +20,9 @@ import { initMobilePortrait } from './ui/mobile-portrait';
 // Audio: applica le regole BES e sblocca il contesto al primo gesto.
 initAudio();
 
-function calcolaLarghezzaIniziale(): number {
-  if (typeof window === 'undefined') return 1024;
-  const vv = window.visualViewport;
-  const vw = vv ? vv.width : window.innerWidth;
-  const vh = vv ? vv.height : window.innerHeight;
-  if (vw >= vh) {
-    const ratio = Math.max(16 / 9, vw / vh);
-    return Math.min(1920, Math.max(1024, Math.round(576 * ratio)));
-  }
-  return 1024;
-}
-
 const game = new Phaser.Game({
   type: Phaser.AUTO,
-  width: calcolaLarghezzaIniziale(),
+  width: 1024,
   height: 576,
   parent: 'game',
   // Trasparente: quando c'è il mondo 3D (canvas Three.js sotto), Phaser deve
@@ -55,28 +43,11 @@ const game = new Phaser.Game({
 });
 
 /**
- * Adatta dinamicamente la larghezza del canvas Phaser in modalità orizzontale.
- * Su iPhone e dispositivi moderni (schermi panoramici ~19.5:9 o 20:9), una larghezza
- * fissa a 16:9 causerebbe bande nere o un gioco miniaturizzato al centro.
- * Calcolando targetW in base all'aspect ratio reale dello schermo, il canvas
- * riempie il 100% dell'area visibile con zero bordi sprecati.
+ * Con risoluzione logica fissa a 1024x576 e Phaser.Scale.FIT, il gioco mantiene
+ * inalterate tutte le coordinate interne, la simmetria dei pulsanti e l'allineamento
+ * anche quando si entra a schermo intero su Safari desktop o altri browser.
  */
 function adattaScalaGioco(): void {
-  const vv = window.visualViewport;
-  const vw = vv ? vv.width : window.innerWidth;
-  const vh = vv ? vv.height : window.innerHeight;
-  const orizzontale = vw >= vh;
-  if (orizzontale) {
-    const ratio = Math.max(16 / 9, vw / vh);
-    const targetW = Math.min(1920, Math.max(1024, Math.round(576 * ratio)));
-    if (game.scale.gameSize.width !== targetW || game.scale.gameSize.height !== 576) {
-      game.scale.resize(targetW, 576);
-    }
-  } else {
-    if (game.scale.gameSize.width !== 1024 || game.scale.gameSize.height !== 576) {
-      game.scale.resize(1024, 576);
-    }
-  }
   game.scale.refresh();
 }
 

@@ -18,7 +18,12 @@ import { getMobileItems, type MobileItem } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
-import { getTeamSetup, getProfileLabel, getPlayerSummary } from '../core/player';
+import {
+  getTeamSetup,
+  getProfileLabel,
+  getPlayerSummary,
+  openPlayerSelectionDialog
+} from '../core/player';
 import { totalStarsForPlayer } from '../core/progress';
 import { toggleFullscreen } from './fullscreen';
 
@@ -199,7 +204,10 @@ export function initMobilePortrait(game: Phaser.Game): void {
     deck.innerHTML = '';
 
     if (key === 'Title') {
-      renderTitle(deck, items, testi);
+      renderTitle(deck, items, testi, () => {
+        ultimaChiave = '';
+        aggiorna();
+      });
     } else if (key === 'Subject') {
       renderSubject(deck, items, testi, scena);
     } else if (key === 'Levels') {
@@ -224,11 +232,20 @@ export function initMobilePortrait(game: Phaser.Game): void {
 
   window.addEventListener('resize', suResize);
   window.addEventListener('orientationchange', suResize);
+  window.addEventListener('sic:player_change', () => {
+    ultimaChiave = '';
+    aggiorna();
+  });
   window.setInterval(aggiorna, 250);
   aggiorna();
 }
 
-function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[]): void {
+function renderTitle(
+  deck: HTMLElement,
+  items: MobileItem[],
+  testi: TextEntry[],
+  onAggiorna?: () => void
+): void {
   const card = document.createElement('div');
   card.className = 'm-card m-card-title';
 
@@ -267,16 +284,28 @@ function renderTitle(deck: HTMLElement, items: MobileItem[], testi: TextEntry[])
     card.appendChild(pill);
   }
 
-  const btnPlayer = items.find(
-    (i) =>
-      i.label().includes('Giocatore') ||
-      i.label().includes('👥') ||
-      i.label().includes('🦊') ||
-      i.label().includes('👤')
-  );
-  if (btnPlayer) {
-    card.appendChild(creaBtnDom(btnPlayer, 'm-btn-secondary'));
-  }
+  // Scheda Giocatore / Squadra sempre visibile e accessibile, indipendente dall'icona o dal numero
+  const team = getTeamSetup();
+  const playerCard = document.createElement('button');
+  playerCard.type = 'button';
+  playerCard.className = 'm-btn m-btn-player-select';
+  const labelNum =
+    team.numPlayers === 1 ? 'Personaggio scelto' : `${team.numPlayers} Giocatori in squadra`;
+  playerCard.innerHTML = `
+    <span class="m-player-sel-icon">${team.numPlayers === 1 ? team.players[0].token.icon : '👥'}</span>
+    <span class="m-player-sel-info">
+      <span class="m-player-sel-label">${labelNum}</span>
+      <span class="m-player-sel-name">${getPlayerSummary()}</span>
+    </span>
+    <span class="m-player-sel-badge">Scegli ➔</span>
+  `;
+  playerCard.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    openPlayerSelectionDialog(() => {
+      onAggiorna?.();
+    });
+  });
+  card.appendChild(playerCard);
 
   const gioca = items.find((i) => i.label() === 'Gioca');
   if (gioca) {

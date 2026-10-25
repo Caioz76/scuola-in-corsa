@@ -27,8 +27,23 @@ export function initAudio(): void {
   applyAudio();
   if (hooked) return;
   hooked = true;
-  // `capture` per intercettare il gesto anche se un bottone ferma la propagazione.
-  window.addEventListener('pointerdown', () => synth.unlock(), { once: true, capture: true });
-  window.addEventListener('keydown', () => synth.unlock(), { once: true, capture: true });
+
+  const sblocca = (): void => {
+    synth.unlock();
+    if (synth.running) {
+      window.removeEventListener('click', sblocca, true);
+      window.removeEventListener('pointerdown', sblocca, true);
+      window.removeEventListener('mousedown', sblocca, true);
+      window.removeEventListener('keydown', sblocca, true);
+      window.removeEventListener('touchstart', sblocca, true);
+    }
+  };
+
+  // `capture: true` per intercettare il gesto anche su Safari desktop e mobile
+  window.addEventListener('click', sblocca, true);
+  window.addEventListener('pointerdown', sblocca, true);
+  window.addEventListener('mousedown', sblocca, true);
+  window.addEventListener('keydown', sblocca, true);
+  window.addEventListener('touchstart', sblocca, true);
   window.addEventListener('sic:settings', applyAudio);
 }

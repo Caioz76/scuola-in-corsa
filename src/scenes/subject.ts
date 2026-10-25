@@ -7,6 +7,7 @@ import { allPacks, defaultLevelForYear } from '../content/packs';
 import { starsFor } from '../core/progress';
 import { getTeamSetup, getPlayerSummary } from '../core/player';
 import { addWorld } from '../art/world';
+import { synth } from '../audio/synth';
 
 export class SubjectScene extends Phaser.Scene {
   constructor() {
@@ -69,6 +70,7 @@ export class SubjectScene extends Phaser.Scene {
         depth: 10
       });
       b.onTap(() => {
+        synth.play('click');
         setMateria(v.id);
         setLevel(null);
         this.scene.start('Game');
@@ -91,6 +93,9 @@ export class SubjectScene extends Phaser.Scene {
       maxTargetScale: 1.04,
       depth: 50
     });
-    btnTorna.onTap(() => this.scene.start('Title'));
+    btnTorna.onTap(() => {
+      synth.play('click');
+      this.scene.start('Title');
+    });
   }
 }
