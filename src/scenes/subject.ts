@@ -52,23 +52,23 @@ export class SubjectScene extends Phaser.Scene {
 
     // Accesso diretto per l'insegnante: tutte le tappe, con le stelle.
     const tappe = makeButton(this, cfg, frameX + frameW - 76, 40, 'Tutte le tappe', {
-      scale: 0.52,
+      scale: 0.65,
       maxTargetScale: 1.03,
       depth: 10
     });
     tappe.onTap(() => this.scene.start('Levels'));
 
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
-      { id: 'matematica', label: 'Matematica', x: w / 2 - 192, y: 238 },
-      { id: 'italiano', label: 'Italiano', x: w / 2 + 192, y: 238 },
-      { id: 'scienze', label: 'Scienze', x: w / 2 - 192, y: 370 },
-      { id: 'storia', label: 'Storia', x: w / 2 + 192, y: 370 }
+      { id: 'matematica', label: 'Matematica', x: w / 2 - 192, y: 236 },
+      { id: 'italiano', label: 'Italiano', x: w / 2 + 192, y: 236 },
+      { id: 'scienze', label: 'Scienze', x: w / 2 - 192, y: 366 },
+      { id: 'storia', label: 'Storia', x: w / 2 + 192, y: 366 }
     ];
 
     for (const v of voci) {
       const b = makeButton(this, cfg, v.x, v.y, v.label, {
-        scale: 0.88,
-        maxTargetScale: 1.04,
+        scale: 0.90,
+        maxTargetScale: 1.03,
         depth: 10
       });
       b.onTap(() => {
@@ -82,8 +82,8 @@ export class SubjectScene extends Phaser.Scene {
       const livello = pack ? defaultLevelForYear(pack, cfg.schoolYear) : undefined;
       if (pack && livello) {
         const stelle = starsFor(pack.packId, livello.id);
-        makeText(this, v.x, v.y + 50, `★ ${stelle} / 3`, cfg, {
-          size: 16,
+        makeText(this, v.x, v.y + 42, `★ ${stelle} / 3`, cfg, {
+          size: 15,
           bold: stelle > 0,
           color: stelle > 0 ? '#d99a00' : '#8a99ad',
           maxH: 20
@@ -91,9 +91,9 @@ export class SubjectScene extends Phaser.Scene {
       }
     }
 
-    const btnTorna = makeButton(this, cfg, w / 2, 510, 'Torna al menu', {
-      scale: 0.60,
-      maxTargetScale: 1.04,
+    const btnTorna = makeButton(this, cfg, w / 2, 496, 'Torna al menu', {
+      scale: 0.76,
+      maxTargetScale: 1.03,
       depth: 50
     });
     btnTorna.onTap(() => {

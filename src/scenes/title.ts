@@ -177,11 +177,11 @@ export class TitleScene extends Phaser.Scene {
       this,
       cfg,
       w / 2,
-      266,
+      258,
       getPlayerSummary(),
       {
-        scale: 0.65,
-        maxTargetScale: 1.03,
+        scale: 0.84,
+        maxTargetScale: 1.02,
         depth: 50
       }
     );
@@ -198,9 +198,9 @@ export class TitleScene extends Phaser.Scene {
     });
 
     // ── 1. Scelta Principale: GIOCA ──
-    const gioca = makeButton(this, cfg, w / 2, 336, 'Gioca', {
-      scale: 1.02,
-      maxTargetScale: 1.06,
+    const gioca = makeButton(this, cfg, w / 2, 348, 'Gioca', {
+      scale: 1.0,
+      maxTargetScale: 1.04,
       depth: 50
     });
     gioca.onTap(() => {
@@ -209,9 +209,9 @@ export class TitleScene extends Phaser.Scene {
     });
 
     // ── 2. Scelta Principale: Impostazioni ──
-    const configura = makeButton(this, cfg, w / 2, 408, 'Impostazioni', {
-      scale: 0.68,
-      maxTargetScale: 1.04,
+    const configura = makeButton(this, cfg, w / 2, 414, 'Impostazioni', {
+      scale: 0.84,
+      maxTargetScale: 1.03,
       depth: 50
     });
     configura.onTap(() => {
@@ -220,8 +220,8 @@ export class TitleScene extends Phaser.Scene {
     });
 
     // ── 3. Progressi e Stelle ──
-    const progressi = makeButton(this, cfg, w / 2, 468, '🏆 Progressi e Stelle', {
-      scale: 0.54,
+    const progressi = makeButton(this, cfg, w / 2, 470, '🏆 Progressi e Stelle', {
+      scale: 0.80,
       maxTargetScale: 1.03,
       depth: 50
     });
@@ -238,7 +238,7 @@ export class TitleScene extends Phaser.Scene {
       38,
       synth.musicActive ? '🎵 Musica: ON' : '🔇 Musica: OFF',
       {
-        scale: 0.52,
+        scale: 0.65,
         maxTargetScale: 1.04,
         depth: 50
       }
@@ -251,7 +251,7 @@ export class TitleScene extends Phaser.Scene {
 
     // ── Schermo Intero ──
     const schermoIntero = makeButton(this, cfg, 132, 38, 'Schermo intero', {
-      scale: 0.52,
+      scale: 0.65,
       maxTargetScale: 1.05,
       depth: 50
     });

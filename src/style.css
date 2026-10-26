@@ -296,7 +296,7 @@ body.smart-tv :focus-visible,
   justify-content: flex-start;
   gap: 6px;
   min-height: 44px;
-  padding: 0 13px 0 10px;
+  padding: 0 12px 0 10px;
   border: 1.5px solid #00a2e8;
   border-radius: 999px;
   background: linear-gradient(180deg, #ffffff 0%, #f4faff 50%, #eaf6ff 100%);

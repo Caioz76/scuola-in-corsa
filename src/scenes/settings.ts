@@ -281,8 +281,8 @@ export class SettingsScene extends Phaser.Scene {
 
     // 9 Profili BES in griglia 3x3 simmetrica
     const xs = [232, 512, 792];
-    const baseGridY = team.numPlayers > 1 ? 180 : 175;
-    const ys = [baseGridY, baseGridY + 63, baseGridY + 126];
+    const baseGridY = team.numPlayers > 1 ? 180 : 172;
+    const ys = [baseGridY, baseGridY + 54, baseGridY + 108];
     BES_PROFILES.forEach((p, i) => {
       const b = makeButton(this, cfg, xs[i % 3], ys[Math.floor(i / 3)], p.label, {
         scale: 0.72,
@@ -301,8 +301,8 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     // Tasto Nessun Profilo (Standard)
-    const btnStandard = makeButton(this, cfg, w / 2, baseGridY + 190, 'Nessun profilo (Standard)', {
-      scale: 0.70,
+    const btnStandard = makeButton(this, cfg, w / 2, baseGridY + 168, 'Nessun profilo (Standard)', {
+      scale: 0.72,
       maxTargetScale: 1.02,
       depth: 10
     });
@@ -319,14 +319,14 @@ export class SettingsScene extends Phaser.Scene {
     makeText(
       this,
       w / 2,
-      baseGridY + 236,
+      baseGridY + 210,
       scelto ? scelto.description : 'Regole standard per tutti i bambini.',
       cfg,
       { size: 13, bold: true, color: scelto ? '#064e22' : '#102a43', wrap: 800, maxH: 22 }
     );
 
-    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
-      scale: 0.60,
+    const btnTornaMenu = makeButton(this, cfg, 370, 492, 'Torna al menu', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -335,8 +335,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -390,8 +390,8 @@ export class SettingsScene extends Phaser.Scene {
       );
     });
 
-    const btnTornaProfili = makeButton(this, cfg, 370, 510, 'Torna ai profili', {
-      scale: 0.60,
+    const btnTornaProfili = makeButton(this, cfg, 370, 492, 'Torna ai profili', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -400,8 +400,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -484,8 +484,8 @@ export class SettingsScene extends Phaser.Scene {
     );
 
     // ── Bottom Nav ──
-    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
-      scale: 0.60,
+    const btnTornaMenu = makeButton(this, cfg, 370, 492, 'Torna al menu', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -494,8 +494,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -545,8 +545,8 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    const btnTorna = makeButton(this, cfg, 370, 510, 'Torna ai gradi', {
-      scale: 0.60,
+    const btnTorna = makeButton(this, cfg, 370, 492, 'Torna ai gradi', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -555,8 +555,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -606,8 +606,8 @@ export class SettingsScene extends Phaser.Scene {
       });
     });
 
-    const btnTorna = makeButton(this, cfg, 370, 510, 'Torna ai gradi', {
-      scale: 0.60,
+    const btnTorna = makeButton(this, cfg, 370, 492, 'Torna ai gradi', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -616,8 +616,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -736,8 +736,8 @@ export class SettingsScene extends Phaser.Scene {
     });
 
     // ── Bottom Nav ──
-    const btnTornaMenu = makeButton(this, cfg, 370, 510, 'Torna al menu', {
-      scale: 0.60,
+    const btnTornaMenu = makeButton(this, cfg, 370, 492, 'Torna al menu', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });
@@ -746,8 +746,8 @@ export class SettingsScene extends Phaser.Scene {
       this.scene.restart();
     });
 
-    const btnTitolo = makeButton(this, cfg, 654, 510, 'Torna al titolo', {
-      scale: 0.60,
+    const btnTitolo = makeButton(this, cfg, 654, 492, 'Torna al titolo', {
+      scale: 0.72,
       maxTargetScale: 1.04,
       depth: 10
     });

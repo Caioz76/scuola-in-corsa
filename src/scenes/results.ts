@@ -330,7 +330,7 @@ export class ResultsScene extends Phaser.Scene {
     });
 
     const rigioca = makeButton(this, cfg, w / 2 - 156, prossima ? 476 : 466, 'Rigioca', {
-      scale: prossima ? 0.74 : 0.78,
+      scale: 0.82,
       maxTargetScale: 1.02,
       depth: 10
     });
@@ -341,7 +341,7 @@ export class ResultsScene extends Phaser.Scene {
 
     if (prossima) {
       const avanti = makeButton(this, cfg, w / 2, 396, 'Tappa successiva', {
-        scale: 0.88,
+        scale: 0.92,
         maxTargetScale: 1.02,
         depth: 10
       });
@@ -353,7 +353,7 @@ export class ResultsScene extends Phaser.Scene {
     }
 
     const titolo = makeButton(this, cfg, w / 2 + 156, prossima ? 476 : 466, 'Torna al titolo', {
-      scale: prossima ? 0.74 : 0.78,
+      scale: 0.82,
       maxTargetScale: 1.02,
       depth: 10
     });

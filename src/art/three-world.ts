@@ -431,7 +431,7 @@ interface CheckpointQuiz3D {
   matLuce: THREE.MeshStandardMaterial;
   luceMeshSx: THREE.Mesh;
   luceMeshDx: THREE.Mesh;
-  ostacolo: THREE.Group;
+  gemme: THREE.Group;
   insegnaMesh: THREE.Mesh;
   insegnaTex: THREE.CanvasTexture;
   sbarraTex: THREE.CanvasTexture;
@@ -940,10 +940,11 @@ class Mondo3D implements World3D {
       cp.matLuce.color.set(0x00ff88);
       cp.matLuce.emissive.set(0x00ff88);
       cp.matLuce.emissiveIntensity = 2.4;
-      this.avviaSalto(0.85); // Salto atletico sopra l'ostacolo e la linea del traguardo!
-      this.stelline(0, 2.2, cp.gruppo.position.z);
+      // Pico avanza spedito senza ostacoli attraverso la linea del traguardo
+      this.stelline(0, 1.8, cp.gruppo.position.z);
       this.spinta = 1.4;
       this.setSpeed(620);
+      synth.play('pickup');
       if (!this.festa3d) {
         this.festa3d = create3DCelebration(this.mondo);
         setTimeout(() => {
@@ -952,10 +953,9 @@ class Mondo3D implements World3D {
         }, 3000);
       }
     } else {
-      this.avviaSalto(0.85);
       this.spinta = 1.3;
       this.setSpeed(600);
-      this.stelline(this.pico.position.x, 2.2, this.pico.position.z - 2);
+      this.stelline(this.pico.position.x, 1.8, this.pico.position.z - 2);
     }
   }
 
@@ -1049,20 +1049,14 @@ class Mondo3D implements World3D {
     lineaTraguardo.rotation.x = -Math.PI / 2;
     lineaTraguardo.position.set(0, 0.02, 0);
 
-    const ostacolo = new THREE.Group();
-    const ostacoloPaloGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.62, 8);
-    const matOstacoloPalo = new THREE.MeshStandardMaterial({ color: 0xffa94d, roughness: 0.6 });
-    const ostacoloPaloSx = new THREE.Mesh(ostacoloPaloGeo, matOstacoloPalo);
-    ostacoloPaloSx.position.set(-1.1, 0.31, -0.4);
-    const ostacoloPaloDx = new THREE.Mesh(ostacoloPaloGeo, matOstacoloPalo);
-    ostacoloPaloDx.position.set(1.1, 0.31, -0.4);
-    const ostacoloTrave = new THREE.Mesh(
-      new THREE.BoxGeometry(2.35, 0.14, 0.06),
-      new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.5 })
-    );
-    ostacoloTrave.position.set(0, 0.58, -0.4);
-    ostacoloTrave.castShadow = true;
-    ostacolo.add(ostacoloPaloSx, ostacoloPaloDx, ostacoloTrave);
+    // Gemme scintillanti sospese sotto l'arco del traguardo (raccolta automatica all'avanzamento)
+    const gemme = new THREE.Group();
+    for (let gi = -1; gi <= 1; gi++) {
+      const gemma = new THREE.Mesh(this.geoStella, this.matStella);
+      gemma.position.set(gi * 1.3, 1.05, 0);
+      gemma.scale.set(0.85, 0.85, 0.35);
+      gemme.add(gemma);
+    }
 
     const sbarraPivot = new THREE.Group();
     sbarraPivot.position.set(-metaLargo + 0.15, 1.25, 0.1);
@@ -1088,7 +1082,7 @@ class Mondo3D implements World3D {
     gruppo.add(
       sx, anelloSx1, anelloSx2, dx, anelloDx1, anelloDx2,
       sferaSx, sferaDx, traversa, insegnaMesh,
-      luceMeshSx, luceMeshDx, lineaTraguardo, ostacolo, sbarraPivot
+      luceMeshSx, luceMeshDx, lineaTraguardo, gemme, sbarraPivot
     );
 
     gruppo.position.set(0, 0, START_Z);
@@ -1100,7 +1094,7 @@ class Mondo3D implements World3D {
       matLuce,
       luceMeshSx,
       luceMeshDx,
-      ostacolo,
+      gemme,
       insegnaMesh,
       insegnaTex,
       sbarraTex,
@@ -1467,12 +1461,14 @@ class Mondo3D implements World3D {
   private collisioniOstacoli(): void {
     for (const s of this.raccoglibili) {
       if (s.presa) continue;
-      if (Math.abs(s.z) < 0.95 && Math.abs(CORSIE[s.corsia] - this.pico.position.x) < 0.95) {
+      // Raccolta automatica e fluida delle gemme mentre Pico avanza
+      if (Math.abs(s.z) < 1.4 && Math.abs(CORSIE[s.corsia] - this.pico.position.x) < 2.0) {
         s.presa = true;
         s.mesh.visible = false;
         this.stelleRaccolte += 1;
         this.punteggio += 25 * (1 + this.combo * 0.2);
         synth.play('pickup');
+        this.stelline(this.pico.position.x, 1.2, this.pico.position.z);
         if (this.spinta <= 0) {
           this.turbo = Math.min(1, this.turbo + 0.25);
           if (this.turbo >= 1) {

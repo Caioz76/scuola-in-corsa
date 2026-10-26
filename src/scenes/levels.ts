@@ -40,7 +40,7 @@ export class LevelsScene extends Phaser.Scene {
     drawSportChannelFrame(this, cfg, { x: frameX, y: 16, w: frameW, h: 544, headerH: 80 });
 
     const btnIndietro = makeButton(this, cfg, frameX + 98, 40, 'Torna indietro', {
-      scale: 0.52,
+      scale: 0.65,
       maxTargetScale: 1.03,
       depth: 10
     });
@@ -61,9 +61,9 @@ export class LevelsScene extends Phaser.Scene {
       maxH: 20
     });
 
-    const xTappe = [frameX + 350, frameX + 580, frameX + 810];
+    const xTappe = [440, 650, 860];
     MATERIE.forEach((m, row) => {
-      const y = 145 + row * 80;
+      const y = 148 + row * 82;
       const pack = allPacks().find((p) => p.subject === m.id);
       makeText(this, frameX + 120, y, m.label, cfg, {
         size: 19,
@@ -75,10 +75,10 @@ export class LevelsScene extends Phaser.Scene {
       });
 
       pack?.levels.forEach((livello, i) => {
-        const x = xTappe[i] ?? (frameX + 350 + i * 230);
+        const x = xTappe[i] ?? (440 + i * 210);
         const stelle = starsFor(pack.packId, livello.id);
         const b = makeButton(this, cfg, x, y, `Tappa ${i + 1} · ★ ${stelle}`, {
-          scale: 0.68,
+          scale: 0.80,
           maxTargetScale: 1.0,
           depth: 10
         });
@@ -91,8 +91,8 @@ export class LevelsScene extends Phaser.Scene {
       });
     });
 
-    const indietro = makeButton(this, cfg, w / 2, 510, 'Torna alle materie', {
-      scale: 0.60,
+    const indietro = makeButton(this, cfg, w / 2, 496, 'Torna alle materie', {
+      scale: 0.76,
       maxTargetScale: 1.04,
       depth: 10
     });

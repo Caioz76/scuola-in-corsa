@@ -99,7 +99,11 @@ export class ChoiceChallenge implements Challenge {
 
     options.forEach((opt, i) => {
       const [px, py] = pos[i];
-      const b = makeButton(scene, cfg, px, py + yShift, opt.label, { depth: 10 });
+      const b = makeButton(scene, cfg, px, py + yShift, opt.label, {
+        scale: 0.92,
+        maxTargetScale: 1.04,
+        depth: 10
+      });
       b.onTap(() => this.onPick(i));
       this.btns.push(b);
     });
@@ -107,7 +111,7 @@ export class ChoiceChallenge implements Challenge {
     // ── Rileggi (regola repeatPrompt) ──
     if (cfg.repeatPrompt) {
       this.reBtn = makeButton(scene, cfg, cx + 388, 68, 'Rileggi', {
-        scale: 0.52,
+        scale: 0.65,
         maxTargetScale: 1.04,
         depth: 12
       });

@@ -81,27 +81,27 @@ export class PauseScene extends Phaser.Scene {
 
     if (this.conferma) {
       const si = makeButton(this, cfg, w / 2, 332, 'Sì, esci', {
-        scale: 0.8,
-        maxTargetScale: 1.02,
+        scale: 0.88,
+        maxTargetScale: 1.03,
         depth: 10
       });
       si.onTap(esci);
       const no = makeButton(this, cfg, w / 2, 420, 'No, torna al gioco', {
-        scale: 0.8,
-        maxTargetScale: 1.02,
+        scale: 0.88,
+        maxTargetScale: 1.03,
         depth: 10
       });
       no.onTap(riprendi);
     } else {
       const continua = makeButton(this, cfg, w / 2, 332, 'Continua', {
-        scale: 0.8,
-        maxTargetScale: 1.02,
+        scale: 0.88,
+        maxTargetScale: 1.03,
         depth: 10
       });
       continua.onTap(riprendi);
       const titolo = makeButton(this, cfg, w / 2, 420, 'Esci dalla partita', {
-        scale: 0.8,
-        maxTargetScale: 1.02,
+        scale: 0.88,
+        maxTargetScale: 1.03,
         depth: 10
       });
       // Non esce subito: prima chiede conferma, nella stessa scheda.

@@ -62,16 +62,16 @@ function button(
   ctx.beginPath(); ctx.roundRect(6.5, 6.5, w - 13, h - 17, r - 4.5); ctx.stroke();
 
   // Calotta glossy bianca speculare nella metà superiore
-  ctx.fillStyle = lgrad(ctx, 0, 7, 0, 7 + h * 0.38, [
+  ctx.fillStyle = lgrad(ctx, 0, 6, 0, 6 + h * 0.38, [
     [0, 'rgba(255,255,255,0.86)'],
     [0.7, 'rgba(255,255,255,0.34)'],
     [1, 'rgba(255,255,255,0.06)']
   ]);
-  ctx.beginPath(); ctx.roundRect(14, 7, w - 28, h * 0.36, h / 3.6); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(12, 6, w - 24, h * 0.38, h / 3); ctx.fill();
 
   // Riga di luce speculare sul bordo superiore
   ctx.fillStyle = 'rgba(255,255,255,0.95)';
-  ctx.beginPath(); ctx.roundRect(26, 6.5, w - 52, 3.5, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(22, 5.5, w - 44, 2.5, 1.5); ctx.fill();
 }
 
 /** Pannello stile finestra di sistema Sport con header azzurro lucido. */
@@ -397,28 +397,28 @@ export function ensureUI(scene: Phaser.Scene): void {
   };
 
   // btn-blue: l'iconico bottone principale Sport (bianco-porcellana + bordo Azzurro Sport #00a2e8)
-  make('btn-blue', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
+  make('btn-blue', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
   );
   // btn-green: attivo / risposta corretta (verde energico e solido ad altissimo contrasto)
-  make('btn-green', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#2dc766', '#1ca64e', '#13833b', '#0b5424', 'rgba(11, 84, 36, 0.08)')
+  make('btn-green', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#2dc766', '#1ca64e', '#13833b', '#0b5424', 'rgba(11, 84, 36, 0.08)')
   );
   // btn-orange: avviso / secondario caldo
-  make('btn-orange', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#fff6e8', '#ffc478', '#f59838', '#c96a12', 'rgba(201, 106, 18, 0.05)')
+  make('btn-orange', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#fff6e8', '#ffc478', '#f59838', '#c96a12', 'rgba(201, 106, 18, 0.05)')
   );
   // btn-red: errore (corallo acceso Sport)
-  make('btn-red', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#fff0f0', '#ff9696', '#e65555', '#c22e2e', 'rgba(194, 46, 46, 0.05)')
+  make('btn-red', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#fff0f0', '#ff9696', '#e65555', '#c22e2e', 'rgba(194, 46, 46, 0.05)')
   );
   // btn-yellow: oro Sport
-  make('btn-yellow', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#fffbe6', '#ffe47a', '#f2c438', '#c49200', 'rgba(196, 146, 0, 0.05)')
+  make('btn-yellow', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#fffbe6', '#ffe47a', '#f2c438', '#c49200', 'rgba(196, 146, 0, 0.05)')
   );
   // btn-gray: disabilitato / neutro argento Sport
-  make('btn-gray', 320, 84, (ctx) =>
-    button(ctx, 320, 84, '#ffffff', '#eef3f8', '#dce4ee', '#9eb0c4', 'rgba(95, 113, 134, 0.04)')
+  make('btn-gray', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#ffffff', '#eef3f8', '#dce4ee', '#9eb0c4', 'rgba(95, 113, 134, 0.04)')
   );
   make('panel', 700, 480, (ctx) => panel(ctx, 700, 480));
   make('star', 48, 48, (ctx) => star(ctx, 48));

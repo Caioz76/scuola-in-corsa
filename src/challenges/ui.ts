@@ -284,8 +284,8 @@ export interface Btn {
 }
 
 /** Dimensione base del bottone (texture btn-*). */
-export const BTN_W = 320;
-export const BTN_H = 84;
+export const BTN_W = 260;
+export const BTN_H = 52;
 
 const KIND_TEX: Record<BtnKind, string> = {
   normal: 'btn-blue',
@@ -316,9 +316,9 @@ export function makeButton(
   const s = ts * k;
   const sprite = scene.add.sprite(0, 0, 'btn-blue').setScale(s);
   const spec = fontSpec(cfg);
-  const boxW = Math.max(56, (BTN_W - 36) * s);
-  const boxH = Math.max(18, (BTN_H - 18) * s);
-  const baseFontPx = Math.max(11, Math.round(24 * cfg.fontScale * k));
+  const boxW = Math.max(48, (BTN_W - 24) * s);
+  const boxH = Math.max(16, (BTN_H - 10) * s);
+  const baseFontPx = Math.max(12, Math.round(18 * cfg.fontScale * k));
   const text = scene.add.text(0, 0, label, {
     fontFamily: spec.family,
     fontSize: `${baseFontPx}px`,
@@ -327,7 +327,7 @@ export function makeButton(
     align: 'center',
     wordWrap: { width: boxW, useAdvancedWrap: true },
     letterSpacing: spec.spacing,
-    padding: { left: 6, right: 6, top: 2, bottom: 2 }
+    padding: { left: 4, right: 4, top: 1, bottom: 1 }
   }).setOrigin(0.5);
 
   const dpi = window.devicePixelRatio || 1;
@@ -814,14 +814,14 @@ export function showBanner(
  */
 export function optionLayout(n: number, scale: number, cx: number = 512): [number, number][] {
   const w = BTN_W * scale;
-  const gap = 24 * scale;
-  if (n <= 1) return [[cx, 350]];
-  if (n === 2) return [[cx - w / 2 - gap, 350], [cx + w / 2 + gap, 350]];
-  if (n === 3) return [[cx - w / 2 - gap, 296], [cx + w / 2 + gap, 296], [cx, 430]];
+  const gap = 20 * scale;
+  if (n <= 1) return [[cx, 356]];
+  if (n === 2) return [[cx - w / 2 - gap, 356], [cx + w / 2 + gap, 356]];
+  if (n === 3) return [[cx - w / 2 - gap, 308], [cx + w / 2 + gap, 308], [cx, 420]];
   return [
-    [cx - w / 2 - gap, 296],
-    [cx + w / 2 + gap, 296],
-    [cx - w / 2 - gap, 432],
-    [cx + w / 2 + gap, 432]
+    [cx - w / 2 - gap, 308],
+    [cx + w / 2 + gap, 308],
+    [cx - w / 2 - gap, 420],
+    [cx + w / 2 + gap, 420]
   ];
 }
