@@ -338,7 +338,7 @@ export function makeButton(
   root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
-  const hit = permissiveHit(cfg, sprite.frame.cutWidth || sprite.width, sprite.frame.cutHeight || sprite.height);
+  const hit = permissiveHit(cfg, sprite.width, sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
@@ -499,7 +499,7 @@ export function makeChip(
   root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
-  const hit = permissiveHit(cfg, sprite.frame.cutWidth || sprite.width, sprite.frame.cutHeight || sprite.height);
+  const hit = permissiveHit(cfg, sprite.width, sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;

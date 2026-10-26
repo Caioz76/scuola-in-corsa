@@ -59,10 +59,10 @@ export class SubjectScene extends Phaser.Scene {
     tappe.onTap(() => this.scene.start('Levels'));
 
     const voci: Array<{ id: Materia; label: string; x: number; y: number }> = [
-      { id: 'matematica', label: 'Matematica', x: w / 2 - 192, y: 190 },
-      { id: 'italiano', label: 'Italiano', x: w / 2 + 192, y: 190 },
-      { id: 'scienze', label: 'Scienze', x: w / 2 - 192, y: 330 },
-      { id: 'storia', label: 'Storia', x: w / 2 + 192, y: 330 }
+      { id: 'matematica', label: 'Matematica', x: w / 2 - 192, y: 238 },
+      { id: 'italiano', label: 'Italiano', x: w / 2 + 192, y: 238 },
+      { id: 'scienze', label: 'Scienze', x: w / 2 - 192, y: 370 },
+      { id: 'storia', label: 'Storia', x: w / 2 + 192, y: 370 }
     ];
 
     for (const v of voci) {

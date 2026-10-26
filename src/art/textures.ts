@@ -374,26 +374,17 @@ function propsRow(ctx: Ctx, _w: number, h: number): void {
   pennant(494, '#ff7a33');
 }
 
-/** Crea tutte le texture UI a definizione ultra-elevata (2× Super-Sampling). */
+/** Crea tutte le texture UI con disegno nitido ad alta fedeltà. */
 export function ensureUI(scene: Phaser.Scene): void {
-  const SCALE = 2;
-
   const make = (key: string, w: number, h: number, draw: (ctx: Ctx) => void): void => {
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const cv = scene.textures.createCanvas(key, w * SCALE, h * SCALE);
+    const cv = scene.textures.createCanvas(key, w, h);
     if (!cv) return;
     const ctx = cv.getContext();
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.scale(SCALE, SCALE);
     draw(ctx);
     cv.refresh();
-
-    // Mantiene la dimensione logica (w, h) nello spazio coordinate di gioco
-    // campionando la texture nativa al doppio della densità di pixel (Retina/4K).
-    const frame = cv.get();
-    frame.setSize(w, h);
-    frame.setCutSize(w * SCALE, h * SCALE);
   };
 
   // Texture tileabili standard (pista e props)
@@ -450,18 +441,16 @@ export function ensureUI(scene: Phaser.Scene): void {
   makeRaw('propsRow', 512, 64, (ctx) => propsRow(ctx, 512, 64));
 }
 
-/** Crea le texture delle icone a definizione 2× (192×192) per massima nitidezza. */
+/** Crea le texture delle icone (id → texture `icon-{id}`) per le prove di riconoscimento. */
 export function ensureIcons(scene: Phaser.Scene): void {
-  const SCALE = 2;
   for (const id of ICON_IDS) {
     const key = `icon-${id}`;
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const cv = scene.textures.createCanvas(key, 96 * SCALE, 96 * SCALE);
+    const cv = scene.textures.createCanvas(key, 96, 96);
     if (!cv) continue;
     const ctx = cv.getContext();
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.scale(SCALE, SCALE);
     // Fondo medaglione bianco porcellana Sport con bordo celeste
     ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.beginPath(); ctx.roundRect(2, 2, 92, 92, 16); ctx.fill();
@@ -469,9 +458,5 @@ export function ensureIcons(scene: Phaser.Scene): void {
     ctx.beginPath(); ctx.roundRect(3, 3, 90, 90, 15); ctx.stroke();
     ICON_PAINTERS[id](ctx, 96);
     cv.refresh();
-
-    const frame = cv.get();
-    frame.setSize(96, 96);
-    frame.setCutSize(96 * SCALE, 96 * SCALE);
   }
 }

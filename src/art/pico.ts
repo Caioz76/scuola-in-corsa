@@ -198,23 +198,17 @@ function drawPico(ctx: CanvasRenderingContext2D, S: number, o: PicoOpts): void {
   ctx.restore();
 }
 
-/** Crea i frame di Pico a definizione ultra-elevata (2× Super-Sampling). */
+/** Crea i frame di Pico. Da chiamare una volta sola (Boot). */
 export function ensurePico(scene: Phaser.Scene): void {
-  const SCALE = 2;
   const make = (key: string, o: PicoOpts): void => {
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const cv = scene.textures.createCanvas(key, 96 * SCALE, 96 * SCALE);
+    const cv = scene.textures.createCanvas(key, 96, 96);
     if (!cv) return;
     const ctx = cv.getContext();
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.scale(SCALE, SCALE);
     drawPico(ctx, 96, o);
     cv.refresh();
-
-    const frame = cv.get();
-    frame.setSize(96, 96);
-    frame.setCutSize(96 * SCALE, 96 * SCALE);
   };
   make('pico-idle', { wheelAngle: 0, tilt: 0, armsUp: false, blink: false, mouth: 'smile' });
   make('pico-run1', { wheelAngle: 0.5, tilt: -0.05, armsUp: false, blink: false, mouth: 'smile' });
@@ -366,23 +360,17 @@ function drawPicoSide(ctx: CanvasRenderingContext2D, S: number, o: SideOpts): vo
   ctx.restore();
 }
 
-/** Frame di Pico di profilo (modalità Runner) a definizione ultra-elevata (2×). */
+/** Frame di Pico di profilo (modalità Runner). */
 export function ensurePicoSide(scene: Phaser.Scene): void {
-  const SCALE = 2;
   const make = (key: string, o: SideOpts): void => {
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const cv = scene.textures.createCanvas(key, 96 * SCALE, 96 * SCALE);
+    const cv = scene.textures.createCanvas(key, 96, 96);
     if (!cv) return;
     const ctx = cv.getContext();
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.scale(SCALE, SCALE);
     drawPicoSide(ctx, 96, o);
     cv.refresh();
-
-    const frame = cv.get();
-    frame.setSize(96, 96);
-    frame.setCutSize(96 * SCALE, 96 * SCALE);
   };
   make('pico-side-idle', { wheelAngle: 0, tilt: 0, arm: 'down' });
   make('pico-side1', { wheelAngle: 0.5, tilt: -0.04, arm: 'forward' });
