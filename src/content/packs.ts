@@ -916,7 +916,7 @@ const LEVEL_YEARS_COMPATIBILITY: Record<string, AnnoScolastico[]> = {
   'sto-10-12-l3': ['S1', 'S2']
 };
 
-// Set dei round già visti nel percorso corrente per ciascuna materia
+// Set in-memory dei round già visti nel percorso per ciascuna materia
 const roundVistiNelPercorso: Record<string, Set<string>> = {
   matematica: new Set(),
   italiano: new Set(),
@@ -924,13 +924,40 @@ const roundVistiNelPercorso: Record<string, Set<string>> = {
   storia: new Set()
 };
 
+/** Recupera la cronologia FIFO delle domande già viste (memoria + persistenza storage) */
+function getVistiHistory(subject: string): string[] {
+  const stored = storage.get<string[]>(`percorso.visti.${subject}`, []);
+  const mem = roundVistiNelPercorso[subject];
+  if (mem && mem.size > 0) {
+    for (const id of mem) {
+      if (!stored.includes(id)) stored.push(id);
+    }
+  }
+  return stored;
+}
+
+/** Registra i nuovi id visti nell'ordine cronologico FIFO e salva in storage */
+function recordVisti(subject: string, ids: string[]): void {
+  const existing = getVistiHistory(subject);
+  const filtered = existing.filter((id) => !ids.includes(id));
+  const updated = [...filtered, ...ids].slice(-400); // preserva fino a 400 domande storiche
+  storage.set(`percorso.visti.${subject}`, updated);
+  roundVistiNelPercorso[subject] = new Set(updated);
+}
+
 /** Reset del percorso per una materia o per tutte */
 export function resetPercorso(materia?: string): void {
-  if (materia && roundVistiNelPercorso[materia]) {
-    roundVistiNelPercorso[materia].clear();
+  if (materia) {
+    if (roundVistiNelPercorso[materia]) {
+      roundVistiNelPercorso[materia].clear();
+    }
+    storage.set(`percorso.visti.${materia}`, []);
   } else {
-    for (const k of Object.keys(roundVistiNelPercorso)) {
-      roundVistiNelPercorso[k].clear();
+    for (const k of ['matematica', 'italiano', 'scienze', 'storia']) {
+      if (roundVistiNelPercorso[k]) {
+        roundVistiNelPercorso[k].clear();
+      }
+      storage.set(`percorso.visti.${k}`, []);
     }
   }
 }
@@ -985,19 +1012,32 @@ export function selectRoundsForGame(
   }
 
   const tutti = Array.from(mappa.values());
-  const visti = roundVistiNelPercorso[pack.subject] ?? new Set<string>();
+  const vistiList = getVistiHistory(pack.subject);
+  const vistiSet = new Set(vistiList);
 
-  // Se i round ancora non visti in questo percorso sono meno di 6 (es. percorso finito o oltre 3 tappe),
-  // azzera lo storico per consentire un nuovo giro completo
-  let disponibili = tutti.filter((r) => !visti.has(r.id));
-  if (disponibili.length < 6) {
-    visti.clear();
-    disponibili = tutti;
+  // Privilegia categoricamente i quesiti mai visti in questo percorso
+  const maiVisti = tutti.filter((r) => !vistiSet.has(r.id));
+
+  let disponibili: Round[];
+  if (maiVisti.length >= 6) {
+    // Il bacino ha abbondanti quesiti del tutto freschi
+    disponibili = maiVisti;
+  } else {
+    // Se i mai visti sono meno di 6, diamo priorità assoluta a quelli rimasti,
+    // e per i posti restanti recuperiamo i quesiti visti meno di recente (LRU - Least Recently Used)
+    const ordinatiLRU = [...tutti].sort((a, b) => {
+      const idxA = vistiList.indexOf(a.id);
+      const idxB = vistiList.indexOf(b.id);
+      if (idxA === -1 && idxB !== -1) return -1;
+      if (idxA !== -1 && idxB === -1) return 1;
+      return idxA - idxB; // Chi è apparso per primo nella storia FIFO viene riproposto per primo
+    });
+    disponibili = ordinatiLRU;
   }
 
   const isScelta = (r: Round): boolean => r.type === 'quiz' || r.type === 'image';
 
-  // Filtra e mescola solo i quesiti freschi non ancora visti
+  // Filtra e mescola solo i quesiti selezionati
   const scelteFresche = mescola(disponibili.filter(isScelta));
   const interattiveFresche = mescola(disponibili.filter((r) => !isScelta(r)));
 
@@ -1032,10 +1072,11 @@ export function selectRoundsForGame(
     }
   }
 
-  // Registra i quesiti selezionati nei visti del percorso per non ripeterli nelle tappe successive
-  for (const r of risultato) {
-    visti.add(r.id);
-  }
+  // Registra i quesiti selezionati nei visti del percorso (memoria e storage persistente LRU)
+  recordVisti(
+    pack.subject,
+    risultato.map((r) => r.id)
+  );
 
   proveAttive = risultato.slice(0, 6);
   return proveAttive;
