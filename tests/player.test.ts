@@ -12,7 +12,9 @@ import {
   starsForPlayer,
   totalStarsForPlayer,
   resetAllProgress,
-  loadPlayerProgress
+  loadPlayerProgress,
+  pushResult,
+  loadHistory
 } from '../src/core/progress';
 import { storage } from '../src/core/storage';
 
@@ -121,5 +123,40 @@ describe('Gestione squadra, profili BES/DSA per giocatore e progressi', () => {
     expect(stats[1].correct).toBe(2);
     expect(stats[1].stars).toBe(2);
     expect(Math.round((stats[1].correct / stats[1].roundsPlayed) * 100)).toBe(67);
+  });
+
+  it('limita (clamp) le stelle all intervallo valido 0-3 e gestisce valori non validi', () => {
+    // Valori fuori scala superiori (> 3)
+    setPlayerStars('volpe', 'matematica', 'liv-clamp', 5);
+    expect(starsForPlayer('volpe', 'matematica', 'liv-clamp')).toBe(3);
+
+    // Valori negativi
+    setPlayerStars('gufo', 'matematica', 'liv-neg', -2);
+    expect(starsForPlayer('gufo', 'matematica', 'liv-neg')).toBe(0);
+
+    // Valori NaN
+    setPlayerStars('leone', 'matematica', 'liv-nan', NaN as unknown as number);
+    expect(starsForPlayer('leone', 'matematica', 'liv-nan')).toBe(0);
+  });
+
+  it('resiste a storage history corrotto o null senza lanciare eccezioni', () => {
+    // Simula valore 'null' in localStorage
+    storage.set('history', null);
+    expect(() => {
+      pushResult({
+        packId: 'mat-7-9',
+        levelId: 'mat-7-9-l1',
+        total: 6,
+        correct: 6,
+        scorePct: 100,
+        durationMs: 30000,
+        profileId: null,
+        outcomes: [],
+        finishedAt: Date.now()
+      });
+    }).not.toThrow();
+
+    expect(Array.isArray(loadHistory())).toBe(true);
+    expect(loadHistory().length).toBe(1);
   });
 });

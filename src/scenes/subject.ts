@@ -3,7 +3,7 @@ import { type Materia, setMateria, setLevel } from './shared';
 import { drawSportChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { allPacks, defaultLevelForYear } from '../content/packs';
+import { allPacks, defaultLevelForYear, resetPercorso } from '../content/packs';
 import { starsFor } from '../core/progress';
 import { getTeamSetup, getPlayerSummary } from '../core/player';
 import { addWorld } from '../art/world';
@@ -73,6 +73,7 @@ export class SubjectScene extends Phaser.Scene {
         synth.play('click');
         setMateria(v.id);
         setLevel(null);
+        resetPercorso(v.id);
         this.scene.start('Game');
       });
       const pack = allPacks().find((p) => p.subject === v.id);

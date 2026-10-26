@@ -36,7 +36,9 @@ export const storage = {
     const raw = rawGet(key);
     if (raw === null) return fallback;
     try {
-      return JSON.parse(raw) as T;
+      const parsed = JSON.parse(raw);
+      if (parsed === null && fallback !== null) return fallback;
+      return parsed as T;
     } catch {
       // Se il dato era memorizzato come stringa grezza o testo semplice non-JSON
       if (typeof fallback === 'string') {

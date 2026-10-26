@@ -17,6 +17,10 @@ import { synth } from '../audio/synth';
 export interface AzioniNav {
   onPausa: () => void;
   onEsci: () => void;
+  playerIcon?: string;
+  playerText?: string;
+  playerColor?: string;
+  onPlayer?: () => void;
 }
 
 const SVG_PAUSA =
@@ -49,9 +53,21 @@ const SVG_AUDIO_OFF =
   '</svg>';
 
 let barra: HTMLDivElement | null = null;
+let btnGiocatoreRef: HTMLButtonElement | null = null;
+
+export function aggiornaNavGiocatore(icon: string, text: string, color?: string): void {
+  if (!btnGiocatoreRef) return;
+  const iconaEl = btnGiocatoreRef.querySelector('.nav-icona');
+  const testoEl = btnGiocatoreRef.querySelector('.nav-testo');
+  if (iconaEl) iconaEl.innerHTML = icon;
+  if (testoEl) testoEl.textContent = text;
+  if (color) {
+    btnGiocatoreRef.style.borderColor = color;
+  }
+}
 
 function creaBottone(
-  azione: 'pausa' | 'esci' | 'fullscreen' | 'audio',
+  azione: 'pausa' | 'esci' | 'fullscreen' | 'audio' | 'giocatore',
   icona: string,
   testo: string,
   aria: string,
@@ -80,6 +96,25 @@ export function mostraNav(azioni: AzioniNav): void {
   el.setAttribute('role', 'toolbar');
   el.setAttribute('aria-label', 'Comandi della partita');
 
+  const bottoni: HTMLButtonElement[] = [];
+
+  if (azioni.playerText) {
+    const btnGiocatore = creaBottone(
+      'giocatore',
+      azioni.playerIcon ?? '👤',
+      azioni.playerText,
+      `Personaggio attivo: ${azioni.playerText}`,
+      () => {
+        azioni.onPlayer?.();
+      }
+    );
+    if (azioni.playerColor) {
+      btnGiocatore.style.borderColor = azioni.playerColor;
+    }
+    btnGiocatoreRef = btnGiocatore;
+    bottoni.push(btnGiocatore);
+  }
+
   const btnAudio = creaBottone(
     'audio',
     synth.muted ? SVG_AUDIO_OFF : SVG_AUDIO_ON,
@@ -92,7 +127,7 @@ export function mostraNav(azioni: AzioniNav): void {
     }
   );
 
-  el.append(
+  bottoni.push(
     creaBottone('pausa', SVG_PAUSA, 'Pausa', 'Metti la partita in pausa', azioni.onPausa),
     creaBottone('esci', SVG_ESCI, 'Esci', 'Esci dalla partita', azioni.onEsci),
     btnAudio,
@@ -100,6 +135,8 @@ export function mostraNav(azioni: AzioniNav): void {
       toggleFullscreen().catch(() => undefined);
     })
   );
+
+  el.append(...bottoni);
   document.body.appendChild(el);
   barra = el;
 }
@@ -108,4 +145,5 @@ export function mostraNav(azioni: AzioniNav): void {
 export function nascondiNav(): void {
   barra?.remove();
   barra = null;
+  btnGiocatoreRef = null;
 }

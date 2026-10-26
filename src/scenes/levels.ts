@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { drawSportChannelFrame, makeButton, makeText } from '../challenges/ui';
 import { resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { allPacks } from '../content/packs';
+import { allPacks, resetPercorso } from '../content/packs';
 import { starsFor } from '../core/progress';
 import { type Materia, setMateria, setLevel } from './shared';
 import { addWorld } from '../art/world';
@@ -85,6 +85,7 @@ export class LevelsScene extends Phaser.Scene {
         b.onTap(() => {
           setMateria(m.id);
           setLevel(livello.id);
+          if (i === 0) resetPercorso(m.id);
           this.scene.start('Game');
         });
       });

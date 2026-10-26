@@ -916,7 +916,25 @@ const LEVEL_YEARS_COMPATIBILITY: Record<string, AnnoScolastico[]> = {
   'sto-10-12-l3': ['S1', 'S2']
 };
 
-let ultimiRoundIds = new Set<string>();
+// Set dei round già visti nel percorso corrente per ciascuna materia
+const roundVistiNelPercorso: Record<string, Set<string>> = {
+  matematica: new Set(),
+  italiano: new Set(),
+  scienze: new Set(),
+  storia: new Set()
+};
+
+/** Reset del percorso per una materia o per tutte */
+export function resetPercorso(materia?: string): void {
+  if (materia && roundVistiNelPercorso[materia]) {
+    roundVistiNelPercorso[materia].clear();
+  } else {
+    for (const k of Object.keys(roundVistiNelPercorso)) {
+      roundVistiNelPercorso[k].clear();
+    }
+  }
+}
+
 let proveAttive: Round[] = [];
 
 /** Prove della partita in corso (esposte anche su window.__GIOCO__.rounds). */
@@ -929,7 +947,8 @@ export function getActiveRounds(): Round[] {
  * - garantisce la STRETTA coerenza con l'anno scolastico attivo (`settings.schoolYear`):
  *   i quesiti sono rigorosamente calibrati per l'anno dell'alunno (né più semplici, né più complessi);
  * - include i quesiti originali della tappa solo se compatibili con il grado dell'alunno;
- * - mescola le domande evitando quelle appena viste e bilanciando scelte multiple e prove interattive.
+ * - esclude categoricamente le domande già viste nelle tappe precedenti dello stesso percorso;
+ * - bilancia scelte multiple e prove interattive senza mai ripescare quesiti già affrontati.
  */
 export function selectRoundsForGame(
   pack: Pack,
@@ -947,7 +966,10 @@ export function selectRoundsForGame(
     if (compatibili && level.rounds.length >= 6) {
       proveAttive = level.rounds.slice(0, 6);
     } else {
-      proveAttive = (extra.length >= 6 ? extra : level.rounds).slice(0, 6);
+      const levelIdx = Math.max(0, pack.levels.findIndex((l) => l.id === level.id));
+      const start = (levelIdx * 6) % Math.max(1, extra.length);
+      const slice = extra.slice(start, start + 6);
+      proveAttive = slice.length >= 6 ? slice : extra.slice(0, 6);
     }
     return proveAttive;
   }
@@ -963,23 +985,58 @@ export function selectRoundsForGame(
   }
 
   const tutti = Array.from(mappa.values());
+  const visti = roundVistiNelPercorso[pack.subject] ?? new Set<string>();
+
+  // Se i round ancora non visti in questo percorso sono meno di 6 (es. percorso finito o oltre 3 tappe),
+  // azzera lo storico per consentire un nuovo giro completo
+  let disponibili = tutti.filter((r) => !visti.has(r.id));
+  if (disponibili.length < 6) {
+    visti.clear();
+    disponibili = tutti;
+  }
+
   const isScelta = (r: Round): boolean => r.type === 'quiz' || r.type === 'image';
 
-  const ordinaFreschi = (lista: Round[]): Round[] => {
-    const freschi = mescola(lista.filter((r) => !ultimiRoundIds.has(r.id)));
-    const giaVisti = mescola(lista.filter((r) => ultimiRoundIds.has(r.id)));
-    return [...freschi, ...giaVisti];
-  };
+  // Filtra e mescola solo i quesiti freschi non ancora visti
+  const scelteFresche = mescola(disponibili.filter(isScelta));
+  const interattiveFresche = mescola(disponibili.filter((r) => !isScelta(r)));
 
-  const scelte = ordinaFreschi(tutti.filter(isScelta));
-  const interattive = ordinaFreschi(tutti.filter((r) => !isScelta(r)));
+  // Seleziona fino a 2 interattive se disponibili e fresche, altrimenti completa con scelte
+  const nInter = Math.min(interattiveFresche.length, 2);
+  const nScelte = 6 - nInter;
 
-  const nScelte = Math.min(scelte.length, Math.max(4, 6 - interattive.length));
-  const selezionateScelte = scelte.slice(0, nScelte);
-  const selezionateInter = interattive.slice(0, Math.max(0, 6 - selezionateScelte.length));
+  const selezionateScelte = scelteFresche.slice(0, nScelte);
+  const selezionateInter = interattiveFresche.slice(0, 6 - selezionateScelte.length);
 
-  const risultato = [...selezionateScelte, ...selezionateInter].slice(0, 6);
-  ultimiRoundIds = new Set(risultato.map((r) => r.id));
-  proveAttive = risultato;
-  return risultato;
+  const risultato: Round[] = [...selezionateScelte, ...selezionateInter];
+
+  // Se non siamo arrivati a 6 (ad esempio se mancavano interattive), completa con scelte fresche
+  if (risultato.length < 6) {
+    const giaIncluso = new Set(risultato.map((r) => r.id));
+    for (const r of scelteFresche) {
+      if (!giaIncluso.has(r.id)) {
+        risultato.push(r);
+        if (risultato.length === 6) break;
+      }
+    }
+  }
+
+  // Se ancora non si è a 6, completa con qualsiasi disponibile non ancora incluso
+  if (risultato.length < 6) {
+    const giaIncluso = new Set(risultato.map((r) => r.id));
+    for (const r of disponibili) {
+      if (!giaIncluso.has(r.id)) {
+        risultato.push(r);
+        if (risultato.length === 6) break;
+      }
+    }
+  }
+
+  // Registra i quesiti selezionati nei visti del percorso per non ripeterli nelle tappe successive
+  for (const r of risultato) {
+    visti.add(r.id);
+  }
+
+  proveAttive = risultato.slice(0, 6);
+  return proveAttive;
 }

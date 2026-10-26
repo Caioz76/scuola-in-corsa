@@ -326,6 +326,17 @@ body.smart-tv :focus-visible,
   display: block;
 }
 
+#nav-gioco .nav-bottone[data-azione="giocatore"] {
+  font-weight: 800;
+  border-width: 2px;
+  background: linear-gradient(180deg, #ffffff 0%, #fefefe 50%, #f0f7fc 100%);
+}
+
+#nav-gioco .nav-bottone[data-azione="giocatore"] .nav-icona {
+  font-size: 16px;
+  line-height: 1;
+}
+
 @media (orientation: portrait) {
   #nav-gioco {
     top: auto;

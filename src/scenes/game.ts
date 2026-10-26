@@ -11,7 +11,8 @@ import { getTeamSetup, getProfileLabel, type PlayerToken, type ActivePlayer, typ
 import { setPlayerStars } from '../core/progress';
 import { addWorld, themeFor } from '../art/world';
 import { add3DWorld } from '../art/three-world';
-import { mostraNav, nascondiNav } from '../ui/nav';
+import { mostraNav, nascondiNav, aggiornaNavGiocatore, type AzioniNav } from '../ui/nav';
+import { synth } from '../audio/synth';
 
 export interface PlayerRoundStat {
   playerIndex: number;
@@ -100,22 +101,17 @@ export class GameScene extends Phaser.Scene {
     // Solo testo nero (#000000) e centratura perfetta.
     const testoTitolo = `${pack.title} — ${level.title}${infoAnno ? ` (${infoAnno.short})` : ''}`;
 
-    // Titolo della tappa a sinistra nella barra superiore
+    // Titolo della tappa a sinistra nella barra superiore (ampio spazio ora che il badge centrale è spostato nella barra laterale)
     makeText(this, frameX + 12, 23, testoTitolo, cfg, {
       size: 12.5,
       bold: true,
       color: '#000000',
       align: 'left',
-      wrap: 250,
+      wrap: 520,
       maxH: 22,
       originX: 0,
       originY: 0.5
     }).setDepth(100);
-
-    // Badge grafico del turno/giocatore con logo del personaggio sempre visibile al centro
-    const turnBannerGfx = this.add.graphics().setDepth(102);
-    let turnLogoObj: Phaser.GameObjects.Text | null = null;
-    let turnTextObj: Phaser.GameObjects.Text | null = null;
 
     const contatore = makeText(this, frameX + frameW - 12, 23, '', cfg, {
       size: 13.5,
@@ -151,11 +147,23 @@ export class GameScene extends Phaser.Scene {
         })
       : null;
 
-    // ── Navigazione sempre disponibile ──────────────────────────────
+    // ── Navigazione sempre disponibile (con badge giocatore allineato ai comandi) ──
+    const initialPlayer = team.players[0];
+    const initialLabel =
+      team.numPlayers > 1
+        ? `${initialPlayer.token.name} (G${initialPlayer.playerIndex})`
+        : initialPlayer.token.name;
+
     let inPausa = false;
-    const azioni = {
+    const azioni: AzioniNav = {
       onPausa: () => apriPausa(false),
-      onEsci: () => apriPausa(true)
+      onEsci: () => apriPausa(true),
+      playerIcon: initialPlayer.token.icon,
+      playerText: initialLabel,
+      playerColor: initialPlayer.token.color,
+      onPlayer: () => {
+        synth.play('click');
+      }
     };
     const mostraBarra = (): void => mostraNav(azioni);
     const suRipresa = (): void => {
@@ -260,40 +268,15 @@ export class GameScene extends Phaser.Scene {
         overrides: roundPlayer.overrides ?? impostazioni.overrides ?? {}
       });
 
-      // Disegna SEMPRE il badge del giocatore con il logo (icona) e il nome ben visibili al centro
-      turnBannerGfx.clear();
-      const hexColor = parseInt(roundPlayer.token.color.replace('#', '0x'), 16) || 0x00a2e8;
-      const hexBg = parseInt(roundPlayer.token.bg.replace('#', '0x'), 16) || 0xffffff;
-
-      turnBannerGfx.fillStyle(0xffffff, 0.98);
-      turnBannerGfx.fillRoundedRect(w / 2 - 190, 5, 380, 36, 18);
-      turnBannerGfx.lineStyle(2.5, hexColor, 1);
-      turnBannerGfx.strokeRoundedRect(w / 2 - 190, 5, 380, 36, 18);
-
-      if (turnLogoObj) turnLogoObj.destroy();
-      if (turnTextObj) turnTextObj.destroy();
-
-      turnLogoObj = this.add
-        .text(w / 2 - 165, 23, roundPlayer.token.icon, {
-          fontSize: '22px'
-        })
-        .setOrigin(0.5)
-        .setDepth(105);
-
+      // Aggiorna il badge del personaggio nei comandi di navigazione a sinistra
       const labelTurno =
         team.numPlayers > 1
-          ? `Turno di: ${roundPlayer.token.name} (G${roundPlayer.playerIndex})`
-          : `Giocatore: ${roundPlayer.token.name}`;
-
-      turnTextObj = this.add
-        .text(w / 2 - 142, 13, labelTurno, {
-          fontSize: '14px',
-          fontStyle: 'bold',
-          color: '#000000',
-          fontFamily:
-            roundCfg.font === 'dyslexia' ? 'OpenDyslexic, sans-serif' : 'system-ui, sans-serif'
-        })
-        .setDepth(105);
+          ? `${roundPlayer.token.name} (G${roundPlayer.playerIndex})`
+          : roundPlayer.token.name;
+      azioni.playerIcon = roundPlayer.token.icon;
+      azioni.playerText = labelTurno;
+      azioni.playerColor = roundPlayer.token.color;
+      aggiornaNavGiocatore(roundPlayer.token.icon, labelTurno, roundPlayer.token.color);
 
       contatore.setText(`Prova ${index + 1}/${rounds.length}`);
 

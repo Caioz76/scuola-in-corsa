@@ -11,6 +11,11 @@ const K_PROGRESS = 'progress';
 const K_PLAYERS_PROGRESS = 'players_progress';
 const K_HISTORY = 'history';
 
+function clampStars(stars: number): number {
+  if (typeof stars !== 'number' || Number.isNaN(stars)) return 0;
+  return Math.min(3, Math.max(0, Math.round(stars)));
+}
+
 export function loadAllPlayersProgress(): PlayersProgress {
   return storage.get<PlayersProgress>(K_PLAYERS_PROGRESS, {});
 }
@@ -21,18 +26,19 @@ export function loadPlayerProgress(playerId: string): Progress {
 }
 
 export function setPlayerStars(playerId: string, packId: string, levelId: string, stars: number): void {
+  const safeStars = clampStars(stars);
   const all = loadAllPlayersProgress();
   const playerProg = all[playerId] ?? {};
   playerProg[packId] = playerProg[packId] ?? {};
   const cur = playerProg[packId][levelId] ?? 0;
-  if (stars > cur) {
-    playerProg[packId][levelId] = stars;
+  if (safeStars > cur) {
+    playerProg[packId][levelId] = safeStars;
   }
   all[playerId] = playerProg;
   storage.set(K_PLAYERS_PROGRESS, all);
 
   // Sincronizza anche il progresso globale/legacy con il massimo delle stelle ottenute dalla squadra
-  setStars(packId, levelId, stars);
+  setStars(packId, levelId, safeStars);
 }
 
 export function starsForPlayer(playerId: string, packId: string, levelId: string): number {
@@ -56,10 +62,11 @@ export function loadProgress(): Progress {
 }
 
 export function setStars(packId: string, levelId: string, stars: number): void {
+  const safeStars = clampStars(stars);
   const p = loadProgress();
   p[packId] = p[packId] ?? {};
   const cur = p[packId][levelId] ?? 0;
-  if (stars > cur) p[packId][levelId] = stars;
+  if (safeStars > cur) p[packId][levelId] = safeStars;
   storage.set(K_PROGRESS, p);
 }
 
@@ -84,12 +91,14 @@ export function resetAllProgress(): void {
 }
 
 export function pushResult(r: GameResult): void {
-  const hist = storage.get<GameResult[]>(K_HISTORY, []);
+  const raw = storage.get<GameResult[]>(K_HISTORY, []);
+  const hist = Array.isArray(raw) ? raw : [];
   hist.push(r);
   // max 200 risultati
   storage.set(K_HISTORY, hist.slice(-200));
 }
 
 export function loadHistory(): GameResult[] {
-  return storage.get<GameResult[]>(K_HISTORY, []);
+  const raw = storage.get<GameResult[]>(K_HISTORY, []);
+  return Array.isArray(raw) ? raw : [];
 }

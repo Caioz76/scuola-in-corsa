@@ -905,7 +905,383 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'Pitagora calcola il quadrato dell\'ipotenusa; l\'area del cerchio usa pi greco.',
       explanation: 'Pitagora: c² = a² + b²; Cerchio: πr²; Quadrato di binomio: a² + 2ab + b².'
     }
-  }
+  },
+
+  // ── Integrazione percorsi: Primaria 1ª – 2ª (P1, P2) ──────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-1',
+      type: 'quiz',
+      prompt: 'Qual è il numero più grande tra 3, 7 e 5?',
+      options: [
+        { label: '7', correct: true },
+        { label: '5', correct: false },
+        { label: '3', correct: false }
+      ],
+      hint: 'Pensa a quale numero viene dopo quando conti.',
+      explanation: '7 è maggiore sia di 5 che di 3.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-2',
+      type: 'quiz',
+      prompt: 'Se hai 6 matite e ne regali 2, quante matite ti rimangono?',
+      options: [
+        { label: '4', correct: true },
+        { label: '3', correct: false },
+        { label: '5', correct: false },
+        { label: '8', correct: false }
+      ],
+      hint: 'Fai una sottrazione: 6 meno 2.',
+      explanation: '6 − 2 = 4 matite.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-3',
+      type: 'quiz',
+      prompt: 'Quanto fa 5 + 5?',
+      options: [
+        { label: '10', correct: true },
+        { label: '9', correct: false },
+        { label: '11', correct: false },
+        { label: '8', correct: false }
+      ],
+      hint: 'Pensa alle dita delle due mani insieme.',
+      explanation: '5 + 5 fa 10, cioè esattamente una decina.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-4',
+      type: 'image',
+      icon: 'mela',
+      prompt: 'Ci sono 4 mele rosse e 3 mele verdi. Quante mele in tutto?',
+      options: [
+        { label: '7', correct: true },
+        { label: '6', correct: false },
+        { label: '8', correct: false }
+      ],
+      hint: 'Unisci le due quantità: 4 + 3.',
+      explanation: '4 + 3 = 7 mele in totale.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca i numeri in ordine crescente partendo da 1.',
+      items: ['1', '2', '3', '4', '5'],
+      hint: 'Conta dal più piccolo al più grande.',
+      explanation: 'L\'ordine naturale è 1, 2, 3, 4, 5.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-6',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Conta all\'indietro partendo da 5.',
+      items: ['5', '4', '3', '2', '1'],
+      hint: 'Fai il conto alla rovescia.',
+      explanation: 'All\'indietro: 5, 4, 3, 2, 1.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-7',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni addizione semplice al suo risultato.',
+      leftItems: ['2 + 2', '3 + 2', '4 + 2'],
+      rightItems: ['5', '4', '6'],
+      pairs: [[0, 1], [1, 0], [2, 2]],
+      hint: 'Calcola le somme una alla volta.',
+      explanation: '2 + 2 = 4, 3 + 2 = 5, 4 + 2 = 6.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-8',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni figura geometrica al numero dei suoi lati.',
+      leftItems: ['Triangolo', 'Quadrato', 'Cerchio'],
+      rightItems: ['4 lati', '0 lati', '3 lati'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Il triangolo ha tre lati, il quadrato ne ha quattro, il cerchio è una linea curva chiusa.',
+      explanation: 'Triangolo = 3 lati, Quadrato = 4 lati, Cerchio = 0 lati rettilinei.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-mat-p1-ext-9',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina questi numeri dal minore al maggiore.',
+      sortItems: ['2', '6', '9', '15'],
+      hint: 'Trova il numero più piccolo e mettilo per primo.',
+      explanation: 'L\'ordine crescente è 2, 6, 9, 15.'
+    }
+  },
+  // ── Integrazione percorsi: Primaria 3ª – 5ª (P3, P4, P5) ──────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-mat-p3-ext-1',
+      type: 'quiz',
+      prompt: 'Quanto fa 6 × 7?',
+      options: [
+        { label: '42', correct: true },
+        { label: '36', correct: false },
+        { label: '48', correct: false },
+        { label: '40', correct: false }
+      ],
+      hint: 'Pensa alla tabellina del 6: 6 × 6 = 36, aggiungi 6.',
+      explanation: '6 × 7 = 42.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-mat-p3-ext-2',
+      type: 'quiz',
+      prompt: 'Quanto fa 48 ÷ 6?',
+      options: [
+        { label: '8', correct: true },
+        { label: '7', correct: false },
+        { label: '9', correct: false },
+        { label: '6', correct: false }
+      ],
+      hint: 'Quale numero moltiplicato per 6 dà 48?',
+      explanation: '6 × 8 = 48, quindi 48 ÷ 6 = 8.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-mat-p3-ext-3',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca i multipli di 4 in ordine crescente.',
+      items: ['4', '8', '12', '16'],
+      hint: 'Aggiungi 4 a ogni passo: tabellina del 4.',
+      explanation: '4, 8, 12, 16.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-mat-p3-ext-4',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni frazione al suo significato.',
+      leftItems: ['1/2', '1/4', '3/4'],
+      rightItems: ['Tre quarti', 'La metà', 'Un quarto'],
+      pairs: [[0, 1], [1, 2], [2, 0]],
+      hint: '1/2 è la metà, 1/4 è un quarto.',
+      explanation: '1/2 = la metà; 1/4 = un quarto; 3/4 = tre quarti.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-mat-p3-ext-5',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina i numeri di tre cifre dal più piccolo al più grande.',
+      sortItems: ['120', '240', '360', '480'],
+      hint: 'Confronta prima le centinaia.',
+      explanation: '120 < 240 < 360 < 480.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-mat-p4-ext-1',
+      type: 'quiz',
+      prompt: 'Un rettangolo ha la base di 6 cm e l\'altezza di 4 cm. Quanto misura il perimetro?',
+      options: [
+        { label: '20 cm', correct: true },
+        { label: '24 cm', correct: false },
+        { label: '10 cm', correct: false },
+        { label: '16 cm', correct: false }
+      ],
+      hint: 'Il perimetro è (base + altezza) × 2.',
+      explanation: '(6 + 4) × 2 = 10 × 2 = 20 cm.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-mat-p4-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina le unità di misura alla grandezza corrispondente.',
+      leftItems: ['Chilometro', 'Litro', 'Chilogrammo'],
+      rightItems: ['Capacità', 'Lunghezza', 'Peso (massa)'],
+      pairs: [[0, 1], [1, 0], [2, 2]],
+      hint: 'I chilometri misurano distanze, i litri liquidi, i chilogrammi il peso.',
+      explanation: 'Km = lunghezza; Litro = capacità; Kg = massa/peso.'
+    }
+  },
+  {
+    years: ['P5', 'S1', 'S2'],
+    round: {
+      id: 'qb-mat-p5-ext-1',
+      type: 'quiz',
+      prompt: 'Quanto vale il 25% di 80?',
+      options: [
+        { label: '20', correct: true },
+        { label: '25', correct: false },
+        { label: '40', correct: false },
+        { label: '15', correct: false }
+      ],
+      hint: 'Il 25% equivale a un quarto: 80 ÷ 4.',
+      explanation: '80 ÷ 4 = 20.'
+    }
+  },
+  {
+    years: ['P5', 'S1', 'S2'],
+    round: {
+      id: 'qb-mat-p5-ext-2',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina i numeri decimali dal minore al maggiore.',
+      sortItems: ['0.2', '0.5', '1.2', '2.0'],
+      hint: 'Confronta prima la parte intera e poi i decimi.',
+      explanation: '0.2 < 0.5 < 1.2 < 2.0.'
+    }
+  },
+  // ── Integrazione percorsi: Secondaria 1ª – 3ª (S1, S2, S3) ─────────
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-mat-s1-ext-1',
+      type: 'quiz',
+      prompt: 'Quanto fa (−4) × (−3)?',
+      options: [
+        { label: '+12', correct: true },
+        { label: '−12', correct: false },
+        { label: '−7', correct: false },
+        { label: '+7', correct: false }
+      ],
+      hint: 'Il prodotto di due numeri concordi negativi è sempre positivo.',
+      explanation: 'Meno per meno fa più: (−4) × (−3) = +12.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-mat-s1-ext-2',
+      type: 'quiz',
+      prompt: 'Qual è la radice quadrata di 81?',
+      options: [
+        { label: '9', correct: true },
+        { label: '8', correct: false },
+        { label: '7', correct: false },
+        { label: '18', correct: false }
+      ],
+      hint: 'Quale numero elevato al quadrato dà 81?',
+      explanation: '9 × 9 = 81, quindi √81 = 9.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-mat-s1-ext-3',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca i quadrati perfetti in ordine crescente.',
+      items: ['4', '9', '16', '25'],
+      hint: '2², 3², 4², 5².',
+      explanation: '2²=4, 3²=9, 4²=16, 5²=25.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-mat-s1-ext-4',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni potenza al suo valore calcolato.',
+      leftItems: ['2³', '3²', '5²'],
+      rightItems: ['9', '25', '8'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: '2³ = 2×2×2 = 8; 3² = 3×3 = 9; 5² = 5×5 = 25.',
+      explanation: '2³=8, 3²=9, 5²=25.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s2-ext-1',
+      type: 'quiz',
+      prompt: 'In un triangolo rettangolo, se i cateti misurano 3 cm e 4 cm, quanto misura l\'ipotenusa?',
+      options: [
+        { label: '5 cm', correct: true },
+        { label: '7 cm', correct: false },
+        { label: '6 cm', correct: false },
+        { label: '8 cm', correct: false }
+      ],
+      hint: 'Usa il Teorema di Pitagora: √(3² + 4²) = √(9 + 16).',
+      explanation: '√(9 + 16) = √25 = 5 cm.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s2-ext-2',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina questi numeri relativi dal minore al maggiore.',
+      sortItems: ['−10', '−3', '0', '+5'],
+      hint: 'I numeri negativi con valore assoluto più grande sono i più piccoli.',
+      explanation: '−10 < −3 < 0 < +5.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s3-ext-1',
+      type: 'quiz',
+      prompt: 'Qual è il valore di x nell\'equazione di primo grado 3x − 6 = 12?',
+      options: [
+        { label: 'x = 6', correct: true },
+        { label: 'x = 4', correct: false },
+        { label: 'x = 8', correct: false },
+        { label: 'x = 2', correct: false }
+      ],
+      hint: 'Aggiungi 6 a entrambi i membri: 3x = 18, poi dividi per 3.',
+      explanation: '3x = 18 → x = 6.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-mat-s3-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni espressione algebrica al suo risultato.',
+      leftItems: ['(−3) + 7', '(−2) − 5', '(−4) × 2'],
+      rightItems: ['−7', '−8', '+4'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Attento ai segni nelle somme e moltiplicazioni.',
+      explanation: '−3 + 7 = +4; −2 − 5 = −7; −4 × 2 = −8.'
+    }
+  },
+
   ],
 
   italiano: [
@@ -1785,7 +2161,302 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'Causale indica il motivo; temporale indica il tempo; finale indica lo scopo.',
       explanation: 'Causale esprime la causa, temporale il tempo, finale lo scopo.'
     }
-  }
+  },
+
+  // ── Integrazione percorsi: Primaria 1ª – 2ª (P1, P2) ──────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-1',
+      type: 'quiz',
+      prompt: 'Quale tra queste è una vocale?',
+      options: [
+        { label: 'E', correct: true },
+        { label: 'M', correct: false },
+        { label: 'T', correct: false },
+        { label: 'S', correct: false }
+      ],
+      hint: 'Le cinque vocali sono A, E, I, O, U.',
+      explanation: 'La lettera E è una vocale.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-2',
+      type: 'quiz',
+      prompt: 'Quale parola fa rima con "FIORE"?',
+      options: [
+        { label: 'Cuore', correct: true },
+        { label: 'Prato', correct: false },
+        { label: 'Albero', correct: false },
+        { label: 'Cane', correct: false }
+      ],
+      hint: 'Ascolta il suono finale: -ORE.',
+      explanation: 'Fiore e Cuore finiscono entrambi con il suono -ore.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-3',
+      type: 'quiz',
+      prompt: 'Quale parola è scritta nel modo corretto con la doppia?',
+      options: [
+        { label: 'Gatto', correct: true },
+        { label: 'Gato', correct: false },
+        { label: 'Gattto', correct: false }
+      ],
+      hint: 'La parola gatto si scrive con due T.',
+      explanation: 'La grafia corretta è gatto con doppia T.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-4',
+      type: 'image',
+      icon: 'cane',
+      prompt: 'Quale articolo determinativo va davanti a questa parola?',
+      options: [
+        { label: 'Il cane', correct: true },
+        { label: 'La cane', correct: false },
+        { label: 'Lo cane', correct: false }
+      ],
+      hint: 'Cane è un nome maschile singolare che inizia con consonante.',
+      explanation: 'Si dice "il cane".'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca le prime lettere dell\'alfabeto in ordine.',
+      items: ['A', 'B', 'C', 'D'],
+      hint: 'Inizia dalla prima lettera dell\'alfabeto.',
+      explanation: 'L\'ordine alfabetico è A, B, C, D.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni parola al suo contrario.',
+      leftItems: ['Alto', 'Giorno', 'Caldo'],
+      rightItems: ['Notte', 'Freddo', 'Basso'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Cerca il significato opposto.',
+      explanation: 'Alto ↔ Basso; Giorno ↔ Notte; Caldo ↔ Freddo.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-7',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina il nome singolare al suo plurale.',
+      leftItems: ['Mela', 'Libro', 'Stella'],
+      rightItems: ['Libri', 'Stelle', 'Mele'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Trasforma da uno a tanti.',
+      explanation: 'Mela → Mele; Libro → Libri; Stella → Stelle.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-ita-p1-ext-8',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Metti in ordine le sillabe per formare la parola.',
+      sortItems: ['MA', 'TI', 'TA'],
+      hint: 'Lo strumento che usi per scrivere sul quaderno.',
+      explanation: 'MA + TI + TA = MATITA.'
+    }
+  },
+  // ── Integrazione percorsi: Primaria 3ª – 5ª (P3, P4, P5) ──────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-ita-p3-ext-1',
+      type: 'quiz',
+      prompt: 'Quale tra questi è un aggettivo qualificativo?',
+      options: [
+        { label: 'Luminoso', correct: true },
+        { label: 'Casa', correct: false },
+        { label: 'Correre', correct: false },
+        { label: 'Ieri', correct: false }
+      ],
+      hint: 'Risponde alla domanda: "com\'è?".',
+      explanation: 'Luminoso descrive una qualità del nome.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-ita-p3-ext-2',
+      type: 'quiz',
+      prompt: 'Qual è il tempo del verbo "Noi giocheremo"?',
+      options: [
+        { label: 'Futuro semplice', correct: true },
+        { label: 'Presente', correct: false },
+        { label: 'Passato prossimo', correct: false },
+        { label: 'Imperfetto', correct: false }
+      ],
+      hint: 'Indica un\'azione che deve ancora accadere.',
+      explanation: 'Giocheremo è futuro semplice del verbo giocare.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-ita-p3-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun nome al suo articolo corretto.',
+      leftItems: ['Zaino', 'Albero', 'Scuola'],
+      rightItems: ['La', 'Lo', 'L\''],
+      pairs: [[0, 1], [1, 2], [2, 0]],
+      hint: 'Davanti a Z si usa lo; davanti a vocale l\'apostrofo.',
+      explanation: 'Lo zaino, L\'albero, La scuola.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-ita-p3-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina le parole per formare una frase corretta.',
+      sortItems: ['Il', 'sole', 'splende', 'nel', 'cielo'],
+      hint: 'Inizia con l\'articolo e il soggetto.',
+      explanation: 'La frase ordinata è: Il sole splende nel cielo.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-ita-p4-ext-1',
+      type: 'quiz',
+      prompt: 'Quale parola contiene il prefisso che significa "non"?',
+      options: [
+        { label: 'Infelice', correct: true },
+        { label: 'Felicità', correct: false },
+        { label: 'Felice', correct: false },
+        { label: 'Felicemente', correct: false }
+      ],
+      hint: 'Il prefisso in- indica negazione.',
+      explanation: 'In-felice significa "non felice".'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-ita-p4-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni parola al suo sinonimo.',
+      leftItems: ['Veloce', 'Felice', 'Casa'],
+      rightItems: ['Gioioso', 'Abitazione', 'Rapido'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Cerca parole con significato simile.',
+      explanation: 'Veloce = Rapido; Felice = Gioioso; Casa = Abitazione.'
+    }
+  },
+  // ── Integrazione percorsi: Secondaria 1ª – 3ª (S1, S2, S3) ─────────
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-ita-s1-ext-1',
+      type: 'quiz',
+      prompt: 'Nella frase "Marco legge un libro interessante", qual è il complemento oggetto?',
+      options: [
+        { label: 'Un libro interessante', correct: true },
+        { label: 'Marco', correct: false },
+        { label: 'Legge', correct: false }
+      ],
+      hint: 'Risponde alla domanda: "chi? che cosa?".',
+      explanation: '"Un libro interessante" risponde alla domanda "che cosa legge Marco?".'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-ita-s1-ext-2',
+      type: 'quiz',
+      prompt: 'Quale figura retorica è presente in: "Quell\'atleta è una saetta"?',
+      options: [
+        { label: 'Metafora', correct: true },
+        { label: 'Similitudine', correct: false },
+        { label: 'Onomatopea', correct: false },
+        { label: 'Ossimoro', correct: false }
+      ],
+      hint: 'È una similitudine abbreviata senza la parola "come".',
+      explanation: 'È una metafora perché attribuisce direttamente la qualità senza usare "come".'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-ita-s1-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni elemento della frase alla sua funzione logica.',
+      leftItems: ['Il gatto', 'insegue', 'il topo'],
+      rightItems: ['Predicato verbale', 'Complemento oggetto', 'Soggetto'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Chi compie l\'azione? Che azione fa? Chi la subisce?',
+      explanation: 'Il gatto = Soggetto; insegue = Predicato verbale; il topo = Compl. oggetto.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-ita-s1-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina le parti del discorso secondo la struttura canonica italiana.',
+      sortItems: ['Soggetto', 'Predicato', 'Complemento Oggetto'],
+      hint: 'Struttura SVO: Soggetto - Verbo - Oggetto.',
+      explanation: 'La struttura canonica è Soggetto → Predicato → Complemento.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s3-ext-1',
+      type: 'quiz',
+      prompt: 'Quale modo verbale esprime desiderio, dubbio o possibilità?',
+      options: [
+        { label: 'Congiuntivo', correct: true },
+        { label: 'Indicativo', correct: false },
+        { label: 'Imperativo', correct: false },
+        { label: 'Participio', correct: false }
+      ],
+      hint: 'Si usa spesso dopo verbi come "credo che", "spero che".',
+      explanation: 'Il congiuntivo è il modo del dubbio e della possibilità.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-ita-s3-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni frase al modo verbale sottolineato.',
+      leftItems: ['Se studiassi...', 'Vorrei un gelato', 'Ascolta la lezione!'],
+      rightItems: ['Condizionale', 'Imperativo', 'Congiuntivo'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Studiassi = congiuntivo; Vorrei = condizionale; Ascolta! = imperativo.',
+      explanation: 'Se studiassi (congiuntivo); Vorrei (condizionale); Ascolta (imperativo).'
+    }
+  },
+
   ],
 
   scienze: [
@@ -2671,7 +3342,287 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'Il DNA custodisce l\'informazione genetica; l\'Ampere misura l\'intensità di corrente.',
       explanation: 'DNA: molecola ereditaria; Gene: singola istruzione; Ampere: corrente elettrica.'
     }
-  }
+  },
+
+  // ── Integrazione percorsi: Primaria 1ª – 2ª (P1, P2) ──────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-1',
+      type: 'quiz',
+      prompt: 'Quale tra questi è un essere vivente?',
+      options: [
+        { label: 'Una pianta', correct: true },
+        { label: 'Un sasso', correct: false },
+        { label: 'Una nuvola', correct: false },
+        { label: 'Una matita', correct: false }
+      ],
+      hint: 'Gli esseri viventi nascono, crescono, respirano e si riproducono.',
+      explanation: 'La pianta nasce, cresce, si nutre ed è un essere vivente.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-2',
+      type: 'image',
+      icon: 'sole',
+      prompt: 'Cosa ci dona il Sole?',
+      options: [
+        { label: 'Luce e calore', correct: true },
+        { label: 'Pioggia e neve', correct: false },
+        { label: 'Vento e buio', correct: false }
+      ],
+      hint: 'È la nostra stella e riscalda la Terra.',
+      explanation: 'Il Sole è la fonte primaria di luce e calore.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-3',
+      type: 'quiz',
+      prompt: 'Quale organo usiamo per il senso della vista?',
+      options: [
+        { label: 'Gli occhi', correct: true },
+        { label: 'Le orecchie', correct: false },
+        { label: 'Il naso', correct: false },
+        { label: 'Le mani', correct: false }
+      ],
+      hint: 'Ci permettono di vedere colori e forme.',
+      explanation: 'Gli occhi sono l\'organo della vista.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-4',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca le quattro stagioni nell\'ordine corretto.',
+      items: ['Primavera', 'Estate', 'Autunno', 'Inverno'],
+      hint: 'Dopo l\'inverno sbocciano i fiori in primavera, poi arriva l\'estate calda.',
+      explanation: 'Il ciclo annuale: Primavera → Estate → Autunno → Inverno.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-5',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun senso al suo organo principale.',
+      leftItems: ['Vista', 'Udito', 'Olfatto'],
+      rightItems: ['Naso', 'Occhi', 'Orecchie'],
+      pairs: [[0, 1], [1, 2], [2, 0]],
+      hint: 'Con cosa vedi, senti e annusi?',
+      explanation: 'Vista ↔ Occhi; Udito ↔ Orecchie; Olfatto ↔ Naso.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni animale al suo ambiente naturale.',
+      leftItems: ['Pesce', 'Uccello', 'Orso'],
+      rightItems: ['Cielo e rami', 'Bosco e montagna', 'Acqua e mare'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Dove vive ciascun animale?',
+      explanation: 'Pesce ↔ Acqua; Uccello ↔ Cielo/rami; Orso ↔ Bosco/montagna.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sci-p1-ext-7',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina le fasi di crescita di una pianta.',
+      sortItems: ['Seme', 'Germoglio', 'Piantina con foglie', 'Fiore sbocciato'],
+      hint: 'Tutto comincia piantando il seme nella terra.',
+      explanation: 'Seme → Germoglio → Piantina → Fiore.'
+    }
+  },
+  // ── Integrazione percorsi: Primaria 3ª – 5ª (P3, P4, P5) ──────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sci-p3-ext-1',
+      type: 'quiz',
+      prompt: 'In quale stato si trova l\'acqua quando diventa ghiaccio?',
+      options: [
+        { label: 'Stato solido', correct: true },
+        { label: 'Stato liquido', correct: false },
+        { label: 'Stato gassoso', correct: false }
+      ],
+      hint: 'Il ghiaccio ha forma e volume propri.',
+      explanation: 'Il ghiaccio è acqua allo stato solido.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sci-p3-ext-2',
+      type: 'quiz',
+      prompt: 'Come si chiama il processo con cui le piante verdi producono il proprio nutrimento?',
+      options: [
+        { label: 'Fotosintesi clorofilliana', correct: true },
+        { label: 'Respirazione polmonare', correct: false },
+        { label: 'Evaporazione', correct: false },
+        { label: 'Digestione', correct: false }
+      ],
+      hint: 'Utilizza la luce solare, acqua e anidride carbonica.',
+      explanation: 'Le piante compiono la fotosintesi clorofilliana.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-sci-p3-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun elemento al suo stato della materia a temperatura ambiente.',
+      leftItems: ['Vapore acqueo', 'Olio', 'Ferro'],
+      rightItems: ['Liquido', 'Gassoso', 'Solido'],
+      pairs: [[0, 1], [1, 0], [2, 2]],
+      hint: 'Vapore è gas, olio è liquido, ferro è solido.',
+      explanation: 'Vapore = Gassoso; Olio = Liquido; Ferro = Solido.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-sci-p3-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina gli anelli di una semplice catena alimentare dal primo all\'ultimo.',
+      sortItems: ['Erba (produttore)', 'Cavalletta (erbivoro)', 'Rana (carnivoro)', 'Falco (predatore)'],
+      hint: 'La pianta produce nutrimento, l\'insetto la mangia, la rana mangia l\'insetto.',
+      explanation: 'Erba → Cavalletta → Rana → Falco.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-sci-p4-ext-1',
+      type: 'quiz',
+      prompt: 'Qual è il pianeta più vicino al Sole nel nostro sistema solare?',
+      options: [
+        { label: 'Mercurio', correct: true },
+        { label: 'Venere', correct: false },
+        { label: 'Terra', correct: false },
+        { label: 'Marte', correct: false }
+      ],
+      hint: 'È piccolo, roccioso e precede Venere.',
+      explanation: 'Mercurio è il primo pianeta dal Sole.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-sci-p4-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni parte del corpo al suo apparato.',
+      leftItems: ['Cuore', 'Polmoni', 'Stomaco'],
+      rightItems: ['Respiratorio', 'Digerente', 'Circolatorio'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Il cuore pompa il sangue, i polmoni ossigenano, lo stomaco digerisce.',
+      explanation: 'Cuore = Circolatorio; Polmoni = Respiratorio; Stomaco = Digerente.'
+    }
+  },
+  // ── Integrazione percorsi: Secondaria 1ª – 3ª (S1, S2, S3) ─────────
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sci-s1-ext-1',
+      type: 'quiz',
+      prompt: 'Qual è la struttura cellulare che racchiude il materiale genetico (DNA)?',
+      options: [
+        { label: 'Il nucleo', correct: true },
+        { label: 'La membrana plasmatica', correct: false },
+        { label: 'Il citoplasma', correct: false },
+        { label: 'Il ribosoma', correct: false }
+      ],
+      hint: 'È la centrale di controllo della cellula eucariote.',
+      explanation: 'Il nucleo contiene il DNA nella cellula.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sci-s1-ext-2',
+      type: 'quiz',
+      prompt: 'Quale tra queste è una fonte di energia rinnovabile e inesauribile?',
+      options: [
+        { label: 'Energia solare', correct: true },
+        { label: 'Carbone fossile', correct: false },
+        { label: 'Petrolio greggio', correct: false },
+        { label: 'Gas naturale', correct: false }
+      ],
+      hint: 'Sfrutta direttamente i raggi del Sole.',
+      explanation: 'L\'energia solare non produce scorie e si rigenera costantemente.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sci-s1-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni elemento della cellula alla sua funzione principale.',
+      leftItems: ['Nucleo', 'Mitocondrio', 'Membrana'],
+      rightItems: ['Centrale energetica (respirazione)', 'Barriera e scambio con l\'esterno', 'Custodia del patrimonio genetico'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Il nucleo custodisce il DNA, il mitocondrio produce ATP, la membrana protegge.',
+      explanation: 'Nucleo ↔ DNA; Mitocondrio ↔ Energia; Membrana ↔ Barriera.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sci-s1-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina i primi quattro pianeti del sistema solare per distanza crescente dal Sole.',
+      sortItems: ['Mercurio', 'Venere', 'Terra', 'Marte'],
+      hint: 'La Terra è al terzo posto.',
+      explanation: 'Mercurio → Venere → Terra → Marte.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s3-ext-1',
+      type: 'quiz',
+      prompt: 'In genetica, come viene definito l\'insieme dei caratteri visibili di un individuo?',
+      options: [
+        { label: 'Fenotipo', correct: true },
+        { label: 'Genotipo', correct: false },
+        { label: 'Cariotipo', correct: false },
+        { label: 'Gamete', correct: false }
+      ],
+      hint: 'Il genotipo è il codice genetico; il fenotipo è l\'aspetto manifestato.',
+      explanation: 'Il fenotipo rappresenta i caratteri osservabili determinati da geni e ambiente.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sci-s3-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni grandezza fisica alla sua unità di misura nel Sistema Internazionale.',
+      leftItems: ['Forza', 'Lavoro ed Energia', 'Potenza'],
+      rightItems: ['Joule (J)', 'Watt (W)', 'Newton (N)'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'La forza si misura in Newton, l\'energia in Joule, la potenza in Watt.',
+      explanation: 'Forza ↔ Newton; Energia ↔ Joule; Potenza ↔ Watt.'
+    }
+  },
+
   ],
 
   storia: [
@@ -3546,6 +4497,282 @@ export const BANCA_DOMANDE: Record<string, TaggedRound[]> = {
       hint: 'La prima guerra mondiale precede la seconda; la Costituzione è entrata in vigore nel 1948.',
       explanation: '1914 (1ª Guerra) → 1939 (2ª Guerra) → 1946 (Repubblica) → 1948 (Costituzione).'
     }
-  }
+  },
+
+  // ── Integrazione percorsi: Primaria 1ª – 2ª (P1, P2) ──────────────
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-1',
+      type: 'quiz',
+      prompt: 'Cosa usavano gli uomini antichi per illuminare la notte prima che ci fosse l\'elettricità?',
+      options: [
+        { label: 'Il fuoco e le torce', correct: true },
+        { label: 'La lampadina', correct: false },
+        { label: 'La torcia a batterie', correct: false }
+      ],
+      hint: 'La fiamma naturale produce luce e calore.',
+      explanation: 'Prima della luce elettrica si usavano torce, candele e fuochi.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-2',
+      type: 'quiz',
+      prompt: 'Quale parola indica il giorno che viene subito prima di oggi?',
+      options: [
+        { label: 'Ieri', correct: true },
+        { label: 'Domani', correct: false },
+        { label: 'Dopodomani', correct: false }
+      ],
+      hint: 'È il giorno appena passato.',
+      explanation: 'Ieri è il giorno precedente a oggi; domani è il giorno successivo.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-3',
+      type: 'image',
+      icon: 'pergamena',
+      prompt: 'Cosa vedi nell\'immagine?',
+      options: [
+        { label: 'Un\'antica pergamena', correct: true },
+        { label: 'Un computer portatile', correct: false },
+        { label: 'Un libro stampato moderno', correct: false }
+      ],
+      hint: 'È un rotolo di carta antica usato prima dei libri stampati.',
+      explanation: 'Gli scribi scrivevano su pergamene arrotolate.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-4',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca i momenti della giornata nell\'ordine in cui si susseguono.',
+      items: ['Mattina', 'Pomeriggio', 'Sera', 'Notte'],
+      hint: 'Ci si sveglia al mattino e si dorme la notte.',
+      explanation: 'Mattina → Pomeriggio → Sera → Notte.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-5',
+      type: 'sequence',
+      direction: 'tap',
+      prompt: 'Tocca i giorni della settimana in ordine.',
+      items: ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì'],
+      hint: 'Lunedì apre la settimana scolastica.',
+      explanation: 'Lunedì, Martedì, Mercoledì, Giovedì.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-6',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni oggetto antico al suo equivalente moderno.',
+      leftItems: ['Candela', 'Carrozza a cavalli', 'Piuma d\'oca'],
+      rightItems: ['Automobile', 'Penna a sfera', 'Lampadina'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Cosa usiamo oggi al posto di candele, carrozze e piume?',
+      explanation: 'Candela ↔ Lampadina; Carrozza ↔ Automobile; Piuma ↔ Penna.'
+    }
+  },
+  {
+    years: ['P1', 'P2'],
+    round: {
+      id: 'qb-sto-p1-ext-7',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina i concetti del tempo dal passato verso il futuro.',
+      sortItems: ['Ieri (passato)', 'Oggi (presente)', 'Domani (futuro)'],
+      hint: 'Il giorno passato precede il presente.',
+      explanation: 'Ieri → Oggi → Domani.'
+    }
+  },
+  // ── Integrazione percorsi: Primaria 3ª – 5ª (P3, P4, P5) ──────────
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sto-p3-ext-1',
+      type: 'quiz',
+      prompt: 'Quale grande scoperta segnò la svolta nella vita dell\'uomo preistorico?',
+      options: [
+        { label: 'La scoperta del fuoco', correct: true },
+        { label: 'L\'invenzione del treno', correct: false },
+        { label: 'La costruzione delle autostrade', correct: false }
+      ],
+      hint: 'Permise di riscaldarsi, difendersi dagli animali e cuocere il cibo.',
+      explanation: 'Il controllo del fuoco fu fondamentale per la sopravvivenza preistorica.'
+    }
+  },
+  {
+    years: ['P3', 'P4'],
+    round: {
+      id: 'qb-sto-p3-ext-2',
+      type: 'quiz',
+      prompt: 'Lungo le rive di quale grande fiume si sviluppò l\'antica civiltà egizia?',
+      options: [
+        { label: 'Fiume Nilo', correct: true },
+        { label: 'Fiume Po', correct: false },
+        { label: 'Fiume Tevere', correct: false },
+        { label: 'Fiume Danubio', correct: false }
+      ],
+      hint: 'Le piene di questo fiume rendevano fertile la terra con il limo.',
+      explanation: 'L\'antico Egitto sorse lungo il Nilo.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-sto-p3-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ciascun popolo antico alla sua grande opera o caratteristica.',
+      leftItems: ['Egizi', 'Sumeri', 'Romani'],
+      rightItems: ['Invenzione della scrittura cuneiforme', 'Costruzione di acquedotti e strade', 'Costruzione delle piramidi'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Piramidi in Egitto, scrittura cuneiforme in Mesopotamia, acquedotti a Roma.',
+      explanation: 'Egizi = Piramidi; Sumeri = Scrittura cuneiforme; Romani = Strade e acquedotti.'
+    }
+  },
+  {
+    years: ['P3', 'P4', 'P5'],
+    round: {
+      id: 'qb-sto-p3-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Metti in ordine cronologico le grandi età della Preistoria e della Storia antica.',
+      sortItems: ['Paleolitico (cacciatori nomadi)', 'Neolitico (agricoltura e villaggi)', 'Età dei Metalli', 'Civiltà della scrittura'],
+      hint: 'Prima si cacciava nella pietra antica, poi nacque l\'agricoltura nel Neolitico.',
+      explanation: 'Paleolitico → Neolitico → Età dei Metalli → Prime civiltà storiche.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-sto-p4-ext-1',
+      type: 'quiz',
+      prompt: 'In quale città greca nacque la prima forma di democrazia?',
+      options: [
+        { label: 'Atene', correct: true },
+        { label: 'Sparta', correct: false },
+        { label: 'Corinto', correct: false },
+        { label: 'Tebe', correct: false }
+      ],
+      hint: 'La città del Partenone governata dall\'assemblea dei cittadini liberi.',
+      explanation: 'Atene fu la culla della democrazia nella Grecia antica.'
+    }
+  },
+  {
+    years: ['P4', 'P5', 'S1'],
+    round: {
+      id: 'qb-sto-p4-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni civiltà al fiume lungo cui è fiorita.',
+      leftItems: ['Antichi Egizi', 'Mesopotamia (Sumeri/Babilonesi)', 'Antica Roma'],
+      rightItems: ['Tevere', 'Nilo', 'Tigri ed Eufrate'],
+      pairs: [[0, 1], [1, 2], [2, 0]],
+      hint: 'Egizi sul Nilo, civiltà mesopotamiche tra Tigri ed Eufrate, Roma sul Tevere.',
+      explanation: 'Egizi ↔ Nilo; Mesopotamia ↔ Tigri/Eufrate; Roma ↔ Tevere.'
+    }
+  },
+  // ── Integrazione percorsi: Secondaria 1ª – 3ª (S1, S2, S3) ─────────
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sto-s1-ext-1',
+      type: 'quiz',
+      prompt: 'In quale anno cadde l\'Impero Romano d\'Occidente, segnando l\'inizio del Medioevo?',
+      options: [
+        { label: '476 d.C.', correct: true },
+        { label: '1492 d.C.', correct: false },
+        { label: '313 d.C.', correct: false },
+        { label: '1000 d.C.', correct: false }
+      ],
+      hint: 'Romolo Augustolo fu deposto dal re barbaro Odoacre.',
+      explanation: 'Il 476 d.C. segna tradizionalmente la fine dell\'Età Antica e l\'inizio del Medioevo.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sto-s1-ext-2',
+      type: 'quiz',
+      prompt: 'Quale navigatore genovese raggiunse l\'America nel 1492 aprendo l\'Età Moderna?',
+      options: [
+        { label: 'Cristoforo Colombo', correct: true },
+        { label: 'Marco Polo', correct: false },
+        { label: 'Ferdinando Magellano', correct: false },
+        { label: 'Amerigo Vespucci', correct: false }
+      ],
+      hint: 'Partì da Palos con tre caravelle: Nina, Pinta e Santa Maria.',
+      explanation: 'Cristoforo Colombo approdò alle Bahamas il 12 ottobre 1492.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sto-s1-ext-3',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni data fondamentale all\'evento storico corrispondente.',
+      leftItems: ['476 d.C.', '1492', '1789'],
+      rightItems: ['Scoperta dell\'America', 'Presa della Bastiglia (Rivoluzione Francese)', 'Caduta dell\'Impero Romano d\'Occidente'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: '476 inizio Medioevo, 1492 Età Moderna, 1789 Età Contemporanea.',
+      explanation: '476 = Caduta Roma; 1492 = America; 1789 = Rivoluzione Francese.'
+    }
+  },
+  {
+    years: ['S1', 'S2', 'S3'],
+    round: {
+      id: 'qb-sto-s1-ext-4',
+      type: 'dragdrop',
+      mode: 'sort',
+      prompt: 'Ordina cronologicamente le quattro grandi epoche storiche dell\'umanità.',
+      sortItems: ['Età Antica', 'Medioevo', 'Età Moderna', 'Età Contemporanea'],
+      hint: 'Dall\'antichità classica fino ai giorni nostri.',
+      explanation: 'Età Antica → Medioevo → Età Moderna → Età Contemporanea.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s3-ext-1',
+      type: 'quiz',
+      prompt: 'In quale anno è stata proclamata l\'Unità d\'Italia con Vittorio Emanuele II re d\'Italia?',
+      options: [
+        { label: '1861', correct: true },
+        { label: '1848', correct: false },
+        { label: '1870', correct: false },
+        { label: '1915', correct: false }
+      ],
+      hint: 'Il 17 marzo di quell\'anno nacque il Regno d\'Italia a Torino.',
+      explanation: 'Il 17 marzo 1861 fu proclamato il Regno d\'Italia.'
+    }
+  },
+  {
+    years: ['S2', 'S3'],
+    round: {
+      id: 'qb-sto-s3-ext-2',
+      type: 'dragdrop',
+      mode: 'match',
+      prompt: 'Abbina ogni personaggio storico al suo ruolo.',
+      leftItems: ['Giuseppe Garibaldi', 'Camillo Benso Conte di Cavour', 'Leonardo da Vinci'],
+      rightItems: ['Primo ministro del Regno di Sardegna', 'Genio e artista del Rinascimento', 'Eroe dei Due Mondi e guida dei Mille'],
+      pairs: [[0, 2], [1, 0], [2, 1]],
+      hint: 'Garibaldi guidò la Spedizione dei Mille; Cavour fu stratega politico; Leonardo dipinse la Gioconda.',
+      explanation: 'Garibaldi = Spedizione dei Mille; Cavour = Statista del Risorgimento; Leonardo = Rinascimento.'
+    }
+  },
+
   ]
 };
