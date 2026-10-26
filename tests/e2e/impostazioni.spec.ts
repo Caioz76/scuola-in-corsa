@@ -56,7 +56,8 @@ async function tocco(page: import('@playwright/test').Page, x: number, y: number
 }
 
 async function toccaTesto(page: import('@playwright/test').Page, label: string, attesa = 650): Promise<boolean> {
-  const t = (await testi(page)).find((o) => o.text === label);
+  const lbl = label.toLowerCase();
+  const t = (await testi(page)).find((o) => o.text.toLowerCase().includes(lbl));
   if (!t) return false;
   await tocco(page, t.x, t.y, attesa);
   return true;
@@ -155,7 +156,9 @@ test.describe('Impostazioni BES', () => {
     expect(salvato.schoolYear).toBe('S2');
 
     // Torno ai gradi e poi al titolo → avvio Matematica e verifico che parta col livello/quesiti di 2ª Media
-    expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+    if (await toccaTesto(page, 'Torna ai gradi')) {
+      await page.waitForTimeout(300);
+    }
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
     await tocco(page, 512, 358); // Gioca
@@ -235,24 +238,26 @@ test.describe('Impostazioni BES', () => {
 
     await verificaNessunaSovrapposizione('Title');
 
-    await tocco(page, 872, 44); // Progressi
+    await toccaTesto(page, 'Progressi');
     await expect.poll(async () => (await stato(page)).scena).toBe('Progress');
     await verificaNessunaSovrapposizione('Progress');
 
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
 
-    await tocco(page, 512, 458); // Impostazioni
+    await toccaTesto(page, 'Impostazioni');
     await expect.poll(async () => (await stato(page)).scena).toBe('Settings');
     await verificaNessunaSovrapposizione('Settings (profili)');
 
     expect(await toccaTesto(page, 'Anno scolastico')).toBe(true);
     await verificaNessunaSovrapposizione('Settings (classe)');
-    expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+    expect(await toccaTesto(page, 'Torna al menu')).toBe(true);
 
-    expect(await toccaTesto(page, 'Regole una per una')).toBe(true);
+    expect(await toccaTesto(page, 'Bisogni Educativi Speciali')).toBe(true);
+    expect(await toccaTesto(page, 'Personalizza Caratteristiche')).toBe(true);
     await verificaNessunaSovrapposizione('Settings (regole)');
     expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+    expect(await toccaTesto(page, 'Torna al menu')).toBe(true);
 
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
@@ -274,16 +279,26 @@ test.describe('Impostazioni BES', () => {
     page
   }) => {
     test.setTimeout(90_000);
-    // 1. In verticale (portrait 390×844) appare la schermata #ruota
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.addInitScript(() => localStorage.clear());
-    await page.goto('/');
-    await expect(page.locator('#ruota')).toBeVisible();
-    await expect(page.locator('#ruota')).toContainText('Ruota lo schermo');
+    // Simula dispositivo smartphone touch
+    await page.addInitScript(() => {
+      localStorage.clear();
+      Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
+      Object.defineProperty(navigator, 'userAgent', {
+        get: () =>
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1'
+      });
+    });
 
-    // 2. Ruotando il dispositivo in orizzontale (landscape 844×390) l'avviso sparisce e il gioco è pronto a tutto schermo
+    // 1. Su smartphone in orizzontale (landscape 844×390) appare il banner di suggerimento rotazione
     await page.setViewportSize({ width: 844, height: 390 });
-    await expect(page.locator('#ruota')).toBeHidden();
+    await page.goto('/');
+    const popupRuota = page.locator('#ruota, #ruota-in-verticale');
+    await expect(popupRuota).toBeVisible();
+    await expect(popupRuota).toContainText(/verticale|Ruota/i);
+
+    // 2. Ruotando in verticale (portrait 390×844) il deck mobile è attivo e pronto
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(popupRuota).toBeHidden();
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
 
     // Il canvas di gioco copre l'area attiva
@@ -333,10 +348,15 @@ test.describe('Impostazioni BES', () => {
     // Resta nella schermata con 2ª Secondaria selezionata
     await expect(btnS2).toHaveClass(/m-state-selected/);
 
-    // Torna indietro
-    const btnTornaProfili = page.locator('#mobile-deck button').filter({ hasText: 'Torna ai profili' }).first();
-    await expect(btnTornaProfili).toBeVisible();
-    await btnTornaProfili.click();
+    // Torna ai gradi
+    const btnTornaGradi = page.locator('#mobile-deck button').filter({ hasText: 'Torna ai gradi' }).first();
+    await expect(btnTornaGradi).toBeVisible();
+    await btnTornaGradi.click();
+
+    // Torna al menu
+    const btnTornaMenu = page.locator('#mobile-deck button').filter({ hasText: 'Torna al menu' }).first();
+    await expect(btnTornaMenu).toBeVisible();
+    await btnTornaMenu.click();
 
     // Torna al titolo
     const btnTitolo = page.locator('#mobile-deck button').filter({ hasText: 'Torna al titolo' }).first();

@@ -39,15 +39,9 @@ export class TitleScene extends Phaser.Scene {
       card.fillStyle(0x005b8f, 0.08);
       card.fillRoundedRect(w / 2 - 312, 88, 624, 410, 32);
 
-      // Corpo principale bianco porcellana Sport
-      card.fillStyle(0xffffff, 0.92);
+      // Corpo principale bianco porcellana Sport (ultra-definito e pulito)
+      card.fillStyle(0xffffff, 0.96);
       card.fillRoundedRect(w / 2 - 310, 72, 620, 430, 30);
-
-      // Scanline orizzontali tipiche del menu Sport Console
-      card.fillStyle(0x00a2e8, 0.038);
-      for (let sy = 84; sy < 490; sy += 6) {
-        card.fillRect(w / 2 - 294, sy, 588, 2);
-      }
 
       // Fascia luminosa superiore (effetto glossy Sport)
       card.fillStyle(0xe6f5ff, 0.88);
@@ -214,8 +208,8 @@ export class TitleScene extends Phaser.Scene {
       this.scene.start('Subject');
     });
 
-    // ── 2. Scelta Principale: CONFIGURA (precedentemente Impostazioni) ──
-    const configura = makeButton(this, cfg, w / 2, 408, 'Configura', {
+    // ── 2. Scelta Principale: Impostazioni ──
+    const configura = makeButton(this, cfg, w / 2, 408, 'Impostazioni', {
       scale: 0.68,
       maxTargetScale: 1.04,
       depth: 50

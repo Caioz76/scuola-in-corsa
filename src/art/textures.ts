@@ -54,12 +54,6 @@ function button(
     [1, botColor]
   ]);
   ctx.fillRect(4, 4, w - 8, h - 12);
-
-  // Sottilissime righe orizzontali stile Canale Sport (ogni 4px)
-  ctx.fillStyle = stripeRgba;
-  for (let y = 8; y < h - 10; y += 4) {
-    ctx.fillRect(6, y, w - 12, 1.5);
-  }
   ctx.restore();
 
   // Filetto interno bianco perla
@@ -89,12 +83,6 @@ function panel(ctx: Ctx, w: number, h: number): void {
   // Corpo bianco porcellana Sport
   ctx.fillStyle = lgrad(ctx, 0, 2, 0, h - 8, [[0, '#ffffff'], [1, '#eef7ff']]);
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, 24); ctx.fill();
-
-  // Righe sottili stile menu Sport sul fondo
-  ctx.fillStyle = 'rgba(0, 162, 232, 0.03)';
-  for (let y = 64; y < h - 16; y += 5) {
-    ctx.fillRect(14, y, w - 28, 1.5);
-  }
 
   // Fascia d'intestazione azzurra Sport
   ctx.fillStyle = lgrad(ctx, 0, 10, 0, 58, [[0, '#e6f6ff'], [1, '#c8ebff']]);
@@ -277,12 +265,6 @@ function card(ctx: Ctx, w: number, h: number): void {
   ctx.fillStyle = lgrad(ctx, 0, 4, 0, h - 10, [[0, '#ffffff'], [0.65, '#f7fbff'], [1, '#e6f4ff']]);
   ctx.beginPath(); ctx.roundRect(5, 5, w - 10, h - 16, 16); ctx.fill();
 
-  // Sottili righe orizzontali stile Sport
-  ctx.fillStyle = 'rgba(0, 162, 232, 0.035)';
-  for (let y = 10; y < h - 14; y += 4) {
-    ctx.fillRect(10, y, w - 20, 1.5);
-  }
-
   // Riflesso superiore glossy
   ctx.fillStyle = 'rgba(255,255,255,0.88)';
   ctx.beginPath(); ctx.roundRect(12, 7, w - 24, h * 0.30, 12); ctx.fill();
@@ -392,15 +374,37 @@ function propsRow(ctx: Ctx, _w: number, h: number): void {
   pennant(494, '#ff7a33');
 }
 
-/** Crea tutte le texture UI. Da chiamare una volta sola (Boot). */
+/** Crea tutte le texture UI a definizione ultra-elevata (2× Super-Sampling). */
 export function ensureUI(scene: Phaser.Scene): void {
+  const SCALE = 2;
+
   const make = (key: string, w: number, h: number, draw: (ctx: Ctx) => void): void => {
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const cv = scene.textures.createCanvas(key, w * SCALE, h * SCALE);
+    if (!cv) return;
+    const ctx = cv.getContext();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.scale(SCALE, SCALE);
+    draw(ctx);
+    cv.refresh();
+
+    // Mantiene la dimensione logica (w, h) nello spazio coordinate di gioco
+    // campionando la texture nativa al doppio della densità di pixel (Retina/4K).
+    const frame = cv.get();
+    frame.setSize(w, h);
+    frame.setCutSize(w * SCALE, h * SCALE);
+  };
+
+  // Texture tileabili standard (pista e props)
+  const makeRaw = (key: string, w: number, h: number, draw: (ctx: Ctx) => void): void => {
     if (scene.textures.exists(key)) scene.textures.remove(key);
     const cv = scene.textures.createCanvas(key, w, h);
     if (!cv) return;
     draw(cv.getContext());
     cv.refresh();
   };
+
   // btn-blue: l'iconico bottone principale Sport (bianco-porcellana + bordo Azzurro Sport #00a2e8)
   make('btn-blue', 320, 84, (ctx) =>
     button(ctx, 320, 84, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
@@ -434,7 +438,7 @@ export function ensureUI(scene: Phaser.Scene): void {
   make('slot', 256, 96, (ctx) => slot(ctx, 256, 96));
   make('roundbtn', 48, 48, (ctx) => roundbtn(ctx, 48));
   // groundRow: 9 tile ripetuti → larghezza 1152, sposta seamlessly con mod 128
-  make('groundRow', 1152, 96, (ctx) => {
+  makeRaw('groundRow', 1152, 96, (ctx) => {
     for (let i = 0; i < 9; i++) {
       ctx.save();
       ctx.translate(i * 128, 0);
@@ -443,17 +447,21 @@ export function ensureUI(scene: Phaser.Scene): void {
     }
   });
   // propsRow: transenne, cartelli 50m/100m, cespugli e bandierine (modalità Runner)
-  make('propsRow', 512, 64, (ctx) => propsRow(ctx, 512, 64));
+  makeRaw('propsRow', 512, 64, (ctx) => propsRow(ctx, 512, 64));
 }
 
-/** Crea le texture delle icone (id → texture `icon-{id}`) per le prove di riconoscimento. */
+/** Crea le texture delle icone a definizione 2× (192×192) per massima nitidezza. */
 export function ensureIcons(scene: Phaser.Scene): void {
+  const SCALE = 2;
   for (const id of ICON_IDS) {
     const key = `icon-${id}`;
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    const cv = scene.textures.createCanvas(key, 96, 96);
+    const cv = scene.textures.createCanvas(key, 96 * SCALE, 96 * SCALE);
     if (!cv) continue;
     const ctx = cv.getContext();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.scale(SCALE, SCALE);
     // Fondo medaglione bianco porcellana Sport con bordo celeste
     ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.beginPath(); ctx.roundRect(2, 2, 92, 92, 16); ctx.fill();
@@ -461,5 +469,9 @@ export function ensureIcons(scene: Phaser.Scene): void {
     ctx.beginPath(); ctx.roundRect(3, 3, 90, 90, 15); ctx.stroke();
     ICON_PAINTERS[id](ctx, 96);
     cv.refresh();
+
+    const frame = cv.get();
+    frame.setSize(96, 96);
+    frame.setCutSize(96 * SCALE, 96 * SCALE);
   }
 }

@@ -25,7 +25,7 @@ test.describe('Avvio del gioco', () => {
 
   test('il titolo della pagina è corretto', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Scuola in Corsa/i);
+    await expect(page).toHaveTitle(/Talentopolis|Scuola in Corsa/i);
   });
 
   test('il contenitore del gioco esiste', async ({ page }) => {

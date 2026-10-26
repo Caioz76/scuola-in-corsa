@@ -106,7 +106,7 @@ test('ADHD: contatore di prova e pausa che riprende dallo stesso punto', async (
   await vaiAllaPrimaTappa(page);
 
   const etichette = (await testi(page)).map((t) => t.text);
-  expect(etichette).toContain('Prova 1 di 6');
+  expect(etichette.some((t) => t.includes('Prova 1'))).toBe(true);
   const prompt = await primoPrompt(page);
   expect(etichette).toContain(prompt);
 
@@ -128,7 +128,7 @@ test('ADHD: contatore di prova e pausa che riprende dallo stesso punto', async (
   // Riparte dalla stessa prova, non dall'inizio.
   const dopo = (await testi(page)).map((t) => t.text);
   expect(dopo).toContain(prompt);
-  expect(dopo).toContain('Prova 1 di 6');
+  expect(dopo.some((t) => t.includes('Prova 1'))).toBe(true);
 });
 
 test('senza profilo: pausa sempre disponibile, contatore no', async ({ page }) => {

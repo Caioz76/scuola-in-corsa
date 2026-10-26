@@ -65,12 +65,16 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   z-index: 1;
   max-width: 100vw;
   max-height: 100vh;
   max-width: 100dvw;
   max-height: 100dvh;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 /* Mondo 3D (Three.js): sotto l'interfaccia, non intercetta i tocchi.
@@ -291,8 +295,8 @@ body.smart-tv :focus-visible,
   align-items: center;
   justify-content: flex-start;
   gap: 6px;
-  min-height: 34px;
-  padding: 0 11px 0 8px;
+  min-height: 44px;
+  padding: 0 13px 0 10px;
   border: 1.5px solid #00a2e8;
   border-radius: 999px;
   background: linear-gradient(180deg, #ffffff 0%, #f4faff 50%, #eaf6ff 100%);
@@ -300,7 +304,7 @@ body.smart-tv :focus-visible,
   box-shadow:
     inset 0 1px 1px #ffffff,
     0 3px 8px rgba(0, 130, 200, 0.16);
-  font: 700 12.5px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  font: 700 13px/1 'Arial Rounded MT Bold', 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -345,6 +349,12 @@ body.smart-tv :focus-visible,
     transform: translateX(-50%);
     flex-direction: row;
     gap: 6px;
+  }
+
+  #nav-gioco .nav-bottone {
+    min-height: 44px;
+    padding: 0 12px 0 10px;
+    font-size: 14px;
   }
 }
 

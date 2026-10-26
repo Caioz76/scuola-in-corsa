@@ -56,7 +56,7 @@ async function tocco(page: import('@playwright/test').Page, x: number, y: number
 }
 
 async function toccaTesto(page: import('@playwright/test').Page, label: string): Promise<boolean> {
-  const t = (await testi(page)).find((o) => o.text === label);
+  const t = (await testi(page)).find((o) => o.text.toLowerCase().includes(label.toLowerCase()));
   if (!t) return false;
   await tocco(page, t.x + 4, t.y);
   return true;
@@ -88,27 +88,29 @@ test('alto contrasto: i testi diventano neri (prima e dopo il profilo)', async (
       return out;
     });
 
-  // Senza profilo il sottotitolo è grigio ardesia su fondo chiaro.
-  expect((await leggi())['Scegli la materia e corri!']).toBe('#5f7186');
+  // Senza profilo il sottotitolo è grigio/ardesia su fondo chiaro.
+  const payoffKey = "L'avventura dell'apprendimento su misura";
+  expect((await leggi())[payoffKey]).toBe('#1e293b');
 
   await page.evaluate(() => {
-    localStorage.setItem('sic.settings', JSON.stringify({ profileId: 'dislessia', overrides: {} }));
+    localStorage.setItem('sic.settings', JSON.stringify({ profileId: null, overrides: { highContrast: true } }));
   });
   await page.reload();
   await expect.poll(() => scena(page)).toBe('Title');
 
-  // Con Dislessia (highContrast) lo stesso testo diventa nero pieno.
-  expect((await leggi())['Scegli la materia e corri!']).toBe('#000000');
+  // Con highContrast lo stesso testo diventa nero pieno.
+  expect((await leggi())[payoffKey]).toBe('#000000');
 });
 
 test('accendo "Pausa quando serve" senza profilo e la regola agisce davvero', async ({ page }) => {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
 
-  await tocco(page, 512, 458); // Impostazioni
+  expect(await toccaTesto(page, 'Impostazioni')).toBe(true);
   await expect.poll(() => scena(page)).toBe('Settings');
 
-  expect(await toccaTesto(page, 'Regole una per una')).toBe(true);
+  expect(await toccaTesto(page, 'Bisogni Educativi Speciali')).toBe(true);
+  expect(await toccaTesto(page, 'Personalizza Caratteristiche')).toBe(true);
   await expect.poll(() => scena(page)).toBe('Settings');
   expect((await testi(page)).map((t) => t.text)).toContain('Pausa quando serve');
 
@@ -136,6 +138,7 @@ test('accendo "Pausa quando serve" senza profilo e la regola agisce davvero', as
   // ...e arriva fino al gioco. La barra "Pausa / Esci" c'è sempre; questa
   // regola in più fa fermare la partita se la pagina diventa nascosta.
   expect(await toccaTesto(page, 'Torna ai profili')).toBe(true);
+  expect(await toccaTesto(page, 'Torna al menu')).toBe(true);
   expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
   await expect.poll(() => scena(page)).toBe('Title');
   // Il titolo può comparire un attimo prima che i bottoni rispondano: se il

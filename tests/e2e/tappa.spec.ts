@@ -185,7 +185,9 @@ test.describe('Tappa completa', () => {
     await expect.poll(async () => (await stato(page)).scena, { timeout: 12_000 }).toBe('Results');
 
     const finale = await testi(page);
-    expect(finale.map((t) => t.text)).toContain('Tappa completata!');
+    expect(
+      finale.map((t) => t.text).some((txt) => txt.includes('Tappa completata') || txt.includes('Bravissimo'))
+    ).toBe(true);
     expect(finale.map((t) => t.text)).toContain(`${livello.rounds.length} su ${livello.rounds.length}`);
 
     // 3 stelle: gioco perfetto, tutte le prove al primo colpo

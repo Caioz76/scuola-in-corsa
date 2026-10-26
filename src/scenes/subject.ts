@@ -31,13 +31,15 @@ export class SubjectScene extends Phaser.Scene {
       maxH: 30
     });
 
+    const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
+    const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
     const team = getTeamSetup();
     const playerText = team.numPlayers > 1 ? `👥 Squadra: ${getPlayerSummary()}` : `👤 Giocatore: ${getPlayerSummary()}`;
     makeText(
       this,
       w / 2,
       70,
-      `${playerText}  ·  Scegli una disciplina:`,
+      `${playerText}  ·  Classe: ${labelAnno}  ·  Scegli una disciplina:`,
       cfg,
       {
         size: 13.5,

@@ -502,7 +502,7 @@ function renderSettings(deck: HTMLElement, items: MobileItem[], testi: TextEntry
   if (page === 'radice') {
     const h = document.createElement('div');
     h.className = 'm-header';
-    h.textContent = 'Configura';
+    h.textContent = 'Impostazioni';
     card.appendChild(h);
 
     const sub = document.createElement('p');

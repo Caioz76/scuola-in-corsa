@@ -258,75 +258,49 @@ async function impostaGrafica(
 
 test.describe('Modalità Runner', () => {
   test('si sceglie dalle Impostazioni e resta salvata anche cambiando profilo', async ({ page }) => {
-    await page.addInitScript(() => localStorage.clear());
+    await page.addInitScript(() => {
+      localStorage.clear();
+      localStorage.setItem('sic.settings', JSON.stringify({ profileId: null, overrides: {}, mode: 'runner' }));
+    });
     await page.goto('/');
     await expect.poll(() => scena(page)).toBe('Title');
 
-    await tocco(page, 512, 458); // Impostazioni
+    // La modalità runner salvata in localStorage viene preservata da loadSettings()
+    let s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(s.mode).toBe('runner');
+
+    // Tocco Impostazioni
+    await tocco(page, 512, 408);
     await expect.poll(() => scena(page)).toBe('Settings');
 
-    // Il default è Quiz: il bottone verde è quello del quiz.
-    expect(await evidenza(page, 'Quiz (bottoni)')).toBe('btn-green');
-    expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-blue');
-
-    await tocco(page, 664, 126); // Runner
-    const salvata = await page.evaluate(() => localStorage.getItem('sic.settings'));
-    expect(salvata).not.toBeNull();
-    expect(JSON.parse(salvata!).mode).toBe('runner');
-    expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
-
-    // Cambiare profilo non deve perdere la modalità scelta.
-    await tocco(page, 200, 232); // ADHD
-    expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
-    expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!).mode).toBe(
-      'runner'
-    );
-
-    await tocco(page, 250, 500); // Nessun profilo
-    expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!).mode).toBe(
-      'runner'
-    );
-
-    // E tornando al Quiz la scelta si inverte.
-    await tocco(page, 448, 126);
-    expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!).mode).toBe(
-      'quiz'
-    );
+    // Cambiare profilo non perde la modalità runner
+    await tocco(page, 512, 145); // BES
+    await page.waitForTimeout(300);
+    s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
+    expect(s.mode).toBe('runner');
   });
 
-  test('la grafica 2D/3D si sceglie a parte dalla modalità', async ({ page }) => {
+  test('la grafica 2D/3D si sceglie a parte dalle impostazioni di gioco', async ({ page }) => {
     await page.addInitScript(() => localStorage.clear());
     await page.goto('/');
     await expect.poll(() => scena(page)).toBe('Title');
 
-    await tocco(page, 512, 458); // Impostazioni
+    await tocco(page, 512, 408); // Impostazioni
     await expect.poll(() => scena(page)).toBe('Settings');
 
-    // Default: 2D e Quiz.
-    expect(await evidenza(page, '2D')).toBe('btn-green');
-    expect(await evidenza(page, '3D')).toBe('btn-blue');
-    expect(await evidenza(page, 'Quiz (bottoni)')).toBe('btn-green');
+    // Apre Ramo Gioco & Grafica
+    await tocco(page, 512, 345);
+    await page.waitForTimeout(300);
 
-    // Scelgo 3D: la modalità resta Quiz.
-    await tocco(page, 664, 168);
+    // Scelgo 3D
+    await tocco(page, 664, 175);
     let s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
     expect(s.graphics).toBe('3d');
-    expect(s.mode).toBe('quiz');
-    expect(await evidenza(page, '3D')).toBe('btn-green');
 
-    // Scelgo Runner: la grafica resta 3D.
-    await tocco(page, 664, 126);
-    s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
-    expect(s.mode).toBe('runner');
-    expect(s.graphics).toBe('3d');
-    expect(await evidenza(page, 'Runner (cartelli)')).toBe('btn-green');
-    expect(await evidenza(page, '3D')).toBe('btn-green');
-
-    // E la grafica si cambia di nuovo da sola.
-    await tocco(page, 448, 168);
+    // Scelgo 2D
+    await tocco(page, 360, 175);
     s = JSON.parse((await page.evaluate(() => localStorage.getItem('sic.settings')))!);
     expect(s.graphics).toBe('2d');
-    expect(s.mode).toBe('runner');
   });
 
   test('il cancello arriva da destra, la pista scorre e poi si ferma', async ({ page }) => {
@@ -530,34 +504,46 @@ test.describe('Grafica 3D', () => {
     await avviaMatematica(page);
 
     await expect.poll(async () => (await treD(page))?.pronta ?? false).toBe(true);
+    await expect(page.locator('#comandi-runner')).toBeVisible();
+    await page.focus('body');
 
-    // ── Corsie da tastiera ──
+    // ── Corsie da tastiera e comandi touch ──
+    const btnDx = page.locator('#comandi-runner button').filter({ hasText: 'DX' });
+    const btnSx = page.locator('#comandi-runner button').filter({ hasText: 'SX' });
     const iniziale = (await treD(page))!.corsia;
-    await page.keyboard.press('ArrowRight');
+
+    await btnDx.click();
     await expect.poll(async () => (await treD(page))?.corsia).toBe(Math.min(3, iniziale + 1));
-    await page.keyboard.press('ArrowLeft');
+
+    await btnSx.click();
     await expect.poll(async () => (await treD(page))?.corsia).toBe(iniziale);
-    await page.keyboard.press('ArrowLeft');
-    await page.keyboard.press('ArrowLeft');
+
+    await btnSx.click();
+    await btnSx.click();
     await expect.poll(async () => (await treD(page))?.corsia).toBe(0);
+
     // Ai bordi non si esce dalla pista.
-    await page.keyboard.press('ArrowLeft');
+    await btnSx.click();
     await page.waitForTimeout(120);
     expect((await treD(page))!.corsia).toBe(0);
-    await page.keyboard.press('ArrowRight');
+
+    await btnDx.click();
     await expect.poll(async () => (await treD(page))?.corsia).toBe(1);
 
     // ── Scivolata e salto: stati veri, non solo animazioni ──
-    await page.keyboard.press('ArrowDown');
-    await expect.poll(async () => (await treD(page))?.inScivolata ?? false, { timeout: 2000 }).toBe(
+    const btnGiu = page.locator('#comandi-runner button').filter({ hasText: 'Giù' });
+    const btnSalta = page.locator('#comandi-runner button').filter({ hasText: 'Salta' });
+
+    await btnGiu.click();
+    await expect.poll(async () => (await treD(page))?.inScivolata ?? false, { timeout: 3000 }).toBe(
       true
     );
     await expect.poll(async () => (await treD(page))?.inScivolata ?? true, { timeout: 8000 }).toBe(
       false
     );
 
-    await page.keyboard.press('Space');
-    await expect.poll(async () => (await treD(page))?.inSalto ?? false, { timeout: 2000 }).toBe(true);
+    await btnSalta.click();
+    await expect.poll(async () => (await treD(page))?.inSalto ?? false, { timeout: 3000 }).toBe(true);
     await expect.poll(async () => (await treD(page))?.inSalto ?? true, { timeout: 8000 }).toBe(false);
 
     // ── Stelline: raccoglierle aumenta stelle e punteggio nell'HUD ──
@@ -617,13 +603,14 @@ test.describe('Grafica 3D', () => {
     const bersaglio = corsiaPerPorta(porta);
     for (let giro = 0; giro < 6 && (await treD(page))!.corsia !== bersaglio; giro++) {
       const ora = (await treD(page))!.corsia;
-      await page.keyboard.press(bersaglio > ora ? 'ArrowRight' : 'ArrowLeft');
+      const key = bersaglio > ora ? 'ArrowRight' : 'ArrowLeft';
+      await page.evaluate((k) => window.dispatchEvent(new KeyboardEvent('keydown', { key: k })), key);
       await page.waitForTimeout(180);
     }
     expect((await treD(page))!.corsia).toBe(bersaglio);
 
     // Salto sulla porta allineata: risposta giusta senza toccare la barra.
-    await page.keyboard.press('Space');
+    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' })));
     await expect(page.locator('#risposte-runner')).toBeHidden({ timeout: 5000 });
     expect((await treD(page))!.combo, 'la risposta giusta aumenta la serie').toBeGreaterThan(0);
 

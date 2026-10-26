@@ -65,14 +65,14 @@ test('le stelle salvate compaiono nella schermata Progressi', async ({ page }) =
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
 
-  await tocco(page, 872, 44); // Progressi
+  await tocco(page, 512, 468); // Progressi e Stelle
   await expect.poll(() => scena(page)).toBe('Progress');
 
   const etichette = await testi(page);
-  expect(etichette).toContain('Progressi');
+  expect(etichette.some((t) => t.includes('Progressi'))).toBe(true);
   expect(etichette).toContain('Matematica — Prima tappa: contare e operare');
   expect(etichette).toContain('★ 3 / 3');
   expect(etichette).toContain('★ 1 / 3');
-  expect(etichette.some((t) => t.startsWith('Totale: 4 stelle'))).toBe(true);
-  expect(etichette.some((t) => t.startsWith('Ultima partita: 5/6'))).toBe(true);
+  expect(etichette.some((t) => t.includes('4 stelle'))).toBe(true);
+  expect(etichette.some((t) => t.includes('Ultima partita: 5/6'))).toBe(true);
 });

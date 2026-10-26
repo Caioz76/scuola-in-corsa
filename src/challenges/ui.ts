@@ -43,7 +43,7 @@ export interface FontSpec {
 export function fontSpec(cfg: EffectiveConfig): FontSpec {
   return cfg.font === 'dyslexia'
     ? { family: '"Comic Sans MS", Verdana, sans-serif', spacing: 2 }
-    : { family: '"Arial Rounded MT Bold", "Trebuchet MS", "Segoe UI", Verdana, sans-serif', spacing: 0 };
+    : { family: '"Arial Rounded MT Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Trebuchet MS", Verdana, sans-serif', spacing: 0 };
 }
 
 export interface TextOpts {
@@ -242,14 +242,8 @@ export function drawSportChannelFrame(
   g.fillRoundedRect(x + 2, y + 4, w, h, 28);
 
   // Corpo principale bianco porcellana sportiva (opaco per massima leggibilità se solid)
-  g.fillStyle(0xffffff, opts.solid ? 0.98 : 0.88);
+  g.fillStyle(0xffffff, opts.solid ? 0.98 : 0.92);
   g.fillRoundedRect(x, y, w, h, 26);
-
-  // Righe scanline orizzontali leggere
-  g.fillStyle(0x00a2e8, 0.035);
-  for (let sy = y + 14; sy < y + h - 14; sy += 6) {
-    g.fillRect(x + 12, sy, w - 24, 2);
-  }
 
   // Fascia d'intestazione superiore chiara con filetto divisorio Azzurro Sport
   if (headerH > 0) {
@@ -344,7 +338,7 @@ export function makeButton(
   root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
-  const hit = permissiveHit(cfg, sprite.width, sprite.height);
+  const hit = permissiveHit(cfg, sprite.frame.cutWidth || sprite.width, sprite.frame.cutHeight || sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;
@@ -505,7 +499,7 @@ export function makeChip(
   root.setDepth(o.depth ?? 50);
 
   // Coordinate di TEXTURE: è lo spazio in cui Phaser fa il controllo.
-  const hit = permissiveHit(cfg, sprite.width, sprite.height);
+  const hit = permissiveHit(cfg, sprite.frame.cutWidth || sprite.width, sprite.frame.cutHeight || sprite.height);
   sprite.setInteractive(hit, Phaser.Geom.Rectangle.Contains);
 
   let enabled = true;

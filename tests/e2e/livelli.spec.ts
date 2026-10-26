@@ -72,7 +72,7 @@ test('dalla schermata tappe si gioca direttamente la seconda', async ({ page }) 
   expect(etichette).toContain('Tappa 2 · ★ 0');
 
   // Riga di matematica (la prima), colonna della tappa 2.
-  await tocco(page, 760, 150);
+  await tocco(page, 612, 145);
   await expect.poll(() => scena(page)).toBe('Game');
 
   const primoPrompt = await page.evaluate(async () => {

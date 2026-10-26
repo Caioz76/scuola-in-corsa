@@ -30,10 +30,12 @@ const game = new Phaser.Game({
   // lasciar vedere il 3D. In 2D il fondo è coperto dalla scenografia o dal body.
   transparent: true,
   backgroundColor: '#eaf6ff',
-  roundPixels: true,
+  roundPixels: false,
   render: {
     antialias: true,
-    roundPixels: true,
+    antialiasGL: true,
+    mipmapFilter: 'LINEAR_MIPMAP_LINEAR',
+    roundPixels: false,
     powerPreference: 'high-performance'
   },
   scale: {
