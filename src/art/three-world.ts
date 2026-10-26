@@ -80,6 +80,9 @@ export interface Stato3D {
   inSalto: boolean;
   inScivolata: boolean;
   scivolataT: number;
+  /** Stato del checkpoint 3D corrente ('avvicinamento' | 'fermo' | 'aperto' | 'bloccato'). */
+  checkpointStato?: 'avvicinamento' | 'fermo' | 'aperto' | 'bloccato';
+  checkpointNumero?: number;
   /** Comandi per i test: le stesse azioni di tastiera e bottoni. */
   vaiA: (i: number) => void;
   salta: () => void;
@@ -332,6 +335,67 @@ function texturePunto(): THREE.CanvasTexture {
   return textureCanvas(c);
 }
 
+/** Sbarra del checkpoint: strisce oblique rosse e bianche ad alta visibilità. */
+function textureSbarra(): THREE.CanvasTexture {
+  const [c, ctx] = canvas(256, 32);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 256, 32);
+  ctx.fillStyle = '#e63946';
+  for (let x = -32; x < 288; x += 40) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 22, 0);
+    ctx.lineTo(x + 10, 32);
+    ctx.lineTo(x - 12, 32);
+    ctx.closePath();
+    ctx.fill();
+  }
+  const t = textureCanvas(c);
+  t.wrapS = THREE.RepeatWrapping;
+  t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(4, 1);
+  return t;
+}
+
+/** Linea del traguardo/checkpoint a scacchi bianchi e neri sul manto della pista. */
+function textureTraguardo(): THREE.CanvasTexture {
+  const [c, ctx] = canvas(128, 32);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 128, 32);
+  ctx.fillStyle = '#1b3650';
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 8; col++) {
+      if ((row + col) % 2 === 0) {
+        ctx.fillRect(col * 16, row * 16, 16, 16);
+      }
+    }
+  }
+  const t = textureCanvas(c);
+  t.wrapS = THREE.RepeatWrapping;
+  t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(6, 1);
+  return t;
+}
+
+/** Insegna superiore del Checkpoint con numero di tappa. */
+function textureInsegnaCheckpoint(numero: number, totale: number): THREE.CanvasTexture {
+  const [c, ctx] = canvas(512, 128);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+  ctx.beginPath();
+  ctx.roundRect(8, 8, 496, 112, 28);
+  ctx.fill();
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = '#00a2e8';
+  ctx.stroke();
+
+  ctx.fillStyle = '#00a2e8';
+  ctx.font = 'bold 46px "Arial Rounded MT Bold", "Trebuchet MS", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`🏁 TAPPA ${numero} / ${totale}`, 256, 64);
+  return textureCanvas(c);
+}
+
 // ── Il mondo 3D ───────────────────────────────────────────────────
 
 interface Props {
@@ -359,6 +423,26 @@ interface Cancello {
   onArrive: (() => void) | null;
   onPick: ((i: number) => void) | null;
   scosso: number;
+}
+
+interface CheckpointQuiz3D {
+  gruppo: THREE.Group;
+  sbarraPivot: THREE.Group;
+  matLuce: THREE.MeshStandardMaterial;
+  luceMeshSx: THREE.Mesh;
+  luceMeshDx: THREE.Mesh;
+  ostacolo: THREE.Group;
+  insegnaMesh: THREE.Mesh;
+  insegnaTex: THREE.CanvasTexture;
+  sbarraTex: THREE.CanvasTexture;
+  traguardoTex: THREE.CanvasTexture;
+  numero: number;
+  totale: number;
+  stato: 'avvicinamento' | 'fermo' | 'aperto' | 'bloccato';
+  sbarraAngolo: number;
+  sbarraTargetAngolo: number;
+  scosso: number;
+  lampeggio: number;
 }
 
 class Mondo3D implements World3D {
@@ -390,6 +474,9 @@ class Mondo3D implements World3D {
   private polvere: Array<{ mesh: THREE.Mesh; vita: number }> = [];
 
   private cancello: Cancello | null = null;
+  private activeCheckpoint: CheckpointQuiz3D | null = null;
+  private recoilZ = 0;
+  private cameraShake = 0;
 
   private velocita: number;
   private bersaglio: number;
@@ -502,6 +589,8 @@ class Mondo3D implements World3D {
       inSalto: false,
       inScivolata: false,
       scivolataT: 0,
+      checkpointStato: undefined,
+      checkpointNumero: undefined,
       vaiA: (i: number) => this.setCorsia(i),
       salta: () => this.salta(),
       scivola: () => this.scivola()
@@ -790,8 +879,7 @@ class Mondo3D implements World3D {
   }
 
   dash(): void {
-    this.spinta = 0.7;
-    this.avviaSalto(0.5);
+    this.superaCheckpoint();
   }
 
   leap(_x: number, _y: number): void {
@@ -823,11 +911,226 @@ class Mondo3D implements World3D {
   }
 
   stumble(): void {
-    this.inciampoT = 0.38;
+    this.bloccaCheckpoint();
   }
 
-  setProgress(_done: number, _total: number): void {
-    // Nel 3D non ci sono checkpoint da accendere: il progresso è la corsa.
+  setProgress(done: number, total: number): void {
+    if (done < total) {
+      this.mostraCheckpoint(done + 1, total);
+    }
+  }
+
+  mostraCheckpoint(numero: number, totale: number): void {
+    if (this.cancello) return; // In Runner mode cancello gestisce i suoi varchi
+    this.activeCheckpoint = this.creaCheckpointQuiz(numero, totale);
+    if (!this.animato) {
+      this.activeCheckpoint.gruppo.position.z = STOP_Z;
+      this.activeCheckpoint.stato = 'fermo';
+      this.bersaglio = 0;
+    } else {
+      this.bersaglio = 380;
+    }
+  }
+
+  superaCheckpoint(): void {
+    const cp = this.activeCheckpoint;
+    if (cp && cp.stato !== 'aperto') {
+      cp.stato = 'aperto';
+      cp.sbarraTargetAngolo = Math.PI / 2; // Sbarra sollevata a 90°
+      cp.matLuce.color.set(0x00ff88);
+      cp.matLuce.emissive.set(0x00ff88);
+      cp.matLuce.emissiveIntensity = 2.4;
+      this.avviaSalto(0.85); // Salto atletico sopra l'ostacolo e la linea del traguardo!
+      this.stelline(0, 2.2, cp.gruppo.position.z);
+      this.spinta = 1.4;
+      this.setSpeed(620);
+      if (!this.festa3d) {
+        this.festa3d = create3DCelebration(this.mondo);
+        setTimeout(() => {
+          this.festa3d?.dispose();
+          this.festa3d = null;
+        }, 3000);
+      }
+    } else {
+      this.avviaSalto(0.85);
+      this.spinta = 1.3;
+      this.setSpeed(600);
+      this.stelline(this.pico.position.x, 2.2, this.pico.position.z - 2);
+    }
+  }
+
+  bloccaCheckpoint(): void {
+    const cp = this.activeCheckpoint;
+    if (cp) {
+      cp.stato = 'bloccato';
+      cp.sbarraTargetAngolo = 0; // Chiusa
+      cp.sbarraPivot.rotation.z = -0.15; // Jolt verso il basso
+      cp.scosso = 0.45;
+      cp.lampeggio = 1.6;
+      cp.matLuce.color.set(0xff2222);
+      cp.matLuce.emissive.set(0xff2222);
+      cp.matLuce.emissiveIntensity = 2.4;
+    }
+    this.inciampoT = 0.55;
+    this.recoilZ = 0.9; // Rimbalzo indietro verso la camera
+    this.cameraShake = 0.35; // Scossone visivo camera
+    this.velocita = 0;
+    this.bersaglio = 0;
+    synth.play('drop');
+  }
+
+  private creaCheckpointQuiz(numero: number, totale: number): CheckpointQuiz3D {
+    this.rimuoviCheckpointQuiz();
+
+    const gruppo = new THREE.Group();
+    const insegnaTex = textureInsegnaCheckpoint(numero, totale);
+    const sbarraTex = textureSbarra();
+    const traguardoTex = textureTraguardo();
+
+    const larghezzaPista = 8;
+    const metaLargo = larghezzaPista / 2;
+
+    const paloGeo = new THREE.CylinderGeometry(0.12, 0.12, 3.8, 16);
+    const matPalo = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    const matDettaglio = new THREE.MeshStandardMaterial({ color: 0x00a2e8, roughness: 0.4 });
+    const matOro = new THREE.MeshStandardMaterial({ color: 0xffd93d, roughness: 0.3 });
+
+    const sx = new THREE.Mesh(paloGeo, matPalo);
+    sx.position.set(-metaLargo - 0.2, 1.9, 0);
+    sx.castShadow = true;
+    const anelloSx1 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.4, 16), matDettaglio);
+    anelloSx1.position.set(-metaLargo - 0.2, 0.9, 0);
+    const anelloSx2 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.4, 16), matDettaglio);
+    anelloSx2.position.set(-metaLargo - 0.2, 2.7, 0);
+
+    const dx = new THREE.Mesh(paloGeo, matPalo);
+    dx.position.set(metaLargo + 0.2, 1.9, 0);
+    dx.castShadow = true;
+    const anelloDx1 = anelloSx1.clone();
+    anelloDx1.position.x = metaLargo + 0.2;
+    const anelloDx2 = anelloSx2.clone();
+    anelloDx2.position.x = metaLargo + 0.2;
+
+    const sferaGeo = new THREE.SphereGeometry(0.24, 16, 12);
+    const sferaSx = new THREE.Mesh(sferaGeo, matOro);
+    sferaSx.position.set(-metaLargo - 0.2, 3.9, 0);
+    const sferaDx = new THREE.Mesh(sferaGeo, matOro);
+    sferaDx.position.set(metaLargo + 0.2, 3.9, 0);
+
+    const traversa = new THREE.Mesh(
+      new THREE.BoxGeometry(larghezzaPista + 1.2, 0.28, 0.28),
+      matDettaglio
+    );
+    traversa.position.set(0, 3.65, 0);
+    traversa.castShadow = true;
+
+    const insegnaMat = new THREE.MeshBasicMaterial({
+      map: insegnaTex,
+      transparent: true,
+      side: THREE.DoubleSide
+    });
+    const insegnaMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 0.9), insegnaMat);
+    insegnaMesh.position.set(0, 3.65, 0.18);
+
+    const matLuce = new THREE.MeshStandardMaterial({
+      color: 0xffaa00,
+      emissive: 0xffaa00,
+      emissiveIntensity: 0.9,
+      roughness: 0.2
+    });
+    const luceGeo = new THREE.SphereGeometry(0.16, 14, 10);
+    const luceMeshSx = new THREE.Mesh(luceGeo, matLuce);
+    luceMeshSx.position.set(-metaLargo - 0.2, 3.3, 0.16);
+    const luceMeshDx = new THREE.Mesh(luceGeo, matLuce);
+    luceMeshDx.position.set(metaLargo + 0.2, 3.3, 0.16);
+
+    const matTraguardo = new THREE.MeshBasicMaterial({ map: traguardoTex, transparent: true, opacity: 0.9 });
+    const lineaTraguardo = new THREE.Mesh(new THREE.PlaneGeometry(larghezzaPista, 0.9), matTraguardo);
+    lineaTraguardo.rotation.x = -Math.PI / 2;
+    lineaTraguardo.position.set(0, 0.02, 0);
+
+    const ostacolo = new THREE.Group();
+    const ostacoloPaloGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.62, 8);
+    const matOstacoloPalo = new THREE.MeshStandardMaterial({ color: 0xffa94d, roughness: 0.6 });
+    const ostacoloPaloSx = new THREE.Mesh(ostacoloPaloGeo, matOstacoloPalo);
+    ostacoloPaloSx.position.set(-1.1, 0.31, -0.4);
+    const ostacoloPaloDx = new THREE.Mesh(ostacoloPaloGeo, matOstacoloPalo);
+    ostacoloPaloDx.position.set(1.1, 0.31, -0.4);
+    const ostacoloTrave = new THREE.Mesh(
+      new THREE.BoxGeometry(2.35, 0.14, 0.06),
+      new THREE.MeshStandardMaterial({ color: 0xffd166, roughness: 0.5 })
+    );
+    ostacoloTrave.position.set(0, 0.58, -0.4);
+    ostacoloTrave.castShadow = true;
+    ostacolo.add(ostacoloPaloSx, ostacoloPaloDx, ostacoloTrave);
+
+    const sbarraPivot = new THREE.Group();
+    sbarraPivot.position.set(-metaLargo + 0.15, 1.25, 0.1);
+
+    const contrappeso = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.42, 12),
+      matDettaglio
+    );
+    contrappeso.rotation.z = Math.PI / 2;
+    contrappeso.position.set(-0.25, 0, 0);
+
+    const traveGeo = new THREE.BoxGeometry(larghezzaPista - 0.3, 0.16, 0.08);
+    const matSbarraTex = new THREE.MeshStandardMaterial({
+      map: sbarraTex,
+      roughness: 0.4
+    });
+    const traveMesh = new THREE.Mesh(traveGeo, matSbarraTex);
+    traveMesh.position.set((larghezzaPista - 0.3) / 2, 0, 0);
+    traveMesh.castShadow = true;
+
+    sbarraPivot.add(contrappeso, traveMesh);
+
+    gruppo.add(
+      sx, anelloSx1, anelloSx2, dx, anelloDx1, anelloDx2,
+      sferaSx, sferaDx, traversa, insegnaMesh,
+      luceMeshSx, luceMeshDx, lineaTraguardo, ostacolo, sbarraPivot
+    );
+
+    gruppo.position.set(0, 0, START_Z);
+    this.mondo.add(gruppo);
+
+    return {
+      gruppo,
+      sbarraPivot,
+      matLuce,
+      luceMeshSx,
+      luceMeshDx,
+      ostacolo,
+      insegnaMesh,
+      insegnaTex,
+      sbarraTex,
+      traguardoTex,
+      numero,
+      totale,
+      stato: this.animato ? 'avvicinamento' : 'fermo',
+      sbarraAngolo: 0,
+      sbarraTargetAngolo: 0,
+      scosso: 0,
+      lampeggio: 0
+    };
+  }
+
+  private rimuoviCheckpointQuiz(): void {
+    const cp = this.activeCheckpoint;
+    if (!cp) return;
+    this.activeCheckpoint = null;
+    this.mondo.remove(cp.gruppo);
+    cp.insegnaTex.dispose();
+    cp.sbarraTex.dispose();
+    cp.traguardoTex.dispose();
+    cp.matLuce.dispose();
+    cp.gruppo.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.geometry) m.geometry.dispose();
+      const mat = m.material as THREE.Material | THREE.Material[] | undefined;
+      if (Array.isArray(mat)) mat.forEach((x) => x.dispose());
+      else if (mat) mat.dispose();
+    });
   }
 
   openGate(labels: string[]): Gate3D {
@@ -964,16 +1267,19 @@ class Mondo3D implements World3D {
     if (!giusto) {
       this.errori += 1;
       this.combo = 0;
-      c.scosso = 0.32;
+      c.scosso = 0.45;
       this.stumble();
       return;
     }
-    // Pico si allinea alla porta scelta, salta, stelline, cancello che esce
+    // Pico si allinea alla porta scelta, la porta si apre, salta, stelline, cancello che esce
     this.corsiaAttuale = corsiaPerPorta(i, c.porte.length);
     this.combo += 1;
     this.cuori = Math.min(MAX_CUORI, this.cuori + 1);
     this.punteggio += 150 * this.combo;
     const p = c.porte[i];
+    if (p) {
+      p.rotation.y = -Math.PI / 2; // Porta che si apre a battente
+    }
     const px = p ? p.position.x : 0;
     this.avviaSalto(0.72);
     this.stelline(c.gruppo.position.x + px, 2.45, c.gruppo.position.z + (p?.position.z ?? 0));
@@ -1274,9 +1580,15 @@ class Mondo3D implements World3D {
       if (n.position.x > 48) n.position.x = -48;
     }
 
-    // Pico: corsia, corsa, salto, scivolata, inciampo
+    // Pico: corsia, corsa, salto, scivolata, inciampo, rimbalzo blocco
     const targetX = CORSIE[this.corsiaAttuale];
     this.pico.position.x += (targetX - this.pico.position.x) * Math.min(1, dt * 10);
+
+    // Rimbalzo all'indietro (recoilZ) quando si sbatte contro un ostacolo o sbarra
+    if (this.recoilZ > 0) {
+      this.recoilZ = Math.max(0, this.recoilZ - dt * 2.2);
+    }
+    this.pico.position.z = this.recoilZ;
 
     let saltoY = 0;
     if (this.saltoT >= 0) {
@@ -1328,10 +1640,63 @@ class Mondo3D implements World3D {
       }
     }
 
+    // Camera shake su impatto
+    if (this.cameraShake > 0) {
+      this.cameraShake = Math.max(0, this.cameraShake - dt * 2.2);
+    }
+    const shakeOffset = this.cameraShake > 0 ? Math.sin(this.cameraShake * 50) * 0.14 : 0;
+
     // camera in terza persona: segue Pico con un piccolo ritardo
-    this.camera.position.x += (this.pico.position.x * 0.35 - this.camera.position.x) * Math.min(1, dt * 5);
+    this.camera.position.x += (this.pico.position.x * 0.35 + shakeOffset - this.camera.position.x) * Math.min(1, dt * 5);
     this.camera.position.y = 3.4 + (corsa ? Math.sin(this.tempo * 9) * 0.03 : 0);
     this.camera.lookAt(this.pico.position.x * 0.3, 1.35, -9);
+
+    // Checkpoint Tappa: avvicinamento, frenata, apertura/blocco ed uscita
+    const cp = this.activeCheckpoint;
+    if (cp) {
+      if (cp.stato === 'avvicinamento') {
+        const distanza = Math.max(0, STOP_Z - cp.gruppo.position.z);
+        const frenata = Math.sqrt(2 * 3.5 * distanza) / SCALA;
+        this.bersaglio = Math.min(360, Math.max(80, frenata));
+        cp.gruppo.position.z += this.velocita * dt * SCALA;
+        if (cp.gruppo.position.z >= STOP_Z) {
+          cp.gruppo.position.z = STOP_Z;
+          cp.stato = 'fermo';
+          this.bersaglio = 70;
+        }
+      } else if (cp.stato === 'aperto') {
+        const diff = cp.sbarraTargetAngolo - cp.sbarraAngolo;
+        cp.sbarraAngolo += diff * Math.min(1, dt * 7);
+        cp.sbarraPivot.rotation.z = cp.sbarraAngolo;
+
+        cp.gruppo.position.z += this.velocita * dt * SCALA;
+        if (cp.gruppo.position.z > 8) {
+          this.rimuoviCheckpointQuiz();
+        }
+      } else if (cp.stato === 'bloccato') {
+        const diff = cp.sbarraTargetAngolo - cp.sbarraPivot.rotation.z;
+        cp.sbarraPivot.rotation.z += diff * Math.min(1, dt * 14);
+      }
+
+      if (cp.scosso > 0) {
+        cp.scosso -= dt;
+        cp.gruppo.position.x = Math.sin(cp.scosso * 70) * 0.14;
+        if (cp.scosso <= 0) cp.gruppo.position.x = 0;
+      }
+
+      if (cp.lampeggio > 0) {
+        cp.lampeggio -= dt;
+        const flash = Math.floor(this.tempo * 14) % 2 === 0;
+        cp.matLuce.emissiveIntensity = flash ? 2.5 : 0.3;
+        if (cp.lampeggio <= 0 && cp.stato === 'bloccato') {
+          cp.matLuce.color.set(0xffaa00);
+          cp.matLuce.emissive.set(0xffaa00);
+          cp.matLuce.emissiveIntensity = 0.9;
+          cp.stato = 'fermo';
+          this.bersaglio = 70;
+        }
+      }
+    }
 
     // cancello: avvicinamento, frenata, arrivo
     const c = this.cancello;
@@ -1414,6 +1779,8 @@ class Mondo3D implements World3D {
       inSalto: this.saltoT >= 0,
       inScivolata: this.scivolataT > 0,
       scivolataT: this.scivolataT,
+      checkpointStato: this.activeCheckpoint?.stato,
+      checkpointNumero: this.activeCheckpoint?.numero,
       vaiA: (i: number) => this.setCorsia(i),
       salta: () => this.salta(),
       scivola: () => this.scivola()
@@ -1438,6 +1805,7 @@ class Mondo3D implements World3D {
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.distruggi);
     window.removeEventListener('resize', this.onResize);
     this.chiudiCancello();
+    this.rimuoviCheckpointQuiz();
     this.svuotaPercorso();
     this.festa3d?.dispose();
     this.festa3d = null;

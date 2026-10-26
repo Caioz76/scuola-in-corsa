@@ -51,6 +51,12 @@ export interface World {
   speed(): number;
   /** Cambia la velocità: il mondo accelera o frena dolcemente. */
   setSpeed(px: number): void;
+  /** Prepara e mostra il checkpoint della domanda corrente (in 3D). */
+  mostraCheckpoint?(numero: number, totale: number): void;
+  /** Supera il checkpoint: sbarra sollevata, salto ostacolo, sprint e stelline. */
+  superaCheckpoint?(): void;
+  /** Blocca il checkpoint: sbarra abbassata, luce rossa, rimbalzo/inciampo. */
+  bloccaCheckpoint?(): void;
   destroy(): void;
 }
 
@@ -365,6 +371,9 @@ export function addWorld(
     setSpeed(px: number): void {
       bersaglio = animato ? Math.max(0, px) : 0;
     },
+    mostraCheckpoint(_numero: number, _totale: number): void {},
+    superaCheckpoint(): void {},
+    bloccaCheckpoint(): void {},
     destroy(): void {
       distruggi();
     }

@@ -125,7 +125,7 @@ export class GameScene extends Phaser.Scene {
     }).setDepth(100);
 
     const world = treD
-      ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? runSpeed : 38)
+      ? add3DWorld(this, themeFor(pack.subject), cfg, runner ? runSpeed : 320)
       : addWorld(this, themeFor(pack.subject), cfg, {
           track: true,
           speed: runner ? runSpeed : 38,
@@ -279,6 +279,7 @@ export class GameScene extends Phaser.Scene {
       aggiornaNavGiocatore(roundPlayer.token.icon, labelTurno, roundPlayer.token.color);
 
       contatore.setText(`Prova ${index + 1}/${rounds.length}`);
+      world.mostraCheckpoint?.(index + 1, rounds.length);
 
       const round: Round = rounds[index];
       guidaPico?.setText(`🎯 ${roundPlayer.token.icon} ${roundPlayer.token.name}: ${testoGuidaPer(round)}`);
@@ -308,6 +309,7 @@ export class GameScene extends Phaser.Scene {
           guidaPico?.setText(alPrimoColpo ? 'Pico: Bravissimo, avanti così!' : 'Pico: Bene, completata! Continuiamo!');
           if (runner) world.setSpeed(Math.max(560, runSpeed + 80));
           else world.dash();
+          world.superaCheckpoint?.();
           world.setProgress(index, rounds.length);
 
           const nextP = team.players[index % team.players.length];
@@ -325,6 +327,7 @@ export class GameScene extends Phaser.Scene {
         onWrong: (attempts) => {
           errori += 1;
           guidaPico?.setText('Pico: Niente paura, riprova con calma!');
+          world.bloccaCheckpoint?.();
           const no = showBanner(
             this,
             cfg,
@@ -337,7 +340,6 @@ export class GameScene extends Phaser.Scene {
           if (attempts >= 3) {
             index += 1;
             outcomes.push({ roundId: round.id, correct: false, attempts: errori, timeMs: 0 });
-            world.stumble();
             world.setProgress(index, rounds.length);
 
             const nextP = team.players[index % team.players.length];
