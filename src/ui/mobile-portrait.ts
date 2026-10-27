@@ -216,7 +216,15 @@ export function initMobilePortrait(game: Phaser.Game): void {
     deck.style.display = 'flex';
 
     const impostazioni = loadSettings();
-    const cfg = resolveConfig(impostazioni);
+    const gameScena = scena as { roundPlayer?: import('../core/player').ActivePlayer } | null;
+    const activePlayer = gameScena?.roundPlayer;
+    const playerProfileId = activePlayer ? (activePlayer.profileId ?? impostazioni.profileId ?? null) : impostazioni.profileId;
+    const playerOverrides = activePlayer?.overrides ?? impostazioni.overrides ?? {};
+    const cfg = resolveConfig({
+      ...impostazioni,
+      profileId: playerProfileId,
+      overrides: playerOverrides
+    });
     deck.classList.toggle('bes-dislessia', cfg.font === 'dyslexia');
     deck.classList.toggle('bes-hc', cfg.highContrast);
     deck.style.setProperty('--m-font-scale', String(cfg.fontScale));

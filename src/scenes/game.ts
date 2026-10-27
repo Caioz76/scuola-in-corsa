@@ -182,6 +182,8 @@ export class GameScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.events.off(Phaser.Scenes.Events.RESUME, suRipresa);
       nascondiNav();
+      synth.setSfx(cfg.sfx, 0.5);
+      synth.setMusic(cfg.music, 0.14);
     });
 
     // Tastiera: Esc e P aprono la pausa anche senza mouse.
@@ -267,6 +269,11 @@ export class GameScene extends Phaser.Scene {
         profileId: playerProfileId,
         overrides: roundPlayer.overrides ?? impostazioni.overrides ?? {}
       });
+      const roundRitmo = roundCfg.slowPace ? 1.6 : 1;
+
+      // Applica le impostazioni audio correnti del giocatore attivo (es. profilo Sordità o Autismo)
+      synth.setSfx(roundCfg.sfx, 0.5);
+      synth.setMusic(roundCfg.music, 0.14);
 
       // Aggiorna il badge del personaggio nei comandi di navigazione a sinistra
       const labelTurno =
@@ -294,7 +301,7 @@ export class GameScene extends Phaser.Scene {
             ? `Inizia ${roundPlayer.token.icon} ${roundPlayer.token.name} (G${roundPlayer.playerIndex})!`
             : `Buon allenamento con ${roundPlayer.token.icon} ${roundPlayer.token.name}!`;
         const startBanner = showBanner(this, roundCfg, 'Pronti, via!', welcomeMsg, 'ok', { y: bannerY });
-        this.time.delayedCall(1300 * ritmo, () => startBanner.dispose());
+        this.time.delayedCall(1300 * roundRitmo, () => startBanner.dispose());
       }
       let errori = 0;
       current = showChallenge(this, round, roundCfg, {
@@ -318,8 +325,8 @@ export class GameScene extends Phaser.Scene {
               ? `Turno completato! Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`
               : null;
           const bannerTitle = alPrimoColpo ? 'Giusto!' : 'Completata!';
-          const ok = showBanner(this, cfg, bannerTitle, okMsg, 'ok', { y: bannerY });
-          this.time.delayedCall(900 * ritmo, () => {
+          const ok = showBanner(this, roundCfg, bannerTitle, okMsg, 'ok', { y: bannerY });
+          this.time.delayedCall(900 * roundRitmo, () => {
             ok.dispose();
             next();
           });
@@ -330,13 +337,13 @@ export class GameScene extends Phaser.Scene {
           world.bloccaCheckpoint?.();
           const no = showBanner(
             this,
-            cfg,
+            roundCfg,
             'Riprova',
             attempts >= 2 ? 'Guarda bene le opzioni.' : null,
             'bad',
             { y: bannerY }
           );
-          this.time.delayedCall(900 * ritmo, () => no.dispose());
+          this.time.delayedCall(900 * roundRitmo, () => no.dispose());
           if (attempts >= 3) {
             index += 1;
             outcomes.push({ roundId: round.id, correct: false, attempts: errori, timeMs: 0 });
@@ -346,7 +353,7 @@ export class GameScene extends Phaser.Scene {
             if (team.numPlayers > 1 && index < rounds.length) {
               guidaPico?.setText(`Ora tocca a ${nextP.token.icon} ${nextP.token.name}!`);
             }
-            this.time.delayedCall(2600 * ritmo, () => next());
+            this.time.delayedCall(2600 * roundRitmo, () => next());
           }
         }
       }, { mode, world });

@@ -17,6 +17,7 @@ import {
   loadHistory
 } from '../src/core/progress';
 import { storage } from '../src/core/storage';
+import { resolveConfig } from '../src/bes/resolver';
 
 describe('Gestione squadra, profili BES/DSA per giocatore e progressi', () => {
   beforeEach(() => {
@@ -137,6 +138,41 @@ describe('Gestione squadra, profili BES/DSA per giocatore e progressi', () => {
     // Valori NaN
     setPlayerStars('leone', 'matematica', 'liv-nan', NaN as unknown as number);
     expect(starsForPlayer('leone', 'matematica', 'liv-nan')).toBe(0);
+  });
+
+  it('adatta la configurazione BES in tempo reale per giocatori con profili differenti', () => {
+    saveTeamSetup({
+      numPlayers: 2,
+      players: [
+        { playerIndex: 1, token: TOKENS[0], profileId: null }, // Volpina: standard
+        { playerIndex: 2, token: TOKENS[1], profileId: 'discalculia' } // Gufo: discalculia
+      ]
+    });
+    const team = getTeamSetup();
+    const globalSettings = { profileId: null, overrides: {} };
+
+    // Turno G1 (Volpina: standard)
+    const p1 = team.players[0];
+    const cfgP1 = resolveConfig({
+      ...globalSettings,
+      profileId: p1.profileId,
+      overrides: p1.overrides ?? {}
+    });
+    expect(cfgP1.maxOptions).toBe(4);
+    expect(cfgP1.visualSupports).toBe(false);
+    expect(cfgP1.font).toBe('default');
+
+    // Turno G2 (Gufo: discalculia)
+    const p2 = team.players[1];
+    const cfgP2 = resolveConfig({
+      ...globalSettings,
+      profileId: p2.profileId,
+      overrides: p2.overrides ?? {}
+    });
+    expect(cfgP2.maxOptions).toBe(2);
+    expect(cfgP2.visualSupports).toBe(true);
+    expect(cfgP2.showExplanationOnWrong).toBe(true);
+    expect(cfgP2.slowPace).toBe(true);
   });
 
   it('resiste a storage history corrotto o null senza lanciare eccezioni', () => {
