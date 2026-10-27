@@ -169,7 +169,7 @@ export class ResultsScene extends Phaser.Scene {
           maxH: 22
         });
 
-        makeText(this, cx, 214, `G${p.playerIndex} · ${getProfileLabel(p.profileId)}`, cfg, {
+        makeText(this, cx, 214, `G${p.playerIndex}${p.profileId ? ' ⚙️' : ''}`, cfg, {
           size: 11.5,
           bold: true,
           color: '#475569',

@@ -36,12 +36,23 @@ test.describe('Mobile portrait alignment and typography', () => {
 
     const label = page.locator('#mobile-deck .m-player-sel-label');
     const name = page.locator('#mobile-deck .m-player-sel-name');
-    const badge = page.locator('#mobile-deck .m-player-sel-badge');
+    const chevron = page.locator('#mobile-deck .m-player-sel-chevron');
     const icon = page.locator('#mobile-deck .m-player-sel-icon');
 
     await expect(label).toHaveText(/2 Giocatori in squadra/i);
-    await expect(name).toContainText('G1 (Discalculia)');
-    await expect(name).toContainText('G2 (Dislessia)');
+    await expect(name).toContainText('G1');
+    await expect(name).toContainText('G2');
+    await expect(name).toContainText('⚙️');
+    await expect(name).not.toContainText('Discalculia');
+    await expect(name).not.toContainText('Dislessia');
+    await expect(chevron).toBeVisible();
+
+    // Ensure only 1 player selection button is present in the main menu
+    const playerButtons = page.locator('#mobile-deck .m-btn-player-select');
+    await expect(playerButtons).toHaveCount(1);
+    const heroBtn = page.locator('#mobile-deck .m-btn-hero');
+    await expect(heroBtn).toHaveText(/gioca/i);
+    await expect(heroBtn).not.toHaveText(/giocator/i);
 
     const labelBox = await label.boundingBox();
     const nameBox = await name.boundingBox();
@@ -160,6 +171,10 @@ test.describe('Mobile portrait alignment and typography', () => {
     // Hero button MUST be "Gioca", never "2 Giocatori"
     await expect(heroBtn).toHaveText(/gioca/i);
     await expect(heroBtn).not.toHaveText(/giocatori/i);
+
+    // Profile name MUST not be leaked in main menu; only symbol is shown
+    await expect(name).toContainText('⚙️');
+    await expect(name).not.toContainText('Dislessia');
 
     const labelBox = await label.boundingBox();
     const nameBox = await name.boundingBox();

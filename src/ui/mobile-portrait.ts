@@ -352,7 +352,7 @@ function renderTitle(
       <span class="m-player-sel-label">${labelNum}</span>
       <span class="m-player-sel-name" title="${getPlayerSummary()}">${getPlayerSummary()}</span>
     </div>
-    <span class="m-player-sel-badge">Scegli ➔</span>
+    <span class="m-player-sel-chevron" aria-hidden="true">›</span>
   `;
   playerCard.addEventListener('click', (ev) => {
     ev.preventDefault();
@@ -369,6 +369,19 @@ function renderTitle(
   );
   if (gioca) {
     card.appendChild(creaBtnDom(gioca, 'm-btn-hero m-btn-green-hero'));
+  } else {
+    const giocaBtn = document.createElement('button');
+    giocaBtn.type = 'button';
+    giocaBtn.className = 'm-btn m-btn-hero m-btn-green-hero';
+    giocaBtn.textContent = '▶ Gioca';
+    giocaBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const phaserGioca = items.find(
+        (i) => i.label().trim() === 'Gioca' && !i.label().includes('Giocator')
+      );
+      if (phaserGioca) phaserGioca.trigger();
+    });
+    card.appendChild(giocaBtn);
   }
 
   const row = document.createElement('div');

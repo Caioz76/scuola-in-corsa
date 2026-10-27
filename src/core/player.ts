@@ -109,13 +109,15 @@ export function getPlayerSummary(): string {
   const setup = getTeamSetup();
   if (setup.numPlayers === 1) {
     const p = setup.players[0];
-    const prof = p.profileId ? ` · ${getProfileLabel(p.profileId)}` : '';
-    return `${p.token.icon} ${p.token.name}${prof}`;
+    const hasCustom = Boolean(p.profileId && p.profileId !== 'standard');
+    const customSym = hasCustom ? ' ⚙️' : '';
+    return `${p.token.icon}${customSym} ${p.token.name}`;
   }
   const icons = setup.players
     .map((p) => {
-      const prof = p.profileId ? ` (${getProfileLabel(p.profileId)})` : '';
-      return `${p.token.icon} G${p.playerIndex}${prof}`;
+      const hasCustom = Boolean(p.profileId && p.profileId !== 'standard');
+      const customSym = hasCustom ? ' ⚙️' : '';
+      return `${p.token.icon}${customSym} G${p.playerIndex}`;
     })
     .join(' · ');
   return icons;

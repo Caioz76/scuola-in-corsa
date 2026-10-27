@@ -1283,6 +1283,23 @@ body[data-scena="Game"] #mobile-deck {
   flex-shrink: 0;
 }
 
+#mobile-deck .m-player-sel-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(26px * var(--m-font-scale, 1));
+  font-weight: 700;
+  color: #00a2e8;
+  margin-left: auto;
+  padding-left: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#mobile-deck.bes-hc .m-player-sel-chevron {
+  color: #002244 !important;
+}
+
 #mobile-deck.bes-hc .m-player-sel-label {
   color: #002244 !important;
 }
