@@ -19,12 +19,13 @@ export interface AzioniNav {
   onEsci: () => void;
   playerIcon?: string;
   playerText?: string;
+  playerTag?: string;
   playerColor?: string;
   onPlayer?: () => void;
 }
 
 const SVG_PAUSA =
-  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">' +
   '<rect x="6.6" y="4.8" width="4" height="14.4" rx="2"></rect>' +
   '<rect x="13.4" y="4.8" width="4" height="14.4" rx="2"></rect>' +
   '</svg>';
@@ -55,11 +56,13 @@ const SVG_AUDIO_OFF =
 let barra: HTMLDivElement | null = null;
 let btnGiocatoreRef: HTMLButtonElement | null = null;
 
-export function aggiornaNavGiocatore(icon: string, text: string, color?: string): void {
+export function aggiornaNavGiocatore(icon: string, text: string, color?: string, tag?: string): void {
   if (!btnGiocatoreRef) return;
   const iconaEl = btnGiocatoreRef.querySelector('.nav-icona');
+  const tagEl = btnGiocatoreRef.querySelector('.nav-tag-g');
   const testoEl = btnGiocatoreRef.querySelector('.nav-testo');
   if (iconaEl) iconaEl.innerHTML = icon;
+  if (tagEl && tag !== undefined) tagEl.textContent = tag;
   if (testoEl) testoEl.textContent = text;
   if (color) {
     btnGiocatoreRef.style.borderColor = color;
@@ -71,14 +74,17 @@ function creaBottone(
   icona: string,
   testo: string,
   aria: string,
-  cb: () => void
+  cb: () => void,
+  tag?: string
 ): HTMLButtonElement {
   const b = document.createElement('button');
   b.type = 'button';
   b.dataset.azione = azione;
   b.className = 'nav-bottone';
   b.setAttribute('aria-label', aria);
-  b.innerHTML = `<span class="nav-icona">${icona}</span><span class="nav-testo">${testo}</span>`;
+  b.title = aria;
+  const tagHtml = tag ? `<span class="nav-tag-g">${tag}</span>` : '';
+  b.innerHTML = `<span class="nav-icona">${icona}</span>${tagHtml}<span class="nav-testo">${testo}</span>`;
   b.addEventListener('click', (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
@@ -106,7 +112,8 @@ export function mostraNav(azioni: AzioniNav): void {
       `Personaggio attivo: ${azioni.playerText}`,
       () => {
         azioni.onPlayer?.();
-      }
+      },
+      azioni.playerTag
     );
     if (azioni.playerColor) {
       btnGiocatore.style.borderColor = azioni.playerColor;

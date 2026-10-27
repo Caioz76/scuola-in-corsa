@@ -149,6 +149,7 @@ export class GameScene extends Phaser.Scene {
 
     // ── Navigazione sempre disponibile (con badge giocatore allineato ai comandi) ──
     const initialPlayer = team.players[0];
+    const initialTag = team.numPlayers > 1 ? `G${initialPlayer.playerIndex}` : undefined;
     const initialLabel =
       team.numPlayers > 1
         ? `${initialPlayer.token.name} (G${initialPlayer.playerIndex})`
@@ -160,6 +161,7 @@ export class GameScene extends Phaser.Scene {
       onEsci: () => apriPausa(true),
       playerIcon: initialPlayer.token.icon,
       playerText: initialLabel,
+      playerTag: initialTag,
       playerColor: initialPlayer.token.color,
       onPlayer: () => {
         synth.play('click');
@@ -276,14 +278,16 @@ export class GameScene extends Phaser.Scene {
       synth.setMusic(roundCfg.music, 0.14);
 
       // Aggiorna il badge del personaggio nei comandi di navigazione a sinistra
+      const tagTurno = team.numPlayers > 1 ? `G${roundPlayer.playerIndex}` : undefined;
       const labelTurno =
         team.numPlayers > 1
           ? `${roundPlayer.token.name} (G${roundPlayer.playerIndex})`
           : roundPlayer.token.name;
       azioni.playerIcon = roundPlayer.token.icon;
       azioni.playerText = labelTurno;
+      azioni.playerTag = tagTurno;
       azioni.playerColor = roundPlayer.token.color;
-      aggiornaNavGiocatore(roundPlayer.token.icon, labelTurno, roundPlayer.token.color);
+      aggiornaNavGiocatore(roundPlayer.token.icon, labelTurno, roundPlayer.token.color, tagTurno);
 
       contatore.setText(`Prova ${index + 1}/${rounds.length}`);
       world.mostraCheckpoint?.(index + 1, rounds.length);

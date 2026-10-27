@@ -1022,7 +1022,8 @@ function renderGame(
   const gameScena = scena as { roundPlayer?: import('../core/player').ActivePlayer } | null;
   const activePlayer = gameScena?.roundPlayer ?? team.players[0];
 
-  // Badge prominente del turno con logo (icona), nome e profilo del giocatore (sempre presente)
+  // Badge prominente del turno con logo (icona) e nome del giocatore
+  const hasCustom = Boolean(activePlayer.profileId && activePlayer.profileId !== 'standard');
   const turnCard = document.createElement('div');
   turnCard.className = 'm-turn-banner';
   turnCard.style.borderLeft = `6px solid ${activePlayer.token.color}`;
@@ -1034,10 +1035,7 @@ function renderGame(
         ${team.numPlayers > 1 ? `TURNO DI G${activePlayer.playerIndex}` : 'GIOCATORE ATTIVO'}
       </div>
       <div class="m-turn-name" style="font-size: 15px; font-weight: 900; color: #000000;">
-        ${activePlayer.token.name}
-      </div>
-      <div class="m-turn-profile" style="font-size: 11px; font-weight: 700; color: #0369a1;">
-        Profilo: ${getProfileLabel(activePlayer.profileId)}
+        ${activePlayer.token.name}${hasCustom ? ' ⚙️' : ''}
       </div>
     </div>
   `;

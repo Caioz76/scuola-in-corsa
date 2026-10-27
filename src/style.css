@@ -344,17 +344,79 @@ body.smart-tv :focus-visible,
 @media (orientation: portrait) {
   #nav-gioco {
     top: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
     left: 50%;
     transform: translateX(-50%);
     flex-direction: row;
-    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(0, 162, 232, 0.35);
+    border-radius: 999px;
+    box-shadow:
+      0 4px 18px rgba(0, 0, 0, 0.12),
+      0 1px 4px rgba(0, 162, 232, 0.18);
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+    z-index: 50;
+    pointer-events: auto;
   }
 
   #nav-gioco .nav-bottone {
+    width: 44px;
+    height: 44px;
     min-height: 44px;
-    padding: 0 12px 0 10px;
-    font-size: 14px;
+    min-width: 44px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #00a2e8;
+    background: linear-gradient(180deg, #ffffff 0%, #f4faff 50%, #eaf6ff 100%);
+    box-shadow:
+      inset 0 1px 1px #ffffff,
+      0 2px 6px rgba(0, 130, 200, 0.16);
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  #nav-gioco .nav-bottone .nav-icona {
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #nav-gioco .nav-bottone .nav-icona svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Nascondi il testo dei comandi in verticale: mostra solo le icone pulite e compatte */
+  #nav-gioco .nav-bottone .nav-testo {
+    display: none !important;
+  }
+
+  /* Bottone giocatore: logo circolare o capsula con badge G1/G2 */
+  #nav-gioco .nav-bottone[data-azione="giocatore"] {
+    width: auto;
+    min-width: 44px;
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  #nav-gioco .nav-bottone[data-azione="giocatore"] .nav-tag-g {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    color: #1b3650;
+    line-height: 1;
   }
 }
 
@@ -369,6 +431,19 @@ body.smart-tv :focus-visible,
 #nav-gioco .nav-bottone:focus-visible {
   outline: 2.5px solid #00a2e8;
   outline-offset: 2px;
+}
+
+.bes-hc #nav-gioco,
+body.bes-hc #nav-gioco {
+  background: #ffffff !important;
+  border-color: #002244 !important;
+}
+
+.bes-hc #nav-gioco .nav-bottone,
+body.bes-hc #nav-gioco .nav-bottone {
+  background: #ffffff !important;
+  color: #002244 !important;
+  border-color: #002244 !important;
 }
 
 #nav-gioco .nav-testo {
@@ -650,19 +725,7 @@ body.smart-tv :focus-visible,
     grid-column: 1 / -1;
   }
 }
-@media (max-width: 360px) {
-  #nav-gioco {
-    top: calc(env(safe-area-inset-top, 0px) + 6px);
-    left: calc(env(safe-area-inset-left, 0px) + 6px);
-    gap: 6px;
-  }
 
-  #nav-gioco .nav-bottone {
-    min-height: 44px;
-    padding: 0 12px 0 10px;
-    font-size: 15px;
-  }
-}
 
 /* ── Interfaccia Unificata a Tutto Schermo per Display Verticale (#mobile-deck) ──
    Nessuna divisione a metà: un unico schermo Edu Sports Arena con Pico in basso. */

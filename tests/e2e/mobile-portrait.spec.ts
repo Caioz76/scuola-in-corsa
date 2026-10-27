@@ -229,4 +229,49 @@ test.describe('Mobile portrait alignment and typography', () => {
     const progBorder = await progBtn.evaluate((el) => getComputedStyle(el).borderTopColor);
     expect(progBorder).toBe('rgb(0, 162, 232)');
   });
+
+  test('In-game bottom navigation toolbar fits within mobile viewport in portrait', async ({ page }) => {
+    await page.goto('/');
+
+    // Start game
+    await page.locator('#mobile-deck .m-btn-hero').click();
+    // Choose subject (e.g. Matematica)
+    await page.locator('#mobile-deck .m-btn-subject:has-text("Matematica")').click();
+
+    // Verify nav toolbar is visible
+    const nav = page.locator('#nav-gioco');
+    await expect(nav).toBeVisible();
+
+    const navBox = await nav.boundingBox();
+    expect(navBox).not.toBeNull();
+
+    // Nav bar MUST fit inside viewport width (390px)
+    expect(navBox!.x).toBeGreaterThanOrEqual(0);
+    expect(navBox!.x + navBox!.width).toBeLessThanOrEqual(390);
+
+    // All buttons inside #nav-gioco must be fully within viewport
+    const buttons = nav.locator('.nav-bottone');
+    const count = await buttons.count();
+    expect(count).toBeGreaterThanOrEqual(4);
+
+    for (let i = 0; i < count; i++) {
+      const btn = buttons.nth(i);
+      const box = await btn.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+
+      // Verify text label is hidden in portrait (icon-only mode)
+      const testo = btn.locator('.nav-testo');
+      const isVisible = await testo.isVisible();
+      expect(isVisible).toBe(false);
+    }
+
+    // Verify turn banner in Game scene does not expose "Profilo:"
+    const turnBanner = page.locator('#mobile-deck .m-turn-banner');
+    if (await turnBanner.isVisible()) {
+      const bannerText = await turnBanner.textContent();
+      expect(bannerText).not.toContain('Profilo:');
+    }
+  });
 });
