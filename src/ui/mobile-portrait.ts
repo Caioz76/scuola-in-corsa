@@ -122,7 +122,9 @@ function creaBtnDom(item: MobileItem, extraClass = ''): HTMLButtonElement {
   b.type = 'button';
   const st = item.state();
   const en = item.enabled();
-  b.className = `m-btn m-state-${st} ${extraClass}`.trim();
+  const tex = item.texture ? item.texture() : '';
+  const texClass = tex ? `m-${tex}` : '';
+  b.className = `m-btn m-state-${st} ${texClass} ${extraClass}`.trim();
   b.textContent = item.label();
   b.disabled = !en && st === 'disabled';
   b.addEventListener('click', (ev) => {
@@ -316,26 +318,32 @@ function renderTitle(
     '<span class="m-sport-dot" title="Storia">🏛️</span>';
   card.appendChild(iconsRow);
 
-  const info = testi.find((t) => t.text.startsWith('Classe:'));
-  const pill = document.createElement('div');
-  pill.className = 'm-pill';
-  if (info) {
-    pill.textContent = info.text;
+  const riepilogoItem = items.find((i) => i.label().startsWith('Classe:'));
+  if (riepilogoItem) {
+    card.appendChild(creaBtnDom(riepilogoItem, 'm-btn-wide-orange m-pill'));
   } else {
     const s = loadSettings();
     const cfg = resolveConfig(s);
     const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
     const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
     const graficaLabel = s.graphics === '3d' ? '3D' : '2D';
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = 'm-btn m-btn-wide-orange m-pill';
     pill.textContent = `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`;
+    pill.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const impBtn = items.find((i) => i.label().includes('Impostazioni'));
+      impBtn?.trigger();
+    });
+    card.appendChild(pill);
   }
-  card.appendChild(pill);
 
   // Scheda Giocatore / Squadra sempre visibile e accessibile, indipendente dall'icona o dal numero
   const team = getTeamSetup();
   const playerCard = document.createElement('button');
   playerCard.type = 'button';
-  playerCard.className = 'm-btn m-btn-player-select';
+  playerCard.className = 'm-btn m-btn-player-select m-btn-blue';
   const labelNum =
     team.numPlayers === 1 ? 'Personaggio scelto' : `${team.numPlayers} Giocatori in squadra`;
   playerCard.innerHTML = `
@@ -360,7 +368,7 @@ function renderTitle(
       !i.label().includes('Giocator')
   );
   if (gioca) {
-    card.appendChild(creaBtnDom(gioca, 'm-btn-primary m-btn-hero'));
+    card.appendChild(creaBtnDom(gioca, 'm-btn-hero m-btn-green-hero'));
   }
 
   const row = document.createElement('div');
@@ -369,8 +377,8 @@ function renderTitle(
     (i) => i.label() === 'Configura' || i.label() === 'Impostazioni' || i.label().includes('Impostazioni')
   );
   const prog = items.find((i) => i.label() === 'Progressi' || i.label().includes('Progressi'));
-  if (imp) row.appendChild(creaBtnDom(imp, 'm-btn-secondary'));
-  if (prog) row.appendChild(creaBtnDom(prog, 'm-btn-secondary'));
+  if (imp) row.appendChild(creaBtnDom(imp, 'm-btn-red-outline'));
+  if (prog) row.appendChild(creaBtnDom(prog, 'm-btn-blue'));
   card.appendChild(row);
 
   const musica = items.find((i) => i.label().includes('Musica'));

@@ -174,4 +174,44 @@ test.describe('Mobile portrait alignment and typography', () => {
     expect(nameBox!.x).toBeGreaterThanOrEqual(cardBox!.x);
     expect(nameBox!.x + nameBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width + 2);
   });
+
+  test('Title screen main menu buttons have distinct matching border colors', async ({ page }) => {
+    await page.goto('/');
+
+    const riepilogo = page.locator('#mobile-deck .m-pill');
+    await expect(riepilogo).toBeVisible();
+
+    const playerCard = page.locator('#mobile-deck .m-btn-player-select');
+    await expect(playerCard).toBeVisible();
+
+    const giocaBtn = page.locator('#mobile-deck .m-btn-hero');
+    await expect(giocaBtn).toBeVisible();
+
+    const impBtn = page.locator('#mobile-deck button:has-text("Impostazioni")');
+    await expect(impBtn).toBeVisible();
+
+    const progBtn = page.locator('#mobile-deck button:has-text("Progressi")');
+    await expect(progBtn).toBeVisible();
+
+    // Verify border colors
+    // Orange: #ff7a00 -> rgb(255, 122, 0)
+    const riepilogoBorder = await riepilogo.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(riepilogoBorder).toBe('rgb(255, 122, 0)');
+
+    // Blue: #00a2e8 -> rgb(0, 162, 232)
+    const playerBorder = await playerCard.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(playerBorder).toBe('rgb(0, 162, 232)');
+
+    // Green: #16a34a -> rgb(22, 163, 74)
+    const giocaBorder = await giocaBtn.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(giocaBorder).toBe('rgb(22, 163, 74)');
+
+    // Red: #e63946 -> rgb(230, 57, 70)
+    const impBorder = await impBtn.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(impBorder).toBe('rgb(230, 57, 70)');
+
+    // Blue: #00a2e8 -> rgb(0, 162, 232)
+    const progBorder = await progBtn.evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(progBorder).toBe('rgb(0, 162, 232)');
+  });
 });

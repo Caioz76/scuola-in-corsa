@@ -170,6 +170,7 @@ export interface MobileItem {
   y: () => number;
   w?: () => number;
   h?: () => number;
+  texture?: () => string;
   trigger: () => void;
 }
 
@@ -407,6 +408,7 @@ export function makeButton(
     y: () => root.y,
     w: () => BTN_W * s,
     h: () => BTN_H * s,
+    texture: () => (sprite.texture?.key ? sprite.texture.key : initialTex),
     trigger: () => {
       if (enabled && root.active) {
         if (scene.textures.exists('btn-green')) {
