@@ -118,7 +118,7 @@ export function getPlayerSummary(): string {
       return `${p.token.icon} G${p.playerIndex}${prof}`;
     })
     .join(' · ');
-  return `👥 ${setup.numPlayers} Giocatori (${icons})`;
+  return icons;
 }
 
 export function getPlayerName(): string {
@@ -176,7 +176,7 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
             (n) => `
           <button type="button" class="sic-count-btn ${n === currentNum ? 'is-selected' : ''}" data-count="${n}">
             <span class="sic-count-icon">${n === 1 ? '👤' : n === 2 ? '👥' : n === 3 ? '👥👤' : '👥👥'}</span>
-            <span class="sic-count-label">${n} Giocatore${n > 1 ? 'i' : ''}</span>
+            <span class="sic-count-label">${n} ${n === 1 ? 'Giocatore' : 'Giocatori'}</span>
           </button>
         `
           )
@@ -236,8 +236,10 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
               style="--token-color: ${t.color};"
             >
               <span class="sic-token-icon">${t.icon}</span>
-              <span class="sic-token-title">${t.name}</span>
-              <span class="sic-token-desc">${isTakenByOther ? `Preso da G${ownerIdx + 1}` : t.desc}</span>
+              <div class="sic-token-info">
+                <span class="sic-token-title">${t.name}</span>
+                <span class="sic-token-desc">${isTakenByOther ? `Preso da G${ownerIdx + 1}` : t.desc}</span>
+              </div>
             </button>
           `;
         }).join('')}
@@ -314,6 +316,11 @@ export function openPlayerSelectionDialog(onSuccess?: (setup: TeamSetup) => void
   };
 
   overlay.appendChild(modal);
+  overlay.addEventListener('click', (ev) => {
+    if (ev.target === overlay) {
+      chiudi();
+    }
+  });
   document.body.appendChild(overlay);
   renderModalContent();
 

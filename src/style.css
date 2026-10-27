@@ -1094,18 +1094,23 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 #mobile-deck .m-btn-player-select {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   gap: 12px;
-  min-height: 58px;
-  padding: 10px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 60px;
+  padding: 10px 14px;
   background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
   border: 2px solid #00a2e8;
   border-radius: 18px;
   box-shadow: 0 4px 14px rgba(0, 162, 232, 0.16);
   text-align: left;
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 #mobile-deck .m-btn-player-select:hover:not(:disabled) {
@@ -1115,41 +1120,56 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 #mobile-deck .m-player-sel-icon {
-  font-size: calc(28px * var(--m-font-scale, 1));
+  font-size: calc(26px * var(--m-font-scale, 1));
   line-height: 1;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #mobile-deck .m-player-sel-info {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1 1 auto;
   min-width: 0;
+  gap: 3px;
+  text-align: left;
 }
 
 #mobile-deck .m-player-sel-label {
+  display: block;
   font-size: calc(11px * var(--m-font-scale, 1));
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   color: #0077b6;
+  line-height: 1.2;
 }
 
 #mobile-deck .m-player-sel-name {
-  font-size: calc(14.5px * var(--m-font-scale, 1));
+  display: block;
+  font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 800;
   color: #000000;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 #mobile-deck .m-player-sel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: calc(12px * var(--m-font-scale, 1));
   font-weight: 800;
   background: #e0f2fe;
   color: #0284c7;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -1267,12 +1287,8 @@ body[data-scena="Game"] #mobile-deck {
 #mobile-deck .m-toggle-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 52vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-right: 4px;
+  gap: 8px;
+  width: 100%;
 }
 
 #mobile-deck .m-toggle-row {
@@ -1280,9 +1296,9 @@ body[data-scena="Game"] #mobile-deck {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-height: 44px;
-  padding: 8px 14px;
-  border-radius: 999px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 18px;
   border: 2px solid #7ab8df;
   background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
   font-family: inherit;
@@ -1292,6 +1308,7 @@ body[data-scena="Game"] #mobile-deck {
   text-align: left;
   cursor: pointer;
   box-shadow: inset 0 1px 0 #ffffff;
+  box-sizing: border-box;
 }
 
 #mobile-deck .m-toggle-row.is-on {
@@ -1300,12 +1317,13 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 #mobile-deck .m-toggle-badge {
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
   background: #e3effa;
   color: #496682;
+  flex-shrink: 0;
 }
 
 #mobile-deck .m-toggle-row.is-on .m-toggle-badge {
@@ -1316,12 +1334,8 @@ body[data-scena="Game"] #mobile-deck {
 #mobile-deck .m-progress-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 52vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  padding-right: 4px;
+  gap: 8px;
+  width: 100%;
 }
 
 #mobile-deck .m-progress-row {
@@ -1329,13 +1343,14 @@ body[data-scena="Game"] #mobile-deck {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  padding: 10px 14px;
+  border-radius: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #eef8ff 100%);
   border: 1.5px solid #93d2f7;
   font-size: calc(13px * var(--m-font-scale, 1));
   font-weight: 700;
   color: #1b3650;
+  box-sizing: border-box;
 }
 
 #mobile-deck .m-prog-stars {
@@ -1501,18 +1516,19 @@ body[data-scena="Game"] #mobile-deck {
 /* ── Selezione Squadra e Personaggi Monopoli (1..4 Giocatori) ── */
 .sic-team-card {
   max-width: 520px;
-  max-height: 92vh;
+  max-height: 90vh;
+  max-height: calc(100dvh - 36px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  padding: 22px 18px;
+  padding: 20px 16px;
 }
 
 .sic-players-count-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .sic-count-btn {
@@ -1520,7 +1536,7 @@ body[data-scena="Game"] #mobile-deck {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   padding: 8px 4px;
   border: 2px solid #bce1f7;
   border-radius: 14px;
@@ -1528,6 +1544,8 @@ body[data-scena="Game"] #mobile-deck {
   cursor: pointer;
   touch-action: manipulation;
   transition: all 0.15s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .sic-count-btn.is-selected {
@@ -1538,13 +1556,16 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 .sic-count-icon {
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .sic-count-label {
   font-size: 11px;
   font-weight: 800;
   color: #0a2540;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .sic-slots-row {
@@ -1561,15 +1582,16 @@ body[data-scena="Game"] #mobile-deck {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 8px 12px 6px;
+  padding: 8px 10px 6px;
   border: 2.5px solid #00a2e8;
   border-radius: 16px;
   background: #ffffff;
   cursor: pointer;
   touch-action: manipulation;
-  min-width: 90px;
+  min-width: 82px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .sic-slot-card.is-editing {
@@ -1591,8 +1613,9 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 .sic-slot-icon {
-  font-size: 26px;
+  font-size: 24px;
   margin-top: 2px;
+  line-height: 1;
 }
 
 .sic-slot-name {
@@ -1632,7 +1655,7 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 .sic-profile-select {
-  padding: 6px 10px;
+  padding: 7px 10px;
   font-size: 13px;
   font-weight: 700;
   color: #000000;
@@ -1641,6 +1664,8 @@ body[data-scena="Game"] #mobile-deck {
   border-radius: 8px;
   cursor: pointer;
   outline: none;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .sic-token-picker-header {
@@ -1653,20 +1678,22 @@ body[data-scena="Game"] #mobile-deck {
 
 .sic-tokens-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   max-height: 38vh;
+  max-height: 38dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   padding: 4px;
+  box-sizing: border-box;
 }
 
 .sic-token-choice {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 6px;
+  padding: 7px 8px;
   border: 2px solid #d9e6f2;
   border-radius: 14px;
   background: #ffffff;
@@ -1674,6 +1701,8 @@ body[data-scena="Game"] #mobile-deck {
   cursor: pointer;
   touch-action: manipulation;
   transition: all 0.12s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .sic-token-choice.is-active {
@@ -1691,20 +1720,39 @@ body[data-scena="Game"] #mobile-deck {
 }
 
 .sic-token-icon {
-  font-size: 28px;
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sic-token-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .sic-token-title {
   display: block;
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 800;
   color: #0a2540;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sic-token-desc {
   display: block;
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: #627d98;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes sic-fade-in {

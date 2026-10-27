@@ -15,7 +15,7 @@
  */
 import type Phaser from 'phaser';
 import { getMobileItems, type MobileItem } from '../challenges/ui';
-import { resolveConfig } from '../bes/resolver';
+import { resolveConfig, ANNO_BY_ID } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
 import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
 import {
@@ -317,12 +317,19 @@ function renderTitle(
   card.appendChild(iconsRow);
 
   const info = testi.find((t) => t.text.startsWith('Classe:'));
+  const pill = document.createElement('div');
+  pill.className = 'm-pill';
   if (info) {
-    const pill = document.createElement('div');
-    pill.className = 'm-pill';
     pill.textContent = info.text;
-    card.appendChild(pill);
+  } else {
+    const s = loadSettings();
+    const cfg = resolveConfig(s);
+    const infoAnno = ANNO_BY_ID.get(cfg.schoolYear);
+    const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
+    const graficaLabel = s.graphics === '3d' ? '3D' : '2D';
+    pill.textContent = `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`;
   }
+  card.appendChild(pill);
 
   // Scheda Giocatore / Squadra sempre visibile e accessibile, indipendente dall'icona o dal numero
   const team = getTeamSetup();
@@ -333,10 +340,10 @@ function renderTitle(
     team.numPlayers === 1 ? 'Personaggio scelto' : `${team.numPlayers} Giocatori in squadra`;
   playerCard.innerHTML = `
     <span class="m-player-sel-icon">${team.numPlayers === 1 ? team.players[0].token.icon : '👥'}</span>
-    <span class="m-player-sel-info">
+    <div class="m-player-sel-info">
       <span class="m-player-sel-label">${labelNum}</span>
-      <span class="m-player-sel-name">${getPlayerSummary()}</span>
-    </span>
+      <span class="m-player-sel-name" title="${getPlayerSummary()}">${getPlayerSummary()}</span>
+    </div>
     <span class="m-player-sel-badge">Scegli ➔</span>
   `;
   playerCard.addEventListener('click', (ev) => {
@@ -347,7 +354,11 @@ function renderTitle(
   });
   card.appendChild(playerCard);
 
-  const gioca = items.find((i) => i.label() === 'Gioca' || i.label().includes('Gioca'));
+  const gioca = items.find(
+    (i) =>
+      (i.label().trim() === 'Gioca' || /^▶?\s*Gioca!?$/i.test(i.label().trim())) &&
+      !i.label().includes('Giocator')
+  );
   if (gioca) {
     card.appendChild(creaBtnDom(gioca, 'm-btn-primary m-btn-hero'));
   }

@@ -3,7 +3,7 @@ import { GAME_NAME, GAME_PAYOFF } from '../core/constants';
 import { makeButton, makeText } from '../challenges/ui';
 import { ANNO_BY_ID, resolveConfig } from '../bes/resolver';
 import { loadSettings } from '../core/settings';
-import { getPlayerSummary, openPlayerSelectionDialog } from '../core/player';
+import { getPlayerSummary, openPlayerSelectionDialog, getTeamSetup } from '../core/player';
 import { addWorld } from '../art/world';
 import { add3DWorld } from '../art/three-world';
 import { toggleFullscreen } from '../ui/fullscreen';
@@ -179,12 +179,19 @@ export class TitleScene extends Phaser.Scene {
     const riga2Y = 368;
 
     // ── Riga 1, Colonna Sinistra: Selezione Squadra / Giocatori (Contorno Azzurro) ──
+    const getBtnGiocatoriLabel = () => {
+      const team = getTeamSetup();
+      return team.numPlayers === 1
+        ? getPlayerSummary()
+        : `👥 ${team.numPlayers} Giocatori (${getPlayerSummary()})`;
+    };
+
     const btnGiocatori = makeButton(
       this,
       cfg,
       colSinistraX,
       riga1Y,
-      getPlayerSummary(),
+      getBtnGiocatoriLabel(),
       {
         texture: 'btn-blue',
         scale: 0.92,
@@ -194,7 +201,7 @@ export class TitleScene extends Phaser.Scene {
     );
 
     const aggiornaProfiloUI = () => {
-      btnGiocatori.setLabel(getPlayerSummary());
+      btnGiocatori.setLabel(getBtnGiocatoriLabel());
     };
 
     btnGiocatori.onTap(() => {
