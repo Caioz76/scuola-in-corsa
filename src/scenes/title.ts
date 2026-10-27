@@ -57,19 +57,13 @@ export class TitleScene extends Phaser.Scene {
 
       // Filetto divisorio Azzurro Sport sotto il titolo
       card.lineStyle(2.5, 0x00a2e8, 0.55);
-      card.lineBetween(w / 2 - 240, 196, w / 2 + 240, 196);
+      card.lineBetween(w / 2 - 240, 186, w / 2 + 240, 186);
 
       // Doppia cornice luminosa Azzurro Sport (#00a2e8) + bianco speculare
       card.lineStyle(3.5, 0x00a2e8, 0.85);
       card.strokeRoundedRect(w / 2 - 310, 72, 620, 430, 30);
       card.lineStyle(2, 0xffffff, 0.98);
       card.strokeRoundedRect(w / 2 - 305, 77, 610, 420, 27);
-
-      // Pillola informativa stile canale Sport sotto il sottotitolo
-      card.fillStyle(0xe8f6ff, 0.98);
-      card.fillRoundedRect(w / 2 - 244, 203, 488, 32, 16);
-      card.lineStyle(2, 0x00a2e8, 0.85);
-      card.strokeRoundedRect(w / 2 - 244, 203, 488, 32, 16);
 
       // Badge delle 4 materie ai lati della card (medaglioni lucidi Sport)
       const badges: Array<{ icon: string; x: number; y: number; ring: number; bg: number }> = [
@@ -110,8 +104,8 @@ export class TitleScene extends Phaser.Scene {
       const stars: Array<{ x: number; y: number; s: number; a: number }> = [
         { x: w / 2 - 252, y: 146, s: 0.48, a: -0.18 },
         { x: w / 2 + 252, y: 146, s: 0.48, a: 0.18 },
-        { x: w / 2 - 224, y: 214, s: 0.34, a: 0.12 },
-        { x: w / 2 + 224, y: 214, s: 0.34, a: -0.12 }
+        { x: w / 2 - 264, y: 182, s: 0.34, a: 0.12 },
+        { x: w / 2 + 264, y: 182, s: 0.34, a: -0.12 }
       ];
       stars.forEach((st, idx) => {
         const starImg = this.add
@@ -145,7 +139,7 @@ export class TitleScene extends Phaser.Scene {
       maxH: 52
     });
 
-    makeText(this, w / 2, 168, GAME_PAYOFF, cfg, {
+    makeText(this, w / 2, 166, GAME_PAYOFF, cfg, {
       size: 16.5,
       bold: true,
       color: '#1e293b',
@@ -157,31 +151,44 @@ export class TitleScene extends Phaser.Scene {
     const labelAnno = infoAnno ? infoAnno.label : cfg.schoolYear;
     const graficaLabel = (settings.graphics === '3d' ? '3D' : '2D');
 
-    makeText(
+    // ── Bottone di Riepilogo a tutta larghezza (Contorno Arancione) ──
+    const btnRiepilogo = makeButton(
       this,
-      w / 2,
-      219,
-      `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`,
       cfg,
+      w / 2,
+      214,
+      `Classe: ${labelAnno}  ·  Grafica: ${graficaLabel}`,
       {
-        size: 13.5,
-        bold: true,
-        color: '#000000',
-        wrap: 468,
-        maxH: 22
+        texture: 'btn-wide-orange',
+        w: 496,
+        h: 44,
+        scale: 1.0,
+        maxTargetScale: 1.02,
+        depth: 50
       }
     );
+    btnRiepilogo.onTap(() => {
+      synth.play('click');
+      this.scene.start('Settings');
+    });
 
-    // ── Selezione Squadra / Personaggi Monopoli (1..4 Giocatori) ──
+    // ── Geometria Griglia a 2 Colonne ──
+    const colSinistraX = 384;
+    const colDestraX = 640;
+    const riga1Y = 282;
+    const riga2Y = 368;
+
+    // ── Riga 1, Colonna Sinistra: Selezione Squadra / Giocatori (Contorno Azzurro) ──
     const btnGiocatori = makeButton(
       this,
       cfg,
-      w / 2,
-      258,
+      colSinistraX,
+      riga1Y,
       getPlayerSummary(),
       {
-        scale: 0.84,
-        maxTargetScale: 1.02,
+        texture: 'btn-blue',
+        scale: 0.92,
+        maxTargetScale: 1.03,
         depth: 50
       }
     );
@@ -197,38 +204,75 @@ export class TitleScene extends Phaser.Scene {
       });
     });
 
-    // ── 1. Scelta Principale: GIOCA ──
-    const gioca = makeButton(this, cfg, w / 2, 348, 'Gioca', {
-      scale: 1.0,
-      maxTargetScale: 1.04,
-      depth: 50
-    });
-    gioca.onTap(() => {
-      synth.play('start');
-      this.scene.start('Subject');
+    // ── Riga 1, Colonna Destra: Progressi e Stelle (Contorno Azzurro) ──
+    const progressi = makeButton(
+      this,
+      cfg,
+      colDestraX,
+      riga1Y,
+      '🏆 Progressi e Stelle',
+      {
+        texture: 'btn-blue',
+        scale: 0.92,
+        maxTargetScale: 1.03,
+        depth: 50
+      }
+    );
+    progressi.onTap(() => {
+      synth.play('click');
+      this.scene.start('Progress');
     });
 
-    // ── 2. Scelta Principale: Impostazioni ──
-    const configura = makeButton(this, cfg, w / 2, 414, 'Impostazioni', {
-      scale: 0.84,
-      maxTargetScale: 1.03,
-      depth: 50
-    });
+    // ── Riga 2, Colonna Sinistra: Impostazioni / Configurazione (Contorno Rosso) ──
+    const configura = makeButton(
+      this,
+      cfg,
+      colSinistraX,
+      riga2Y,
+      'Impostazioni',
+      {
+        texture: 'btn-red-outline',
+        scale: 0.92,
+        maxTargetScale: 1.03,
+        depth: 50
+      }
+    );
     configura.onTap(() => {
       synth.play('click');
       this.scene.start('Settings');
     });
 
-    // ── 3. Progressi e Stelle ──
-    const progressi = makeButton(this, cfg, w / 2, 470, '🏆 Progressi e Stelle', {
-      scale: 0.80,
-      maxTargetScale: 1.03,
-      depth: 50
+    // ── Riga 2, Colonna Destra: GIOCA (Contorno Verde - Evidenziato Hero) ──
+    const gioca = makeButton(
+      this,
+      cfg,
+      colDestraX,
+      riga2Y,
+      'Gioca',
+      {
+        texture: 'btn-green-hero',
+        scale: 1.0,
+        maxTargetScale: 1.04,
+        depth: 50
+      }
+    );
+    gioca.onTap(() => {
+      synth.play('start');
+      this.scene.start('Subject');
     });
-    progressi.onTap(() => {
-      synth.play('click');
-      this.scene.start('Progress');
-    });
+
+    // Evidenziazione dinamica pulsante Gioca
+    if (animato) {
+      this.tweens.add({
+        targets: gioca.root,
+        scaleX: 1.035,
+        scaleY: 1.035,
+        duration: 1100,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    }
 
     // ── Musica 8-Bit (Anni '80 Arcade) ON / OFF ──
     const btnMusica = makeButton(

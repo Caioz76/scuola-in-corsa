@@ -138,7 +138,7 @@ test('con "schermata pulita" niente scenografia, ma la pista resta', async ({ pa
 test('risposta giusta: Pico salta (il mondo reagisce alla prova)', async ({ page }) => {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
-  await tocco(page, 512, 358); // Gioca
+  await tocco(page, 640, 368); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
   await tocco(page, 322, 248); // Matematica
   await expect.poll(() => scena(page)).toBe('Game');

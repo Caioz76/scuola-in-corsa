@@ -100,7 +100,7 @@ test('prova immagine: l\'icona vecchia sparisce quando cambia la domanda', async
   });
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
-  await tocco(page, 512, 358); // Gioca
+  await tocco(page, 640, 368); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
   await tocco(page, 322, 368, 200); // Scienze
   await expect.poll(() => scena(page)).toBe('Game');

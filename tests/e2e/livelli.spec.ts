@@ -60,7 +60,7 @@ test('dalla schermata tappe si gioca direttamente la seconda', async ({ page }) 
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
 
-  await tocco(page, 512, 358); // Gioca
+  await tocco(page, 640, 368); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
   expect((await testi(page)).map((t) => t.text)).toContain('Tutte le tappe');
 

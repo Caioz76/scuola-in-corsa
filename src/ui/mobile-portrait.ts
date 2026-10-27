@@ -339,14 +339,16 @@ function renderTitle(
   });
   card.appendChild(playerCard);
 
-  const gioca = items.find((i) => i.label() === 'Gioca');
+  const gioca = items.find((i) => i.label() === 'Gioca' || i.label().includes('Gioca'));
   if (gioca) {
     card.appendChild(creaBtnDom(gioca, 'm-btn-primary m-btn-hero'));
   }
 
   const row = document.createElement('div');
   row.className = 'm-grid-2';
-  const imp = items.find((i) => i.label() === 'Configura' || i.label() === 'Impostazioni');
+  const imp = items.find(
+    (i) => i.label() === 'Configura' || i.label() === 'Impostazioni' || i.label().includes('Impostazioni')
+  );
   const prog = items.find((i) => i.label() === 'Progressi' || i.label().includes('Progressi'));
   if (imp) row.appendChild(creaBtnDom(imp, 'm-btn-secondary'));
   if (prog) row.appendChild(creaBtnDom(prog, 'm-btn-secondary'));

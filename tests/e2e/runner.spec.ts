@@ -167,7 +167,7 @@ async function attendiFermata(page: Page): Promise<void> {
 async function avviaMatematica(page: Page): Promise<void> {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
-  await tocco(page, 512, 358); // Gioca
+  await tocco(page, 640, 368); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
   await tocco(page, 322, 248, 120); // Matematica (senza perdere l'avvicinamento)
   await expect.poll(() => scena(page)).toBe('Game');
@@ -270,7 +270,7 @@ test.describe('Modalità Runner', () => {
     expect(s.mode).toBe('runner');
 
     // Tocco Impostazioni
-    await tocco(page, 512, 408);
+    await tocco(page, 384, 368);
     await expect.poll(() => scena(page)).toBe('Settings');
 
     // Cambiare profilo non perde la modalità runner
@@ -285,7 +285,7 @@ test.describe('Modalità Runner', () => {
     await page.goto('/');
     await expect.poll(() => scena(page)).toBe('Title');
 
-    await tocco(page, 512, 408); // Impostazioni
+    await tocco(page, 384, 368); // Impostazioni
     await expect.poll(() => scena(page)).toBe('Settings');
 
     // Apre Ramo Gioco & Grafica

@@ -65,7 +65,7 @@ test('le stelle salvate compaiono nella schermata Progressi', async ({ page }) =
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
 
-  await tocco(page, 512, 468); // Progressi e Stelle
+  await tocco(page, 640, 282); // Progressi e Stelle
   await expect.poll(() => scena(page)).toBe('Progress');
 
   const etichette = await testi(page);

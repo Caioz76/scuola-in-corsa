@@ -57,7 +57,7 @@ test.describe('Flusso di gioco', () => {
 
     // 1. Titolo → bottone "Gioca"
     await expect.poll(async () => (await statoGioco(page)).scena).toBe('Title');
-    await tocco(page, 512, 358);
+    await tocco(page, 640, 368);
     await expect.poll(async () => (await statoGioco(page)).scena).toBe('Subject');
 
     // 2. Scelta materia → "Matematica" (prima riga, colonna sinistra)

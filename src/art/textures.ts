@@ -29,16 +29,25 @@ function button(
   midColor: string,
   botColor: string,
   borderColor: string,
-  stripeRgba: string
+  stripeRgba: string,
+  hero = false
 ): void {
   const r = h / 2.08;
+  // Se hero, alone luminoso esterno verde/smeraldo per evidenziare il bottone
+  if (hero) {
+    ctx.fillStyle = 'rgba(45, 199, 102, 0.35)';
+    ctx.beginPath(); ctx.roundRect(0, 0, w, h - 2, r + 2); ctx.fill();
+    ctx.fillStyle = 'rgba(45, 199, 102, 0.18)';
+    ctx.beginPath(); ctx.roundRect(-2, -2, w + 4, h + 2, r + 4); ctx.fill();
+  }
+
   // Ombra morbida azzurra/ardesia sotto la capsula
   ctx.fillStyle = 'rgba(15, 65, 110, 0.16)';
   ctx.beginPath(); ctx.roundRect(4, 9, w - 8, h - 11, r); ctx.fill();
-  ctx.fillStyle = 'rgba(0, 162, 232, 0.12)';
+  ctx.fillStyle = hero ? 'rgba(34, 197, 94, 0.20)' : 'rgba(0, 162, 232, 0.12)';
   ctx.beginPath(); ctx.roundRect(2, 6, w - 4, h - 8, r); ctx.fill();
 
-  // Bordo esterno spesso e luminoso stile Sport
+  // Bordo esterno spesso e luminoso stile Sport (contorno colorato)
   ctx.fillStyle = borderColor;
   ctx.beginPath(); ctx.roundRect(2, 2, w - 4, h - 8, r); ctx.fill();
 
@@ -399,6 +408,18 @@ export function ensureUI(scene: Phaser.Scene): void {
   // btn-blue: l'iconico bottone principale Sport (bianco-porcellana + bordo Azzurro Sport #00a2e8)
   make('btn-blue', 260, 52, (ctx) =>
     button(ctx, 260, 52, '#ffffff', '#eaf6ff', '#d0ebff', '#00a2e8', 'rgba(0, 162, 232, 0.045)')
+  );
+  // btn-wide-orange: bottone lungo di riepilogo a 2 colonne (bordo Arancione Sport #ff7a00)
+  make('btn-wide-orange', 496, 44, (ctx) =>
+    button(ctx, 496, 44, '#ffffff', '#fff9f0', '#ffeed4', '#ff7a00', 'rgba(255, 122, 0, 0.05)')
+  );
+  // btn-red-outline: impostazioni / configurazione (bianco-porcellana + contorno rosso vivo #e63946)
+  make('btn-red-outline', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#ffffff', '#fff5f5', '#ffe5e5', '#e63946', 'rgba(230, 57, 70, 0.05)')
+  );
+  // btn-green-hero: bottone "Gioca" evidenziato (bianco-porcellana + contorno verde vivo #16a34a ed effetto hero)
+  make('btn-green-hero', 260, 52, (ctx) =>
+    button(ctx, 260, 52, '#ffffff', '#f0fdf4', '#dcfce7', '#16a34a', 'rgba(22, 163, 74, 0.06)', true)
   );
   // btn-green: attivo / risposta corretta (verde energico e solido ad altissimo contrasto)
   make('btn-green', 260, 52, (ctx) =>

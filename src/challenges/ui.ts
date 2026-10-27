@@ -306,7 +306,14 @@ export function makeButton(
   x: number,
   y: number,
   label: string,
-  o: { w?: number; scale?: number; maxTargetScale?: number; depth?: number } = {}
+  o: {
+    w?: number;
+    h?: number;
+    scale?: number;
+    maxTargetScale?: number;
+    depth?: number;
+    texture?: string;
+  } = {}
 ): Btn {
   const k = o.scale ?? 1;
   // Nelle griglie fitte (scale < 0.85) limitiamo automaticamente l'espansione di targetScale
@@ -314,10 +321,13 @@ export function makeButton(
   const defaultMaxTs = k < 0.65 ? 1.03 : k < 0.88 ? 1.06 : 1.22;
   const ts = Math.min(cfg.targetScale, o.maxTargetScale ?? defaultMaxTs);
   const s = ts * k;
-  const sprite = scene.add.sprite(0, 0, 'btn-blue').setScale(s);
+  const initialTex = o.texture ?? 'btn-blue';
+  const sprite = scene.add.sprite(0, 0, initialTex).setScale(s);
   const spec = fontSpec(cfg);
-  const boxW = Math.max(48, (BTN_W - 24) * s);
-  const boxH = Math.max(16, (BTN_H - 10) * s);
+  const baseW = o.w ?? (sprite.width > 0 ? sprite.width : BTN_W);
+  const baseH = o.h ?? (sprite.height > 0 ? sprite.height : BTN_H);
+  const boxW = Math.max(48, (baseW - 24) * s);
+  const boxH = Math.max(16, (baseH - 10) * s);
   const baseFontPx = Math.max(12, Math.round(18 * cfg.fontScale * k));
   const text = scene.add.text(0, 0, label, {
     fontFamily: spec.family,
@@ -346,7 +356,7 @@ export function makeButton(
   const tapCallbacks: Array<() => void> = [];
 
   const updateVisualState = () => {
-    const texKey = KIND_TEX[currentKind] ?? 'btn-blue';
+    const texKey = currentKind === 'normal' ? initialTex : (KIND_TEX[currentKind] ?? initialTex);
     if (scene.textures.exists(texKey)) sprite.setTexture(texKey);
     if (currentKind === 'disabled' || currentKind === 'unselected') {
       text.setStyle({ color: '#475569', stroke: 'transparent', strokeThickness: 0 });

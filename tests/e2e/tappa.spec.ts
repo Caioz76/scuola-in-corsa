@@ -112,7 +112,7 @@ test.describe('Tappa completa', () => {
 
     // ── Titolo → materia
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
-    await tocco(page, 512, 358);
+    await tocco(page, 640, 368);
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     await tocco(page, 322, 248);
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
@@ -251,7 +251,7 @@ test.describe('Tappa completa', () => {
     // ── Le stelle sopravvivono al ritorno alla scelta materia
     await page.goto('/');
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
-    await tocco(page, 512, 358); // "Gioca"
+    await tocco(page, 640, 368); // "Gioca"
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     expect((await testi(page)).map((t) => t.text)).toContain('★ 3 / 3');
   });

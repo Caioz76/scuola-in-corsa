@@ -63,7 +63,7 @@ async function tocco(page: Page, x: number, y: number, attesa = 600): Promise<vo
 async function vaiAllaPrimaTappa(page: Page): Promise<void> {
   await page.goto('/');
   await expect.poll(() => scena(page)).toBe('Title');
-  await tocco(page, 512, 358); // Gioca
+  await tocco(page, 640, 368); // Gioca
   await expect.poll(() => scena(page)).toBe('Subject');
   await tocco(page, 872, 44); // Tutte le tappe
   await expect.poll(() => scena(page)).toBe('Levels');

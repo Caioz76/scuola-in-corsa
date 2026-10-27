@@ -144,7 +144,7 @@ test('accendo "Pausa quando serve" senza profilo e la regola agisce davvero', as
   // Il titolo può comparire un attimo prima che i bottoni rispondano: se il
   // tocco cade nel vuoto si riprova, invece di dichiarare fallito il gioco.
   for (let i = 0; i < 3 && (await scena(page)) === 'Title'; i++) {
-    await tocco(page, 512, 358); // Gioca
+    await tocco(page, 640, 368); // Gioca
   }
   await expect.poll(() => scena(page)).toBe('Subject');
   for (let i = 0; i < 3 && (await scena(page)) === 'Subject'; i++) {

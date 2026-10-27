@@ -99,7 +99,7 @@ test.describe('Impostazioni BES', () => {
     // ── Torno al titolo e gioco: `fewerOptions` deve mostrare 2 opzioni
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
-    await tocco(page, 512, 358); // Gioca
+    await tocco(page, 640, 368); // Gioca
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     await tocco(page, 322, 248); // Matematica
     await expect.poll(async () => (await stato(page)).scena).toBe('Game');
@@ -161,7 +161,7 @@ test.describe('Impostazioni BES', () => {
     }
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
-    await tocco(page, 512, 358); // Gioca
+    await tocco(page, 640, 368); // Gioca
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     expect((await testi(page)).some((t) => t.text.includes('2ª Secondaria'))).toBe(true);
   });
@@ -262,7 +262,7 @@ test.describe('Impostazioni BES', () => {
     expect(await toccaTesto(page, 'Torna al titolo')).toBe(true);
     await expect.poll(async () => (await stato(page)).scena).toBe('Title');
 
-    await tocco(page, 512, 358); // Gioca
+    await tocco(page, 640, 368); // Gioca
     await expect.poll(async () => (await stato(page)).scena).toBe('Subject');
     await verificaNessunaSovrapposizione('Subject');
 
